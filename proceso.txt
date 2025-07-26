@@ -1,0 +1,27 @@
+✅ Resumen del flujo completo:
+
+1️⃣ Webhook
+Recibe preguntas o solicitudes del usuario vía chatbot.
+
+2️⃣ Llama a APIs Python (cada una expuesta como microservicio Docker):
+
+/sentiment-analysis → text mining sobre titulares y noticias.
+
+/technical-analysis → indicadores como RSI, MACD, medias móviles, etc.
+
+/fundamental-analysis → ratios financieros (PER, ROE, etc.).
+
+/portfolio-optimization → genera pesos óptimos para la cartera.
+
+3️⃣ Almacena resultados:
+
+PostgreSQL → tabla con predicciones, indicadores técnicos, ratios fundamentales y optimización de cartera.
+
+MongoDB → logs, imágenes, vídeos y otros datos no estructurados generados durante el análisis.
+
+4️⃣ Notificación por Email:
+Envía resumen rápido del nuevo análisis (predicciones, sentimiento, indicadores, ratios, recomendación, pesos óptimos).
+
+5️⃣ Chatbot consulta la base de datos (PostgreSQL) → devuelve resumen al usuario (últimos resultados, gráficos, etc.).
+
+6️⃣ Tableau → se conecta directamente a PostgreSQL y MongoDB para generar dashboards dinámicos e interactivos.
