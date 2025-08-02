@@ -29,7 +29,9 @@ def extraer_titulares(snapshot_url, fecha_str):
             titulares.append({
                 "fecha": fecha_str,
                 "titular": texto,
-                "url_archivo": snapshot_url
+                "url_archivo": snapshot_url,
+                "fuente": "BBC",
+                "idioma": "en"
             })
     return titulares
 
