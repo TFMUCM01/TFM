@@ -46,21 +46,22 @@ def subir_a_snowflake(df, config):
     try:
         tabla_completa = f"{config['database']}.{config['schema']}.{config['table']}"
 
-        # Crear la tabla si no existe
+        # Crear tabla con columnas adicionales
         cs.execute(f"""
             CREATE TABLE IF NOT EXISTS {tabla_completa} (
                 fecha STRING,
                 titular STRING,
-                url_archivo STRING
+                url_archivo STRING,
+                fuente STRING,
+                idioma STRING
             );
         """)
 
-        # Insertar registros
         for _, row in df.iterrows():
             cs.execute(f"""
-                INSERT INTO {tabla_completa} (fecha, titular, url_archivo)
-                VALUES (%s, %s, %s)
-            """, (row['fecha'], row['titular'], row['url_archivo']))
+                INSERT INTO {tabla_completa} (fecha, titular, url_archivo, fuente, idioma)
+                VALUES (%s, %s, %s, %s, %s)
+            """, (row['fecha'], row['titular'], row['url_archivo'], row['fuente'], row['idioma']))
 
         print(f"✅ {len(df)} filas insertadas en Snowflake.")
     finally:
