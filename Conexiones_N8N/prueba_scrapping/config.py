@@ -15,7 +15,7 @@ SLEEP_BETWEEN_DIAS = 2
 SNOWFLAKE_CONFIG = {
     'user': 'tfmgrupo4',
     'password': 'TFMgrupo4ucm01_01#',
-    'account': 'WYNIFVB-YE01854.snowflakecomputing.com',          # ejemplo: xy12345.eu-central-1
+    'account': 'WYNIFVB-YE01854',          # ejemplo: xy12345.eu-central-1
     'warehouse': 'TFM_WH',
     'database': 'TFM',
     'schema': 'SCRAPING',
