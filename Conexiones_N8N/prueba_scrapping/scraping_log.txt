@@ -1,2 +1,3 @@
 2025-08-02 16:01:49.725416 - No snapshot para 20250801
 2025-08-02 16:01:57.499962 - No snapshot para 20250802
+2025-08-02 16:07:57.132955 - Error leyendo CSV existente: No columns to parse from file
