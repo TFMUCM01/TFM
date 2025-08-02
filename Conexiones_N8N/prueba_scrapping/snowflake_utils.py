@@ -16,17 +16,23 @@ def subir_a_snowflake(df, config):
     )
     cs = ctx.cursor()
     try:
+        # Establece el contexto
+        cs.execute(f"USE DATABASE {config['database']}")
+        cs.execute(f"USE SCHEMA {config['schema']}")
+
+        # Crea la tabla si no existe
         cs.execute(f"""
-            CREATE TABLE IF NOT EXISTS {config['table']} (
+            CREATE TABLE IF NOT EXISTS {config['database']}.{config['schema']}.{config['table']} (
                 fecha STRING,
                 titular STRING,
                 url_archivo STRING
             );
         """)
 
+        # Inserta datos nuevos
         for _, row in df.iterrows():
             cs.execute(f"""
-                INSERT INTO {config['table']} (fecha, titular, url_archivo)
+                INSERT INTO {config['database']}.{config['schema']}.{config['table']} (fecha, titular, url_archivo)
                 VALUES (%s, %s, %s)
             """, (row['fecha'], row['titular'], row['url_archivo']))
 
