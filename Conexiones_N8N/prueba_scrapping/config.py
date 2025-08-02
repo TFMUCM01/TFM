@@ -1,9 +1,3 @@
-from datetime import datetime
-
-# Rango de fechas (ajústalo para testear primero)
-FECHA_INICIO = datetime.strptime("20250725", "%Y%m%d")
-FECHA_FIN = datetime.strptime("20250727", "%Y%m%d")
-
 BBC_URL = "https://www.bbc.com/news"
 
 WAYBACK_TIMEOUT = 30

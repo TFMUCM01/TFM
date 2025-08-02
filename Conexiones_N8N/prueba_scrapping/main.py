@@ -1,38 +1,41 @@
-from datetime import timedelta
+# main.py
+
+from datetime import datetime, timedelta
 import pandas as pd
 import os
 import time
 
 from config import *
 from scraper import obtener_snapshot_url, extraer_titulares, log_error
-from snowflake_utils import subir_a_snowflake
+from snowflake_utils import subir_a_snowflake, obtener_ultima_fecha_en_snowflake
+
+# Fechas dinámicas
+FECHA_INICIO = obtener_ultima_fecha_en_snowflake(SNOWFLAKE_CONFIG)
+FECHA_FIN = datetime.today()
+
+print(f"📆 Fecha de inicio: {FECHA_INICIO.strftime('%Y-%m-%d')}")
+print(f"📆 Fecha de fin:    {FECHA_FIN.strftime('%Y-%m-%d')}")
 
 resultados = []
 fecha = FECHA_INICIO
 
-# Verificar si existe un CSV válido y cargarlo
+# Cargar CSV si existe
 if os.path.exists("bbc_news_2025.csv") and os.path.getsize("bbc_news_2025.csv") > 0:
-    try:
-        df_existente = pd.read_csv("bbc_news_2025.csv")
-        fechas_procesadas = set(df_existente['fecha'])
-        print(f"📁 Archivo existente con {len(df_existente)} titulares.")
-    except Exception as e:
-        log_error(f"Error leyendo CSV existente: {e}")
-        df_existente = pd.DataFrame()
-        fechas_procesadas = set()
+    df_existente = pd.read_csv("bbc_news_2025.csv")
+    fechas_procesadas = set(df_existente['fecha'])
 else:
     df_existente = pd.DataFrame()
     fechas_procesadas = set()
 
-# Scraping por fecha
+# Loop por días
 while fecha <= FECHA_FIN:
     fecha_str = fecha.strftime("%Y%m%d")
     if fecha_str in fechas_procesadas:
-        print(f"⏩ {fecha_str} ya procesado, se omite.")
+        print(f"⏩ {fecha_str} ya procesado.")
         fecha += timedelta(days=1)
         continue
 
-    print(f"📆 Procesando {fecha_str}...")
+    print(f"🔍 Procesando {fecha_str}...")
     success = False
     for intento in range(RETRIES):
         try:
@@ -42,12 +45,12 @@ while fecha <= FECHA_FIN:
                 if titulares:
                     print(f"✅ {len(titulares)} titulares encontrados.")
                 else:
-                    print("⚠️ Snapshot encontrado pero sin titulares.")
+                    print("⚠️ Snapshot sin titulares.")
                 resultados.extend(titulares)
                 success = True
                 break
             else:
-                print(f"⚠️ No hay snapshot disponible para {fecha_str}")
+                print(f"⚠️ No hay snapshot para {fecha_str}")
                 success = True
                 break
         except Exception as e:
@@ -55,19 +58,17 @@ while fecha <= FECHA_FIN:
             time.sleep(3)
 
     if not success:
-        log_error(f"❌ Fallo persistente en {fecha_str}, se omite el día.")
+        log_error(f"❌ Fallo persistente en {fecha_str}")
 
     time.sleep(SLEEP_BETWEEN_DIAS)
     fecha += timedelta(days=1)
 
-# Guardar resultados y subir a Snowflake
+# Guardar y subir resultados
 if resultados:
     df_nuevo = pd.DataFrame(resultados)
     df_total = pd.concat([df_existente, df_nuevo]).drop_duplicates(subset=["titular"])
     df_total.to_csv("bbc_news_2025.csv", index=False)
-    print(f"\n📝 Total de titulares guardados: {len(df_total)}")
-    
-    # Subir a Snowflake
+    print(f"📝 Total de titulares en CSV: {len(df_total)}")
     subir_a_snowflake(df_nuevo, SNOWFLAKE_CONFIG)
 else:
-    print("\n⚠️ No se encontraron titulares nuevos. No se sube nada a Snowflake.")
+    print("⚠️ No se encontraron titulares nuevos.")

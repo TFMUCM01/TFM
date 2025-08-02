@@ -1,9 +1,9 @@
+# scraper.py
+
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
-import time
-
-from config import WAYBACK_TIMEOUT, SNAPSHOT_TIMEOUT, RETRIES
+from config import WAYBACK_TIMEOUT, SNAPSHOT_TIMEOUT
 
 def obtener_snapshot_url(original_url, fecha_str):
     wayback_api = f'https://archive.org/wayback/available?url={original_url}&timestamp={fecha_str}'
