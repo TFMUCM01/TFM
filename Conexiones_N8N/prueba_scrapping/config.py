@@ -1,7 +1,7 @@
 from datetime import datetime
 
 # Rango de fechas para probar (solo unos días para test)
-FECHA_INICIO = datetime.strptime("20250728", "%Y%m%d")
+FECHA_INICIO = datetime.strptime("20250801", "%Y%m%d")
 FECHA_FIN = datetime.strptime("20250802", "%Y%m%d")
 
 # URL del sitio a scrapear
