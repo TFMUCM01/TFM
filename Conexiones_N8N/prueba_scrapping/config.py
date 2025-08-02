@@ -17,7 +17,7 @@ SNOWFLAKE_CONFIG = {
     'password': 'TFMgrupo4ucm01_01#',
     'account': 'WYNIFVB-YE01854',          # ejemplo: xy12345.eu-central-1
     'warehouse': 'TFM_WH',
-    'database': 'TFM',
+    'database': 'NOTICIAS_PRUEBA',
     'schema': 'SCRAPING',
     'table': 'BBC_TITULARES'
 }
