@@ -20,9 +20,11 @@ def obtener_ultima_fecha_en_snowflake(config):
         resultado = cs.fetchone()
         if resultado and resultado[0]:
             ultima_fecha = datetime.strptime(resultado[0], "%Y%m%d")
+            print(f"📌 Última fecha en Snowflake: {ultima_fecha.strftime('%Y-%m-%d')}")
             return ultima_fecha + timedelta(days=1)
         else:
-            return datetime.strptime("20250101", "%Y%m%d")
+            print("⚠️ No se encontraron registros en Snowflake. Iniciando desde 2024-01-01.")
+            return datetime.strptime("20240101", "%Y%m%d")
     finally:
         cs.close()
         ctx.close()
@@ -44,6 +46,7 @@ def subir_a_snowflake(df, config):
     try:
         tabla_completa = f"{config['database']}.{config['schema']}.{config['table']}"
 
+        # Crear la tabla si no existe
         cs.execute(f"""
             CREATE TABLE IF NOT EXISTS {tabla_completa} (
                 fecha STRING,
@@ -52,6 +55,7 @@ def subir_a_snowflake(df, config):
             );
         """)
 
+        # Insertar registros
         for _, row in df.iterrows():
             cs.execute(f"""
                 INSERT INTO {tabla_completa} (fecha, titular, url_archivo)
