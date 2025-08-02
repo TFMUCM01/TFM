@@ -6,6 +6,7 @@ def subir_a_snowflake(df, config):
         print("⚠️ No hay datos para subir a Snowflake.")
         return
 
+    # Conexión
     ctx = snowflake.connector.connect(
         user=config['user'],
         password=config['password'],
@@ -14,25 +15,24 @@ def subir_a_snowflake(df, config):
         database=config['database'],
         schema=config['schema']
     )
+
     cs = ctx.cursor()
     try:
-        # Establece el contexto
-        cs.execute(f"USE DATABASE {config['database']}")
-        cs.execute(f"USE SCHEMA {config['schema']}")
+        tabla_completa = f"{config['database']}.{config['schema']}.{config['table']}"
 
-        # Crea la tabla si no existe
+        # Crear tabla si no existe (nombre completamente calificado)
         cs.execute(f"""
-            CREATE TABLE IF NOT EXISTS {config['database']}.{config['schema']}.{config['table']} (
+            CREATE TABLE IF NOT EXISTS {tabla_completa} (
                 fecha STRING,
                 titular STRING,
                 url_archivo STRING
             );
         """)
 
-        # Inserta datos nuevos
+        # Insertar datos
         for _, row in df.iterrows():
             cs.execute(f"""
-                INSERT INTO {config['database']}.{config['schema']}.{config['table']} (fecha, titular, url_archivo)
+                INSERT INTO {tabla_completa} (fecha, titular, url_archivo)
                 VALUES (%s, %s, %s)
             """, (row['fecha'], row['titular'], row['url_archivo']))
 
