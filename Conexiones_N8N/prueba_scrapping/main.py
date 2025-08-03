@@ -9,9 +9,9 @@ from config import *
 from scraper import obtener_snapshot_url, extraer_titulares, log_error
 from snowflake_utils import subir_a_snowflake, obtener_ultima_fecha_en_snowflake
 
-# Fechas dinámicas
+# 📅 Rango de fechas: desde último registro +1 hasta AYER
 FECHA_INICIO = obtener_ultima_fecha_en_snowflake(SNOWFLAKE_CONFIG)
-FECHA_FIN = datetime.today()
+FECHA_FIN = datetime.today() - timedelta(days=1)
 
 print(f"📆 Fecha de inicio: {FECHA_INICIO.strftime('%Y-%m-%d')}")
 print(f"📆 Fecha de fin:    {FECHA_FIN.strftime('%Y-%m-%d')}")
@@ -31,7 +31,7 @@ else:
 while fecha <= FECHA_FIN:
     fecha_str = fecha.strftime("%Y%m%d")
     if fecha_str in fechas_procesadas:
-        print(f"⏩ {fecha_str} ya procesado.")
+        print(f"⏩ {fecha_str} ya procesado en CSV.")
         fecha += timedelta(days=1)
         continue
 
@@ -66,9 +66,16 @@ while fecha <= FECHA_FIN:
 # Guardar y subir resultados
 if resultados:
     df_nuevo = pd.DataFrame(resultados)
-    df_total = pd.concat([df_existente, df_nuevo]).drop_duplicates(subset=["titular"])
+    df_nuevo.drop_duplicates(subset=["fecha", "titular"], inplace=True)
+
+    # Actualizar CSV local
+    df_total = pd.concat([df_existente, df_nuevo]).drop_duplicates(subset=["fecha", "titular"])
+    df_total["fecha"] = pd.to_datetime(df_total["fecha"], format="%Y%m%d").dt.date
     df_total.to_csv("bbc_news_2025.csv", index=False)
+
     print(f"📝 Total de titulares en CSV: {len(df_total)}")
+
+    # Cargar nuevos a Snowflake
     subir_a_snowflake(df_nuevo, SNOWFLAKE_CONFIG)
 else:
     print("⚠️ No se encontraron titulares nuevos.")

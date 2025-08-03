@@ -19,12 +19,12 @@ def obtener_ultima_fecha_en_snowflake(config):
         cs.execute(f"SELECT MAX(fecha) FROM {tabla}")
         resultado = cs.fetchone()
         if resultado and resultado[0]:
-            ultima_fecha = datetime.strptime(resultado[0], "%Y%m%d")
-            print(f"📌 Última fecha en Snowflake: {ultima_fecha.strftime('%Y-%m-%d')}")
+            ultima_fecha = resultado[0]  # ya es tipo DATE
+            print(f"📌 Última fecha en Snowflake: {ultima_fecha}")
             return ultima_fecha + timedelta(days=1)
         else:
             print("⚠️ No se encontraron registros en Snowflake. Iniciando desde 2024-01-01.")
-            return datetime.strptime("20240101", "%Y%m%d")
+            return datetime.strptime("20240101", "%Y%m%d").date()
     finally:
         cs.close()
         ctx.close()
@@ -33,6 +33,9 @@ def subir_a_snowflake(df, config):
     if df.empty:
         print("⚠️ No hay datos para subir a Snowflake.")
         return
+
+    # Convertir 'fecha' de string a datetime.date
+    df["fecha"] = pd.to_datetime(df["fecha"], format="%Y%m%d").dt.date
 
     ctx = snowflake.connector.connect(
         user=config['user'],
@@ -46,10 +49,10 @@ def subir_a_snowflake(df, config):
     try:
         tabla_completa = f"{config['database']}.{config['schema']}.{config['table']}"
 
-        # Crear tabla con columnas adicionales
+        # Crear tabla si no existe
         cs.execute(f"""
             CREATE TABLE IF NOT EXISTS {tabla_completa} (
-                fecha STRING,
+                fecha DATE,
                 titular STRING,
                 url_archivo STRING,
                 fuente STRING,
@@ -57,11 +60,13 @@ def subir_a_snowflake(df, config):
             );
         """)
 
-        for _, row in df.iterrows():
-            cs.execute(f"""
-                INSERT INTO {tabla_completa} (fecha, titular, url_archivo, fuente, idioma)
-                VALUES (%s, %s, %s, %s, %s)
-            """, (row['fecha'], row['titular'], row['url_archivo'], row['fuente'], row['idioma']))
+        # Carga masiva
+        insert_query = f"""
+            INSERT INTO {tabla_completa} (fecha, titular, url_archivo, fuente, idioma)
+            VALUES (%s, %s, %s, %s, %s)
+        """
+        rows_to_insert = df[["fecha", "titular", "url_archivo", "fuente", "idioma"]].values.tolist()
+        cs.executemany(insert_query, rows_to_insert)
 
         print(f"✅ {len(df)} filas insertadas en Snowflake.")
     finally:

@@ -1,19 +1,3 @@
-# scraper.py
-
-import requests
-from bs4 import BeautifulSoup
-from datetime import datetime
-from config import WAYBACK_TIMEOUT, SNAPSHOT_TIMEOUT
-
-def obtener_snapshot_url(original_url, fecha_str):
-    wayback_api = f'https://archive.org/wayback/available?url={original_url}&timestamp={fecha_str}'
-    res = requests.get(wayback_api, timeout=WAYBACK_TIMEOUT)
-    data = res.json()
-    if 'archived_snapshots' in data and data['archived_snapshots']:
-        snapshot_url = data['archived_snapshots']['closest']['url']
-        return snapshot_url.replace("http://", "https://")
-    return None
-
 def extraer_titulares(snapshot_url, fecha_str):
     titulares = []
     page = requests.get(snapshot_url, timeout=SNAPSHOT_TIMEOUT)
@@ -34,7 +18,3 @@ def extraer_titulares(snapshot_url, fecha_str):
                 "idioma": "en"
             })
     return titulares
-
-def log_error(mensaje):
-    with open("scraping_log.txt", "a") as f:
-        f.write(f"{datetime.now()} - {mensaje}\n")
