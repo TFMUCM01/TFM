@@ -18,3 +18,16 @@ def extraer_titulares(snapshot_url, fecha_str):
                 "idioma": "en"
             })
     return titulares
+def obtener_snapshot_url(original_url, fecha_str):
+    wayback_api = f'https://archive.org/wayback/available?url={original_url}&timestamp={fecha_str}'
+    res = requests.get(wayback_api, timeout=30)
+    data = res.json()
+    if 'archived_snapshots' in data and data['archived_snapshots']:
+        snapshot_url = data['archived_snapshots']['closest']['url']
+        return snapshot_url.replace("http://", "https://")
+    return None
+
+def log_error(mensaje):
+    with open("scraping_log.txt", "a") as f:
+        f.write(f"{datetime.now()} - {mensaje}\n")
+
