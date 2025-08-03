@@ -19,7 +19,7 @@ NOTICIEROS = [
         "nombre": "ABC",
         "url": "https://www.abc.es/economia/",
         "fuente": "ABC",
-        "idioma": "en",
+        "idioma": "es",
         "tabla": "ABC_TITULARES"
     },
     {
