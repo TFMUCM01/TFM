@@ -54,6 +54,6 @@ def extraer_titulares(snapshot_url, fecha_str, fuente=None):
 
 # Guarda errores en archivo log
 def log_error(mensaje):
-    with open("scraping_log.txt", "a", errors="replace") as f:
+    with open("scraping_log.txt", "a") as f:
         f.write(f"{datetime.now()} - {mensaje}\n")
 
