@@ -26,24 +26,38 @@ def extraer_titulares(snapshot_url, fecha_str, fuente=None):
     titulares = []
     try:
         res = requests.get(snapshot_url, timeout=SNAPSHOT_TIMEOUT)
-        soup = BeautifulSoup(res.content, 'html.parser')  # ⚠️ usar .content, no .text
+        soup = BeautifulSoup(res.content, 'html.parser')
         encabezados = soup.find_all(['h1', 'h2', 'h3'])
         print(f"🔬 [{fuente}] {len(encabezados)} encabezados encontrados en {snapshot_url}")
 
         for t in encabezados:
             texto = t.get_text(strip=True)
-            if texto:
-                print(f"📝 {texto[:80]}")  # muestra ejemplo de titular recogido
-                titulares.append({
-                    "fecha": fecha_str,
-                    "titular": texto,
-                    "url_archivo": snapshot_url
-                })
+            clases = " ".join(t.get('class', [])) if t.get('class') else ""
+
+            if fuente == "THE TIMES":
+                if any(cls in clases for cls in [
+                    'responsive__HeadlineContainer-sc-3t8ix5-3',
+                    'responsive__Heading-sc-1k9kzho-1',
+                    'responsive__Title-sc-1ij0d4n-5'
+                ]) or len(texto.split()) > 3:
+                    titulares.append({
+                        "fecha": fecha_str,
+                        "titular": texto,
+                        "url_archivo": snapshot_url
+                    })
+            else:
+                if texto and len(texto.split()) > 3:
+                    titulares.append({
+                        "fecha": fecha_str,
+                        "titular": texto,
+                        "url_archivo": snapshot_url
+                    })
 
     except Exception as e:
         log_error(f"[{fuente or 'GENERAL'}] Error accediendo a snapshot: {e}")
 
     return titulares
+
 
 def log_error(mensaje):
     with open("scraping_log.txt", "a", errors="ignore") as f:
