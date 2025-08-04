@@ -18,15 +18,14 @@ def extraer_titulares(snapshot_url, fecha_str, fuente=None):
     titulares = []
     try:
         res = requests.get(snapshot_url, timeout=SNAPSHOT_TIMEOUT)
-        soup = BeautifulSoup(res.content, 'html.parser')  # ⚠️ usa .content, no .text
-
+        soup = BeautifulSoup(res.content, 'html.parser')  # ⚠️ usar .content, no .text
         encabezados = soup.find_all(['h1', 'h2', 'h3'])
         print(f"🔬 [{fuente}] {len(encabezados)} encabezados encontrados en {snapshot_url}")
 
         for t in encabezados:
             texto = t.get_text(strip=True)
             if texto:
-                print(f"📝 {texto[:80]}")  # muestra cada titular recogido
+                print(f"📝 {texto[:80]}")  # muestra ejemplo de titular recogido
                 titulares.append({
                     "fecha": fecha_str,
                     "titular": texto,
@@ -37,7 +36,6 @@ def extraer_titulares(snapshot_url, fecha_str, fuente=None):
         log_error(f"[{fuente or 'GENERAL'}] Error accediendo a snapshot: {e}")
 
     return titulares
-
 
 def log_error(mensaje):
     with open("scraping_log.txt", "a", errors="ignore") as f:

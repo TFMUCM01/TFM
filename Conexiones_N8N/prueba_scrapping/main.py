@@ -17,7 +17,6 @@ for medio in NOTICIEROS:
 
     print(f"\n📡 Procesando noticiero: {nombre} ({fuente})")
 
-    # Obtener rango de fechas
     FECHA_INICIO = obtener_ultima_fecha_en_snowflake(SNOWFLAKE_CONFIG, tabla)
     FECHA_FIN = (datetime.today() - timedelta(days=1)).date()
 
@@ -35,6 +34,7 @@ for medio in NOTICIEROS:
         for intento in range(RETRIES):
             try:
                 snapshot_url = obtener_snapshot_url(url, fecha_str)
+                print(f"📄 Snapshot obtenido: {snapshot_url}")
                 if snapshot_url:
                     titulares = extraer_titulares(snapshot_url, fecha_str, fuente=fuente)
                     for t in titulares:
@@ -61,7 +61,6 @@ for medio in NOTICIEROS:
         time.sleep(SLEEP_BETWEEN_DIAS)
         fecha += timedelta(days=1)
 
-    # Subir resultados
     if resultados:
         df_nuevo = pd.DataFrame(resultados)
         df_nuevo.drop_duplicates(subset=["fecha", "titular"], inplace=True)
