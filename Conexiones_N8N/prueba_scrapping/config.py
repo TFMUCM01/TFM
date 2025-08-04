@@ -45,14 +45,14 @@ NOTICIEROS = [
     },
     {
         "nombre": "THE_TIMES",
-        "url": "https://www.thetimes.co.uk/",
+        "url": "https://www.thetimes.com/section/business/",
         "fuente": "THE TIMES",
         "idioma": "en",
         "tabla": "TIME_TITULARES"
     },
     {
         "nombre": "EXPANSION",
-        "url": "https://www.expansion.com/economia/",
+        "url": "https://www.expansion.com/",
         "fuente": "EXPANSION",
         "idioma": "es",
         "tabla": "EXPANSION_TITULARES"
