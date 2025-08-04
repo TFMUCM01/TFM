@@ -62,3 +62,8 @@ def extraer_titulares(snapshot_url, fecha_str, fuente=None):
 def log_error(mensaje):
     with open("scraping_log.txt", "a", errors="ignore") as f:
         f.write(f"{datetime.now()} - {mensaje}\n")
+        
+def obtener_snapshot_url_directo(original_url, fecha_str):
+    # Usa directamente la estructura estándar del snapshot con hora fija (12:00:00)
+    snapshot_url = f"https://web.archive.org/web/{fecha_str}120000/{original_url.strip('/')}/"
+    return snapshot_url
