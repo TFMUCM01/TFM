@@ -36,5 +36,6 @@ def extraer_titulares(snapshot_url, fecha_str):
     return titulares
 
 def log_error(mensaje):
-    with open("scraping_log.txt", "a") as f:
+    with open("scraping_log.txt", "a", encoding="utf-8") as f:
         f.write(f"{datetime.now()} - {mensaje}\n")
+
