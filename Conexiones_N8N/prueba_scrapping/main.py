@@ -18,15 +18,18 @@ for medio in NOTICIEROS:
     print(f"\n📡 Procesando noticiero: {nombre} ({fuente})")
 
     FECHA_INICIO = obtener_ultima_fecha_en_snowflake(SNOWFLAKE_CONFIG, tabla)
-    FECHA_FIN = (datetime.today() - timedelta(days=1)).date()
+    FECHA_FIN = datetime.today().date() - timedelta(days=1)
 
     print(f"📆 Fecha de inicio: {FECHA_INICIO}")
     print(f"📆 Fecha de fin:    {FECHA_FIN}")
 
-    resultados = []
-    fecha = FECHA_INICIO
+    # Convertimos FECHA_INICIO y FIN a datetime
+    fecha = datetime.combine(FECHA_INICIO, datetime.min.time())
+    fecha_fin_dt = datetime.combine(FECHA_FIN, datetime.min.time())
 
-    while fecha <= FECHA_FIN:
+    resultados = []
+
+    while fecha <= fecha_fin_dt:
         fecha_str = fecha.strftime("%Y%m%d")
         print(f"🔍 [{fuente}] Procesando {fecha_str}...")
 
@@ -61,9 +64,11 @@ for medio in NOTICIEROS:
         time.sleep(SLEEP_BETWEEN_DIAS)
         fecha += timedelta(days=1)
 
+    # Subida final
     if resultados:
         df_nuevo = pd.DataFrame(resultados)
         df_nuevo.drop_duplicates(subset=["fecha", "titular"], inplace=True)
         subir_a_snowflake(df_nuevo, SNOWFLAKE_CONFIG, tabla)
+        print(f"📥 Total titulares subidos para {fuente}: {len(df_nuevo)}")
     else:
         print(f"⚠️ No se encontraron titulares nuevos para {fuente}.")
