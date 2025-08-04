@@ -36,7 +36,7 @@ for medio in NOTICIEROS:
             try:
                 snapshot_url = obtener_snapshot_url(url, fecha_str)
                 if snapshot_url:
-                    titulares = extraer_titulares(snapshot_url, fecha_str)
+                    titulares = extraer_titulares(snapshot_url, fecha_str, fuente=fuente)
                     for t in titulares:
                         t["fuente"] = fuente
                         t["idioma"] = idioma
