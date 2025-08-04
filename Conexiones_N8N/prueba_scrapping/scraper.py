@@ -5,7 +5,6 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 from config import WAYBACK_TIMEOUT, SNAPSHOT_TIMEOUT
 
-# Obtiene la URL archivada más cercana desde Wayback Machine
 def obtener_snapshot_url(original_url, fecha_str):
     wayback_api = f'https://archive.org/wayback/available?url={original_url}&timestamp={fecha_str}'
     res = requests.get(wayback_api, timeout=WAYBACK_TIMEOUT)
@@ -15,45 +14,28 @@ def obtener_snapshot_url(original_url, fecha_str):
         return snapshot_url.replace("http://", "https://")
     return None
 
-# Extrae titulares en función del noticiero
 def extraer_titulares(snapshot_url, fecha_str, fuente=None):
     titulares = []
     try:
         page = requests.get(snapshot_url, timeout=SNAPSHOT_TIMEOUT)
         soup = BeautifulSoup(page.content, 'html.parser')
         encabezados = soup.find_all(['h1', 'h2', 'h3'])
+        print(f"🔬 [{fuente}] {len(encabezados)} encabezados encontrados en {snapshot_url}")  # debug
 
         for t in encabezados:
             texto = t.get_text(strip=True)
-            clases = " ".join(t.get('class', [])) if t.get('class') else ""
-
-            # Solo aplicar clases específicas si es BBC
-            if fuente == "BBC":
-                if texto and (any(c in clases for c in [
-                    'gs-c-promo-heading__title',
-                    'lx-stream-post__header-title',
-                    'ssrcss-6arcww-PromoHeadline'
-                ]) or len(texto.split()) > 3):
-                    titulares.append({
-                        "fecha": fecha_str,
-                        "titular": texto,
-                        "url_archivo": snapshot_url
-                    })
-            else:
-                if texto:
-                    titulares.append({
-                        "fecha": fecha_str,
-                        "titular": texto,
-                        "url_archivo": snapshot_url
-                    })
-
+            if texto:
+                print(f"📝 {texto[:80]}")  # debug: muestra fragmento
+                titulares.append({
+                    "fecha": fecha_str,
+                    "titular": texto,
+                    "url_archivo": snapshot_url
+                })
     except Exception as e:
         log_error(f"[{fuente or 'GENERAL'}] Error accediendo a snapshot: {e}")
 
     return titulares
 
-# Guarda errores en archivo log
 def log_error(mensaje):
-    with open("scraping_log.txt", "a") as f:
+    with open("scraping_log.txt", "a", errors="ignore") as f:
         f.write(f"{datetime.now()} - {mensaje}\n")
-
