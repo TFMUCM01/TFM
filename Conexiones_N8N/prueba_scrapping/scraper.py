@@ -27,7 +27,7 @@ def extraer_titulares(snapshot_url, fecha_str, fuente=None):
             texto = t.get_text(strip=True)
             clases = " ".join(t.get('class', [])) if t.get('class') else ""
 
-            # Si es BBC, aplicar clases específicas
+            # Solo aplicar clases específicas si es BBC
             if fuente == "BBC":
                 if texto and (any(c in clases for c in [
                     'gs-c-promo-heading__title',
@@ -40,13 +40,13 @@ def extraer_titulares(snapshot_url, fecha_str, fuente=None):
                         "url_archivo": snapshot_url
                     })
             else:
-                # Para los demás medios: aceptar titulares con más de 3 palabras
-                if texto and len(texto.split()) > 3:
+                if texto:
                     titulares.append({
                         "fecha": fecha_str,
                         "titular": texto,
                         "url_archivo": snapshot_url
                     })
+
     except Exception as e:
         log_error(f"[{fuente or 'GENERAL'}] Error accediendo a snapshot: {e}")
 
