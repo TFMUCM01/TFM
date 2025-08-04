@@ -45,7 +45,7 @@ NOTICIEROS = [
     },
     {
         "nombre": "THE_TIMES",
-        "url": "https://www.thetimes.com/",
+        "url": "https://www.thetimes.co.uk/",
         "fuente": "THE TIMES",
         "idioma": "en",
         "tabla": "TIME_TITULARES"
