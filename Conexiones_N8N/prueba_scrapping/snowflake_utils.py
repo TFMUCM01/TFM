@@ -3,7 +3,7 @@
 import snowflake.connector
 import pandas as pd
 from datetime import datetime, timedelta
-
+#prueba
 def obtener_ultima_fecha_en_snowflake(config, tabla):
     ctx = snowflake.connector.connect(
         user=config['user'],
