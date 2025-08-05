@@ -1,137 +1,160 @@
-import numpy as np
-import yfinance as yf
+### 1. Configuración Global
 import pandas as pd
+import numpy as np
+import getpass
+import snowflake.connector
 import matplotlib.pyplot as plt
-import scipy.optimize as optimization
+import seaborn as sns
+import plotly.graph_objs as go
 
-# en promedio hay 252 días de negociación en un año
-NUM_TRADING_DAYS = 252
-# generaremos pesos w aleatorios (diferentes portafolios)
-NUM_PORTFOLIOS = 10000
-
-# acciones que vamos a manejar
-stocks = ['AAPL', 'WMT', 'TSLA', 'GE', 'AMZN', 'DB']
-
-# datos históricos - definir fechas de INICIO y FIN
+# Variables globales
+stocks = ['BBVA.MC', 'IBE.MC', 'ITX.MC', 'REP.MC']
 start_date = '2020-01-01'
 end_date = '2024-12-31'
+NUM_PORTFOLIOS = 10000
+NUM_TRADING_DAYS = 252
+RISK_FREE_RATE = 0.02
 
 
-def download_data():
-    # nombre de la acción (clave) - valores de la acción (2020-2024) como valores
-    stock_data = {}
+### 2. Conexión y Consulta a Snowflake
+def conectar_snowflake():
+    password = getpass.getpass("🔒 Introduce tu contraseña de Snowflake: ")
+    conn = snowflake.connector.connect(
+        user='TFMGRUPO4',
+        password=password,
+        account='WYNIFVB-YE01854',
+        warehouse='COMPUTE_WH',
+        database='YAHOO_FINANCE',
+        schema='MACHINE_LEARNING',
+        role='ACCOUNTADMIN'
+    )
+    return conn
 
-    for stock in stocks:
-        # precios de cierre
-        ticker = yf.Ticker(stock)
-        stock_data[stock] = ticker.history(start=start_date, end=end_date)['Close']
+def obtener_precios(stocks, start_date, end_date):
+    conn = conectar_snowflake()
+    cursor = conn.cursor()
 
-    return pd.DataFrame(stock_data)
+    tickers_str = ', '.join(f"'{ticker}'" for ticker in stocks)
+    query = f"""
+        SELECT TICKER, FECHA, CLOSE
+        FROM TICKERS_INDEX
+        WHERE TICKER IN ({tickers_str})
+          AND FECHA BETWEEN '{start_date}' AND '{end_date}'
+    """
 
+    cursor.execute(query)
+    df = pd.DataFrame(cursor.fetchall(), columns=[col[0] for col in cursor.description])
+    cursor.close()
+    conn.close()
 
-def show_data(data):
-    data.plot(figsize=(10, 5))
-    plt.show()
-
-
-def calculate_return(data):
-    # NORMALIZACIÓN - para medir todas las variables en una métrica comparable
-    log_return = np.log(data / data.shift(1))
-    return log_return[1:]
-
-
-def show_statistics(returns):
-    # en lugar de métricas diarias buscamos métricas anuales
-    # media del retorno anual
-    print(returns.mean() * NUM_TRADING_DAYS)
-    print(returns.cov() * NUM_TRADING_DAYS)
-
-
-def show_mean_variance(returns, weights):
-    # buscamos el retorno anual
-    portfolio_return = np.sum(returns.mean() * weights) * NUM_TRADING_DAYS
-    portfolio_volatility = np.sqrt(np.dot(weights.T, np.dot(returns.cov()
-                                                            * NUM_TRADING_DAYS, weights)))
-    print("Expected portfolio mean (return): ", portfolio_return)
-    print("Expected portfolio volatility (standard deviation): ", portfolio_volatility)
+    df['FECHA'] = pd.to_datetime(df['FECHA'])
+    df_prices = df.pivot(index='FECHA', columns='TICKER', values='CLOSE')
+    df_prices = df_prices.sort_index().fillna(method='ffill').dropna()
+    return df_prices
 
 
-def show_portfolios(returns, volatilities):
+### 3. Cálculo de Retornos y Estadísticas
+def calcular_retorno_log(df_prices):
+    return np.log(df_prices / df_prices.shift(1)).dropna()
+
+def calcular_estadisticas_portafolio(pesos, mean_returns, cov_matrix):
+    retorno = np.sum(mean_returns * pesos) * NUM_TRADING_DAYS
+    volatilidad = np.sqrt(np.dot(pesos.T, np.dot(cov_matrix * NUM_TRADING_DAYS, pesos)))
+    sharpe_ratio = (retorno - RISK_FREE_RATE) / volatilidad
+    return retorno, volatilidad, sharpe_ratio
+
+
+### 4. Simulación de Portafolios
+def simular_portafolios(mean_returns, cov_matrix):
+    num_activos = len(mean_returns)
+    resultados = np.zeros((NUM_PORTFOLIOS, 3 + num_activos))
+
+    for i in range(NUM_PORTFOLIOS):
+        pesos = np.random.random(num_activos)
+        pesos /= np.sum(pesos)
+
+        retorno, volatilidad, sharpe = calcular_estadisticas_portafolio(pesos, mean_returns, cov_matrix)
+
+        resultados[i, 0] = retorno
+        resultados[i, 1] = volatilidad
+        resultados[i, 2] = sharpe
+        resultados[i, 3:] = pesos
+
+    columnas = ['Retorno', 'Volatilidad', 'Sharpe'] + list(mean_returns.index)
+    return pd.DataFrame(resultados, columns=columnas)
+
+
+### 5. Identificación de Portafolios Óptimos
+def obtener_portafolios_optimos(df_resultados):
+    max_sharpe = df_resultados.loc[df_resultados['Sharpe'].idxmax()]
+    min_vol = df_resultados.loc[df_resultados['Volatilidad'].idxmin()]
+    return max_sharpe, min_vol
+
+
+### 6. Visualizaciones Interactivas
+def graficar_frontera_eficiente(df_resultados, max_sharpe, min_vol):
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=df_resultados['Volatilidad'],
+        y=df_resultados['Retorno'],
+        mode='markers',
+        marker=dict(color=df_resultados['Sharpe'], colorscale='Viridis', size=5, showscale=True),
+        name='Portafolios simulados'
+    ))
+    fig.add_trace(go.Scatter(
+        x=[max_sharpe['Volatilidad']],
+        y=[max_sharpe['Retorno']],
+        mode='markers',
+        marker=dict(color='red', size=10, symbol='star'),
+        name='Mayor Sharpe'
+    ))
+    fig.add_trace(go.Scatter(
+        x=[min_vol['Volatilidad']],
+        y=[min_vol['Retorno']],
+        mode='markers',
+        marker=dict(color='blue', size=10, symbol='diamond'),
+        name='Menor Volatilidad'
+    ))
+    fig.update_layout(title='Frontera Eficiente', xaxis_title='Volatilidad', yaxis_title='Retorno Esperado')
+    fig.show()
+
+def graficar_sharpe_ratio(df_resultados):
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(y=df_resultados['Sharpe'], mode='lines', name='Sharpe Ratio'))
+    fig.update_layout(title='Sharpe Ratio por Portafolio Simulado', xaxis_title='Simulación', yaxis_title='Sharpe Ratio')
+    fig.show()
+
+def graficar_correlacion(df_log_returns):
     plt.figure(figsize=(10, 6))
-    plt.scatter(volatilities, returns, c=returns / volatilities, marker='o')
-    plt.grid(True)
-    plt.xlabel('Expected Volatility')
-    plt.ylabel('Expected Return')
-    plt.colorbar(label='Sharpe Ratio')
+    sns.heatmap(df_log_returns.corr(), annot=True, cmap='coolwarm')
+    plt.title('Correlación entre activos')
     plt.show()
 
 
-def generate_portfolios(returns):
-    portfolio_means = []
-    portfolio_risks = []
-    portfolio_weights = []
+### 7. Ejecución del Análisis
+df_prices = obtener_precios(stocks, start_date, end_date)
+df_log_returns = calcular_retorno_log(df_prices)
 
-    for _ in range(NUM_PORTFOLIOS):
-        w = np.random.random(len(stocks))
-        w /= np.sum(w)
-        portfolio_weights.append(w)
-        portfolio_means.append(np.sum(returns.mean() * w) * NUM_TRADING_DAYS)
-        portfolio_risks.append(np.sqrt(np.dot(w.T, np.dot(returns.cov()
-                                                          * NUM_TRADING_DAYS, w))))
+mean_returns = df_log_returns.mean()
+cov_matrix = df_log_returns.cov()
 
-    return np.array(portfolio_weights), np.array(portfolio_means), np.array(portfolio_risks)
+resultados = simular_portafolios(mean_returns, cov_matrix)
+max_sharpe, min_vol = obtener_portafolios_optimos(resultados)
 
-
-def statistics(weights, returns):
-    portfolio_return = np.sum(returns.mean() * weights) * NUM_TRADING_DAYS
-    portfolio_volatility = np.sqrt(np.dot(weights.T, np.dot(returns.cov()
-                                                            * NUM_TRADING_DAYS, weights)))
-    return np.array([portfolio_return, portfolio_volatility,
-                     portfolio_return / portfolio_volatility])
+graficar_frontera_eficiente(resultados, max_sharpe, min_vol)
+graficar_sharpe_ratio(resultados)
+graficar_correlacion(df_log_returns)
 
 
-# el módulo scipy optimize puede encontrar el mínimo de una función dada
-# el máximo de f(x) es el mínimo de -f(x)
-def min_function_sharpe(weights, returns):
-    return -statistics(weights, returns)[2]
+### 8. Notas de Interpretación
+# - Frontera eficiente: cada punto es un portafolio. El color indica el Sharpe Ratio.
+# - Punto rojo: mejor Sharpe (mejor relación retorno/riesgo).
+# - Punto azul: menor volatilidad (portafolio más estable).
+# - El heatmap permite ver correlaciones entre activos.
 
 
-# ¿cuáles son las restricciones? ¡La suma de pesos = 1!
-# f(x)=0 esta es la función a minimizar
-def optimize_portfolio(weights, returns):
-    # la suma de pesos es 1
-    constraints = ({'type': 'eq', 'fun': lambda x: np.sum(x) - 1})
-    # los pesos pueden ser 1 como máximo: 1 cuando el 100% del dinero se invierte en una sola acción
-    bounds = tuple((0, 1) for _ in range(len(stocks)))
-    return optimization.minimize(fun=min_function_sharpe, x0=weights[0], args=returns
-                                 , method='SLSQP', bounds=bounds, constraints=constraints)
-
-
-def print_optimal_portfolio(optimum, returns):
-    print("Optimal portfolio: ", optimum['x'].round(3))
-    print("Expected return, volatility and Sharpe ratio: ",
-          statistics(optimum['x'].round(3), returns))
-
-
-def show_optimal_portfolio(opt, rets, portfolio_rets, portfolio_vols):
-    plt.figure(figsize=(10, 6))
-    plt.scatter(portfolio_vols, portfolio_rets, c=portfolio_rets / portfolio_vols, marker='o')
-    plt.grid(True)
-    plt.xlabel('Expected Volatility')
-    plt.ylabel('Expected Return')
-    plt.colorbar(label='Sharpe Ratio')
-    plt.plot(statistics(opt['x'], rets)[1], statistics(opt['x'], rets)[0], 'g*', markersize=20.0)
-    plt.show()
-
-
-if __name__ == '__main__':
-    dataset = download_data()
-    show_data(dataset)
-    log_daily_returns = calculate_return(dataset)
-    # show_statistics(log_daily_returns)
-
-    pweights, means, risks = generate_portfolios(log_daily_returns)
-    show_portfolios(means, risks)
-    optimum = optimize_portfolio(pweights, log_daily_returns)
-    print_optimal_portfolio(optimum, log_daily_returns)
-    show_optimal_portfolio(optimum, log_daily_returns, means, risks)
+### 9. Extensiones posibles
+# - Uso de cvxpy para optimización con restricciones.
+# - Límites mínimos/máximos de pesos.
+# - Inclusión de activos libres de riesgo o benchmarks.
+# - Optimizar en base a retornos objetivo o tracking error.
