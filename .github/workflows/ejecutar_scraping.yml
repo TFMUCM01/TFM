@@ -1,0 +1,34 @@
+name: Ejecutar Scraper Manual
+
+on:
+  workflow_dispatch:  # Permite ejecutarlo desde botón o API
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clonar repositorio
+        uses: actions/checkout@v3
+
+      - name: Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Ejecutar script principal
+        run: |
+          echo "📅 Ejecutando main.py el $(date -u)"
+          python main.py
+
+      - name: Notificar a n8n
+        if: success()
+        run: |
+          curl -X POST http://localhost:5678/webhook/scraping \
+            -H "Content-Type: application/json" \
+            -d '{"status": "ok", "mensaje": "✅ Scraping finalizado correctamente en GitHub Actions", "timestamp": "'$(date -u)'"}'
