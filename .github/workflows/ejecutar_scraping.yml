@@ -2,7 +2,7 @@ name: Ejecutar Scraper Diario
 
 on:
   schedule:
-    - cron: '20 18 * * *'   # Todos los días a las 06:00 UTC
+    - cron: '24 16 * * *'   # Todos los días a las 06:00 UTC
   workflow_dispatch:       # Permite ejecutarlo manualmente desde GitHub
 
 jobs:
