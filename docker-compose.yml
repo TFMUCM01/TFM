@@ -1,0 +1,28 @@
+version: "3.8"
+
+services:
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n
+    restart: unless-stopped
+    environment:
+      - N8N_HOST=n8n.n8n-tunnel.com
+      - N8N_PORT=5678
+      - WEBHOOK_URL=https://n8n.n8n-tunnel.com/
+      - GENERIC_TIMEZONE=Europe/Madrid
+    networks:
+      - cloudflared
+    volumes:
+      - ./n8n_data:/home/node/.n8n
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run --token eyJhIjoiNzhlZmQyMGJmZWUzYWM2MmIyODk1ZGQ5OTliYmFiODMiLCJ0IjoiNjE4M2Y4ZWUtNjk3YS00ZmNiLTk5MTgtMGM0NDQ4Mzk3NGQ0IiwicyI6Ik5qTmlZbVEzTUdZdE9EQmxNaTAwWVRRM0xUaGpabVl0TmpZM05XUTRaR1F6WXpBMyJ9
+    networks:
+      - cloudflared
+
+networks:
+  cloudflared:
+    external: false
