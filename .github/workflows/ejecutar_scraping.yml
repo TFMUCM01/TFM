@@ -1,7 +1,9 @@
-name: Ejecutar Scraper Manual
+name: Ejecutar Scraper Diario
 
 on:
-  workflow_dispatch:  # Permite ejecutarlo desde botón o API
+  schedule:
+    - cron: '0 6 * * *'   # Todos los días a las 06:00 UTC
+  workflow_dispatch:       # Permite ejecutarlo manualmente desde GitHub
 
 jobs:
   run-script:
@@ -14,7 +16,7 @@ jobs:
       - name: Configurar Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
+          python-version: '3.10'  # o 3.11 si tus deps lo soportan
 
       - name: Instalar dependencias
         run: |
@@ -26,9 +28,21 @@ jobs:
           echo "📅 Ejecutando main.py el $(date -u)"
           python main.py
 
-      - name: Notificar a n8n
+      - name: Notificar a n8n (webhook)
         if: success()
+        env:
+          N8N_URL: ${{ secrets.N8N_URL }}
+          N8N_WEBHOOK_SECRET: ${{ secrets.N8N_WEBHOOK_SECRET }}
         run: |
-          curl -X POST http://localhost:5678/webhook/scraping \
+          curl -sS -X POST "$N8N_URL/webhook/scraping-finalizado" \
             -H "Content-Type: application/json" \
-            -d '{"status": "ok", "mensaje": "✅ Scraping finalizado correctamente en GitHub Actions", "timestamp": "'$(date -u)'"}'
+            -H "x-n8n-secret: $N8N_WEBHOOK_SECRET" \
+            --data @- <<'JSON'
+          {
+            "status": "ok",
+            "mensaje": "✅ Scraping finalizado correctamente en GitHub Actions",
+            "timestamp": "${{ github.run_started_at }}",
+            "run_id": "${{ github.run_id }}",
+            "workflow": "${{ github.workflow }}"
+          }
+          JSON
