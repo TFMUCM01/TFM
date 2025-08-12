@@ -1,0 +1,9 @@
+﻿Sufijo,País,Índice principal,Ticker en Yahoo Finance
+.MC,España,IBEX 35,^IBEX
+.PA,Francia,CAC 40,^FCHI
+.L,Reino Unido,FTSE 100,^FTSE
+.DE,Alemania,DAX,^GDAXI
+.SW,Suiza,SMI (Swiss Market Index),^SSMI
+.MI,Italia,FTSE MIB,FTSEMIB.MI
+.ST,Suecia,OMX Stockholm 30,^OMXS30
+.AS,Países Bajos,AEX,^AEX

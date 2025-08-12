@@ -1,0 +1,86 @@
+ticker_market,market,name,country,ticket,index
+AIR.PA,PA,Airbus Group,france,AIR,CAC 40
+VIV.PA,PA,Vivendi,france,VIV,CAC 40
+STM.PA,PA,STMicroelectronics,france,STM,CAC 40
+VIE.PA,PA,Veolia Environnement,france,VIE,CAC 40
+SAF.PA,PA,Safran,france,SAF,CAC 40
+BVI.PA,PA,Bureau Veritas,france,BVI,CAC 40
+EDEN.PA,PA,Edenred,france,EDEN,CAC 40
+INGA.AS,AS,ING Groep,netherlands,INGA,AEX
+ASMI.AS,AS,ASM,netherlands,ASMI,AEX
+RAND.AS,AS,Randstad,netherlands,RAND,AEX
+AD.AS,AS,Ahold Delhaize,netherlands,AD,AEX
+MT.AS,AS,ArcelorMittal,netherlands,MT,CAC 40; AEX
+KPN.AS,AS,Koninklijke KPN,netherlands,KPN,AEX
+ASML.AS,AS,ASML Holding,netherlands,ASML,AEX
+BESI.AS,AS,BE Semiconductor,netherlands,BESI,AEX
+NN.AS,AS,NN Group NV,netherlands,NN,AEX
+IMCD.AS,AS,IMCD NV,netherlands,IMCD,AEX
+ASRNL.AS,AS,ASR Nederland,netherlands,ASRNL,AEX
+UNA.AS,AS,Unilever NV,netherlands,UNA,AEX
+ADYEN.AS,AS,Adyen,netherlands,ADYEN,AEX
+PRX.AS,AS,Prosus,netherlands,PRX,AEX
+CFR.SW,SW,Richemont,switzerland,CFR,SMI
+ABBN.SW,SW,ABB,switzerland,ABBN,SMI
+LOGN.SW,SW,Logitech,switzerland,LOGN,SMI
+ZURN.SW,SW,Zurich Insurance Group,switzerland,ZURN,SMI
+SLHN.SW,SW,Swiss Life Holding,switzerland,SLHN,SMI
+NOVN.SW,SW,Novartis,switzerland,NOVN,SMI
+NESN.SW,SW,Nestle,switzerland,NESN,SMI
+ROG.SW,SW,Roche Holding Participation,switzerland,ROG,SMI
+LONN.SW,SW,Lonza Group,switzerland,LONN,SMI
+SCMN.SW,SW,Swisscom,switzerland,SCMN,SMI
+GEBN.SW,SW,Geberit,switzerland,GEBN,SMI
+SIKA.SW,SW,Sika,switzerland,SIKA,SMI
+PGHN.SW,SW,Partners Group,switzerland,PGHN,SMI
+KNIN.SW,SW,Kuehne & Nagel,switzerland,KNIN,SMI
+SOON.SW,SW,Sonova H Ag,switzerland,SOON,SMI
+UBSG.SW,SW,UBS Group,switzerland,UBSG,SMI
+GIVN.SW,SW,Givaudan,switzerland,GIVN,SMI
+BOL.ST,ST,Boliden,sweden,BOL,OMXS30
+AZN.ST,ST,AstraZeneca,sweden,AZN,OMXS30
+ALFA.ST,ST,Alfa Laval AB,sweden,ALFA,OMXS30
+ABB.ST,ST,ABB,sweden,ABB,OMXS30
+SAND.ST,ST,Sandvik AB,sweden,SAND,OMXS30
+TELIA.ST,ST,Telia Company,sweden,TELIA,OMXS30
+ACS.MC,MC,ACS,spain,ACS,IBEX 35
+ACX.MC,MC,Acerinox,spain,ACX,IBEX 35
+BBVA.MC,MC,BBVA,spain,BBVA,IBEX 35
+BKT.MC,MC,Bankinter,spain,BKT,IBEX 35
+ANA.MC,MC,Acciona,spain,ANA,IBEX 35
+CABK.MC,MC,Caixabank,spain,CABK,IBEX 35
+NTGY.MC,MC,Naturgy Energy,spain,NTGY,IBEX 35
+FER.MC,MC,Ferrovial,spain,FER,IBEX 35
+ITX.MC,MC,Inditex,spain,ITX,IBEX 35
+REP.MC,MC,Repsol,spain,REP,IBEX 35
+IBE.MC,MC,Iberdrola,spain,IBE,IBEX 35
+IDR.MC,MC,Indra A,spain,IDR,IBEX 35
+MAP.MC,MC,Mapfre,spain,MAP,IBEX 35
+TEF.MC,MC,Telefonica,spain,TEF,IBEX 35
+SCYR.MC,MC,Sacyr,spain,SCYR,IBEX 35
+SAN.MC,MC,Santander,spain,SAN,IBEX 35
+COL.MC,MC,Inmobiliaria Colonial,spain,COL,IBEX 35
+ELE.MC,MC,Endesa,spain,ELE,IBEX 35
+ROVI.MC,MC,Laborat.Rovi,spain,ROVI,IBEX 35
+MTS.MC,MC,ArcelorMittal,spain,MTS,IBEX 35
+MRL.MC,MC,Merlin Properties SA,spain,MRL,IBEX 35
+LOG.MC,MC,Logista,spain,LOG,IBEX 35
+AENA.MC,MC,Aena,spain,AENA,IBEX 35
+CLNX.MC,MC,Cellnex Telecom,spain,CLNX,IBEX 35
+UNI.MC,MC,Unicaja Banco,spain,UNI,IBEX 35
+SRG.MI,MI,Snam,italy,SRG,FTSE MIB
+PIRC.MI,MI,Pirelli & C,italy,PIRC,FTSE MIB
+PRY.MI,MI,Prysmian,italy,PRY,FTSE MIB
+ISP.MI,MI,Intesa Sanpaolo,italy,ISP,FTSE MIB
+BMED.MI,MI,Banca Mediolanum,italy,BMED,FTSE MIB
+ENI.MI,MI,ENI,italy,ENI,FTSE MIB
+BMPS.MI,MI,BCA MPS,italy,BMPS,FTSE MIB
+BZU.MI,MI,Buzzi Unicem,italy,BZU,FTSE MIB
+TRN.MI,MI,Terna,italy,TRN,FTSE MIB
+BAMI.MI,MI,Banco Bpm,italy,BAMI,FTSE MIB
+LDO.MI,MI,La Doria,italy,LDO,FTSE MIB
+MONC.MI,MI,Moncler SpA,italy,MONC,FTSE MIB
+FBK.MI,MI,FinecoBank,italy,FBK,FTSE MIB
+PST.MI,MI,Poste Italiane,italy,PST,FTSE MIB
+RACE.MI,MI,Ferrari NV,italy,RACE,FTSE MIB
+IG.MI,MI,Italgas,italy,IG,FTSE MIB
