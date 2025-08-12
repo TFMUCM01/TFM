@@ -1,0 +1,15 @@
+# Scraping y procesamiento
+beautifulsoup4==4.13.4
+requests==2.32.4
+fake-useragent==2.2.0
+pandas==2.2.3
+
+# Conexión a Snowflake
+snowflake-connector-python==3.16.0
+
+# Google Drive (si decides volver a usarlo)
+google-auth==2.40.3
+google-auth-oauthlib==1.2.2
+google-auth-httplib2==0.2.0
+google-api-python-client==2.177.0
+httplib2==0.22.0
