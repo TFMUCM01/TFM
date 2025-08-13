@@ -1,0 +1,70 @@
+cashflow_keys = [
+
+    # OPERACIÓN
+
+    "OperatingCashFlow",                            # Flujo de caja de explotación
+    "CashFlowFromContinuingOperatingActivities",    # Flujo de caja de las actividades de explotación continuadas
+
+    "DepreciationAndAmortization",                  # Depreciación, amortización y agotamiento / Depreciación y amortización (duplica ambos conceptos)
+    "OtherNonCashItems",                            # Otras partidas no monetarias
+
+    "ChangeInWorkingCapital",                       # Cambio en capital de trabajo
+    "ChangeInOtherCurrentAssets",                   # Cambios en los otros activos corrientes
+    "ChangeInOtherCurrentLiabilities",              # Cambios en otros pasivos corrientes
+    "ChangeInOtherWorkingCapital",                  # Cambios en el otro capital de trabajo
+    "ChangesInAccountReceivables",                  # Cambios en cuentas por cobrar (parte de “otros activos corrientes”)
+    "ChangeInAccountPayable",                       # Cambios en cuentas por pagar (parte de “otros pasivos corrientes”)
+    # (Reembolso de impuestos pagados: no hay clave dedicada en tu lista)
+
+
+    # INVERSIÓN (Flujos de inversión)
+
+    "InvestingCashFlow",                            # Flujo de caja de inversión
+    "CashFlowFromContinuingInvestingActivities",    # Flujo de caja de las actividades de inversión continuadas
+
+    "NetInvestmentPurchaseAndSale",                 # Compra y venta neta de inversiones
+    "PurchaseOfInvestment",                         # Compra de inversiones
+    "SaleOfInvestment",                             # Venta de inversiones
+
+    "NetPPEPurchaseAndSale",                        # Compra y venta neta de la venta de activos fijos
+    "PurchaseOfPropertyPlantAndEquipment",          # Compra de activos fijos (PPE)
+    "SaleOfPropertyPlantAndEquipment",              # Venta de activos fijos
+
+    "NetIntangiblesPurchaseAndSale",                # Compra y venta neta de activos intangibles
+    "PurchaseOfIntangibleAssets",                   # Compra de activos intangibles
+    "SaleOfIntangibleAssets",                       # Venta de activos intangibles
+
+    "NetBusinessPurchaseAndSale",                   # Compra y venta neta de negocios
+    "PurchaseOfBusiness",                           # Compra de negocios
+    "SaleOfBusiness",                               # Venta de negocios
+
+    "NetOtherInvestingChanges",                     # Otros cambios de inversión netos
+    "CapitalExpenditure",                           # Inversiones en bienes de capitales (CapEx)
+
+
+    # FINANCIACIÓN (Flujos de financiación)
+
+    "FinancingCashFlow",                            # Financiación del flujo de caja
+    "CashFlowFromContinuingFinancingActivities",    # Flujo de caja de las actividades de financiación continuadas
+
+    "NetBorrowings",                                # Emisión neta de pagos de deuda (neto de emisiones y reembolsos)
+    "IssuanceOfLongTermDebt",                       # Emisión de deuda a largo plazo
+    "RepaymentOfLongTermDebt",                      # Pagos/Reembolso de deuda a largo plazo
+    "IssuanceOfDebt",                               # Emisión de la deuda (general)
+    "RepaymentOfDebt",                              # Reembolso de la deuda (general)
+
+    "IssuanceOfCapitalStock",                       # Emisión de acciones de capital
+    "CommonStockIssuance",                          # Emisión de acciones ordinarias (duplica “emisión de acciones”)
+    "RepurchaseOfCapitalStock",                     # Readquisición de acciones de capital
+    "CashDividendsPaid",                            # Dividendos en efectivo pagados
+    "NetOtherFinancingCharges",                     # Otros cargos financieros netos
+
+
+    # OTROS / TOTALES
+
+    "EndCashPosition",                              # Posición de caja final
+    "ChangeInCashSupplementalAsReported",           # Cambios en el efectivo
+    "EffectOfExchangeRateChanges",                  # Efecto de los cambios en el tipo de cambio
+    "BeginningCashPosition",                        # Posición de caja inicial
+    "FreeCashFlow",                                 # Flujo de caja libre
+]
