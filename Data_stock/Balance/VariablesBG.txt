@@ -1,103 +1,61 @@
-"TotalAssets"  # Activos totales
-"TotalCurrentAssets"  # Activo corriente
-"CashCashEquivalentsAndShortTermInvestments"  # Efectivo activos líquidos equivalentes e inversiones a corto plazo
-"CashAndCashEquivalents"  # Efectivo y otros activos líquidos equivalentes
-"CashOnly"  # Efectivo
-"OtherCashEquivalents"  # Activos líquidos equivalentes
-"OtherShortTermInvestments"  # Otras inversiones a corto plazo
-"NetReceivables"  # Cuentas por cobrar
-"GrossReceivables"  # Cuentas pendientes
-"ReceivablesGross"  # Cuentas por cobrar brutas
-"AllowanceForDoubtfulAccountsReceivable"  # Provisión para cuentas por cobrar de dudoso cobro
-"TaxesReceivable"  # Impuestos por cobrar
-"DueFromRelatedPartiesCurrent"  # Cuentas por cobrar de partes vinculadas corrientes
-"OtherReceivables"  # Otras cuentas por cobrar
+"Total Assets"  # Activos totales
+"Total Current Assets"  # Activo corriente
+"Cash Financial"  # Efectivo, activos líquidos e
+"Cash and Cash Equivalents"  # Efectivo y otros activos líquidos equivalentes
+"Cash" #Efectivo
+"Cash Equivalents"  # Activos líquidos equivalentes
+"Other Short-Term Investments"  # Otras inversiones a corto plazo
 "Inventory"  # Inventario
-"FinishedGoods"  # Productos acabados
-"OtherInventory"  # Otros inventarios
-"InventoryAdjustments"  # Provisiones de ajustes de inventarios
-"PrepaidAssets"  # Activos de prepago
-"AssetsHeldForSaleCurrent"  # Activos corrientes disponibles para la venta
-"HedgingAssetsCurrent"  # Activos de cobertura corrientes
-"OtherCurrentAssets"  # Otro activo corriente
-"TotalNonCurrentAssets"  # Activo no corriente total
-"NetPPE"  # Venta de activos fijos neta
-"GrossPPE"  # Venta de activos fijos bruta
+"Raw Materials"  # Materias primas
+"Work in Progress"  # Trabajo en curso
+"Finished Goods"  # Productos acabados
+"Assets Held for Sale - Current"  # Activos corrientes disponibles para la venta
+"Hedging Assets Current"  # Activos de cobertura corrientes
+"Other Current Assets"  # Otro activo corriente
+"Total Non-Current Assets"  # Activo no corriente total
+"Net PPE"  # Venta de activos fijos neta
+"Gross PPE"  # Venta de activos fijos bruta
 "Properties"  # Propiedades
-"LandAndImprovements"  # Terrenos y reformas
-"BuildingsAndImprovements"  # Edificios y reformas
-"MachineryFurnitureEquipment"  # Maquinaria muebles y equipos
-"OtherProperties"  # Otras propiedades
-"ConstructionInProgress"  # Construcción en curso
-"AccumulatedDepreciation"  # Depreciación acumulada
-"GoodwillAndOtherIntangibleAssets"  # Fondo de comercio y otros activos intangibles
+"Land And Improvements"  # Terrenos y reformas
+"Buildings And Improvements"  # Edificios y reformas
+"Machinery, Furniture & Equipment"  # Maquinaria muebles y equipos
+"Other Properties"  # Otras propiedades
+"Construction in Progress"  # Construcción en curso
+"Accumulated Depreciation"  # Depreciación acumulada
+"Goodwill and Other Intangible Assets"  # Fondo de comercio y otros activos intangibles
 "Goodwill"  # Fondo de comercio
-"OtherIntangibleAssets"  # Otros activos intangibles
-"InvestmentsAndAdvances"  # Inversiones y alzas
-"LongTermEquityInvestment"  # Inversión de participación a largo plazo
-"InvestmentInFinancialAssets"  # Inversión en activos financieros
-"AvailableForSaleSecurities"  # Valores disponibles para la venta
-"OtherInvestments"  # Otras inversiones
-"FinancialAssets"  # Activos financieros
-"ReceivablesNonCurrent"  # Cuentas por cobrar no corrientes
-"DeferredAssetsNonCurrent"  # Activos diferidos no corrientes
-"DeferredTaxAssetsNonCurrent"  # Activos de impuestos diferidos no corrientes
-"PrepaidAssetsNonCurrent"  # Activos de prepago no corrientes
-"OtherNonCurrentAssets"  # Otros activos no corrientes
-"MinorityInterestTotalLiabilitiesNet"  # Interés minoritario neto total de los pasivos
-"TotalCurrentLiabilities"  # Pasivo corriente
-"AccruedLiabilities"  # Gastos devengados y por pagar
-"AccountsPayable"  # Cuentas por pagar
-"Payables"  # Cuentas a pagar
-"TotalTaxesPayable"  # Impuestos por pagar totales
-"IncomeTaxesPayable"  # Impuesto sobre la renta por pagar
-"DividendsPayable"  # Dividendos por pagar
-"DueToRelatedPartiesCurrent"  # Cuentas por pagar de partes vinculadas corrientes
-"OtherPayables"  # Otras cuentas por pagar
-"CurrentProvisions"  # Provisiones corrientes
-"CurrentPensionAndOtherPostRetirementBenefitPlans"  # Planes de pensiones y otros planes de beneficios corrientes posteriores a la jubilación
-"CurrentDebtAndCapitalLeaseObligation"  # Deuda corriente y obligación de arrendamiento del capital
-"CurrentDebt"  # Deuda corriente
-"OtherCurrentBorrowings"  # Otros préstamos corrientes
-"CapitalLeaseObligationCurrent"  # Obligación de arrendamiento del capital corriente
-"DeferredLiabilitiesCurrent"  # Pasivos diferidos corrientes
-"DeferredRevenueCurrent"  # Ingresos diferidos corrientes
-"OtherCurrentLiabilities"  # Otro pasivo corriente
-"MinorityInterestNonCurrentLiabilitiesNet"  # Interés minoritario neto total de los pasivos no corrientes
-"LongTermProvisions"  # Provisiones a largo plazo
-"LongTermDebtAndCapitalLeaseObligation"  # Deuda a largo plazo y obligación de arrendamiento del capital
-"LongTermDebt"  # Deuda a largo plazo
-"CapitalLeaseObligationLongTerm"  # Obligación de arrendamiento del capital a largo plazo
-"DeferredLiabilitiesNonCurrent"  # Pasivos diferidos no corrientes
-"DeferredTaxLiabilitiesNonCurrent"  # Pasivos de impuestos diferidos no corrientes
-"DeferredRevenueNonCurrent"  # Ingresos diferidos no corrientes
-"TradeAndOtherPayablesNonCurrent"  # Transacción y otras cuentas por pagar no corrientes
-"DueToRelatedPartiesNonCurrent"  # Cuentas por pagar de partes vinculadas no corrientes
-"EmployeeBenefits"  # Beneficios para los empleados
-"PensionAndOtherPostRetirementBenefitPlansNonCurrent"  # Planes de pensiones no corrientes y otros planes de beneficios posteriores a la jubilación
-"DerivativeProductLiabilities"  # Pasivos de productos derivados
-"OtherNonCurrentLiabilities"  # Otros pasivos no corrientes
-"MinorityInterestTotalEquityGross"  # Interés minoritario bruto total de la participación
-"TotalEquity"  # Patrimonio de los accionistas
-"ShareCapital"  # Acciones de capital
-"CommonStock"  # Acción ordinaria
-"AdditionalPaidInCapital"  # Capital adicional pagado
-"RetainedEarnings"  # Ganancias acumuladas
-"TreasuryStock"  # Autocartera
-"AccumulatedOtherComprehensiveIncome"  # Ganancias y pérdidas que no afectan a las ganancias acumuladas
-"CurrencyTranslationAdjustments"  # Ajustes de conversión de divisas
-"OtherEquityAdjustments"  # Otros ajustes de la participación
-"OtherEquityInterest"  # Otros intereses de participación
-"MinorityInterest"  # Interés minoritario
-"TotalCapitalization"  # Capitalización total
-"CommonSharesOutstanding"  # Participación en acciones ordinarias
-"FinanceLeaseObligations"  # Obligaciones de arrendamiento financiero
-"NetTangibleAssets"  # Activos tangibles netos
-"WorkingCapital"  # Capital de trabajo
-"InvestedCapital"  # Capital invertido
-"TangibleBookValue"  # Valor contable tangible
-"TotalDebt"  # Endeudamiento total
-"NetDebt"  # Deuda neta
-"ShareIssued"  # Acción emitida
-"OrdinarySharesNumber"  # Número de acciones ordinarias
-"TreasurySharesNumber"  # Número de acciones de tesorería
+"Other Intangible Assets"  # Otros activos intangibles
+"Investment Properties"  # Propiedades de inversión
+"Non-Current Prepaid Assets"  # Activos de prepago no corrientes
+"Other Non-Current Assets"  # Otros activos no corrientes
+"Total Liabilities Net Minority Interest"  # Interés minoritario neto total de los pasivos
+"Current Liabilities"  # Pasivo corriente
+"Current Debt And Capital Lease Obligation"  # Deuda corriente y obligación de arrendamiento del capital
+"Current Debt"  # Deuda corriente
+"Current Capital Lease Obligation"  # Obligación de arrendamiento del capital corriente
+"Other Current Liabilities"  # Otro pasivo corriente
+"Total Non Current Liabilities Net Minority Interest"  # Interés minoritario neto total de los pasivos no corrientes
+"Long-Term Provisions"  # Provisiones a largo plazo
+"Long-Term Debt and Capital Lease Obligation"  # Deuda a largo plazo y obligación de arrendamiento del capital
+"Long-Term Debt"  # Deuda a largo plazo
+"Long-Term Capital Lease Obligation"  # Obligación de arrendamiento del capital a largo plazo
+"Other Non-Current Liabilities"  # Otros pasivos no corrientes
+"Total Capitalization"  # Interés minoritario bruto total de la participación
+"Total Stockholders' Equity"  # Patrimonio de los accionistas
+"Capital Stock"  # Acciones de capital
+"Common Stock"  # Acción ordinaria
+"Additional Paid-In Capital"  # Capital adicional pagado
+"Retained Earnings"  # Ganancias acumuladas
+"Treasury Stock"  # Autocartera
+"Minority Interest"  # Interés minoritario
+"Total Capitalization"  # Capitalización total
+"Common Stock Equity"  # Participación en acciones ordinarias
+"Capital Lease Obligations"  # Obligaciones de arrendamiento financiero
+"Net Tangible Assets"  # Activos tangibles netos
+"Working Capital"  # Capital de trabajo
+"Invested Capital"  # Capital invertido
+"Tangible Book Value"  # Valor contable tangible
+"Total Debt"  # Endeudamiento total
+"Shares Issued"  # Acción emitida
+"Ordinary Shares Number"  # Número de acciones ordinarias
+"Treasury Shares Number"  # Número de acciones de tesorería
