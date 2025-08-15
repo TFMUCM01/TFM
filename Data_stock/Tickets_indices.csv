@@ -439,246 +439,246 @@ UNI.MC,2022,Madrid Stock Exchange,Unicaja Banco,Spain,UNI,IBEX 35
 UNI.MC,2023,Madrid Stock Exchange,Unicaja Banco,Spain,UNI,IBEX35
 UNI.MC,2024,Madrid Stock Exchange,Unicaja Banco,Spain,UNI,IBEX35
 UNI.MC,2025,Madrid Stock Exchange,Unicaja Banco,Spain,UNI,IBEX35
-AC.PA,2020,Francia,Accor,France,AC,CAC 40
-AI.PA,2020,Francia,Air Liquide,France,AI,CAC 40
-AIR.PA,2020,Francia,Airbus,France,AIR,CAC 40
-ALO.PA,2020,Francia,Alstom,France,ALO,CAC 40
-ATO.PA,2020,Francia,Atos,France,ATO,CAC 40
-BNP.PA,2020,Francia,BNP Paribas,France,BNP,CAC 40
-CAP.PA,2020,Francia,Capgemini,France,CAP,CAC 40
-CA.PA,2020,Francia,Carrefour,France,CA,CAC 40
-ACA.PA,2020,Francia,Credit Agricole,France,ACA,CAC 40
-SU.PA,2020,Francia,Schneider Electric,France,CS,CAC 40
-DSY.PA,2020,Francia,Dassault Systèmes,France,DAI,CAC 40
-EL.PA,2020,Francia,EssilorLuxottica,France,EL,CAC 40
-ENGI.PA,2020,Francia,Engie,France,ENGI,CAC 40
-ERF.PA,2020,Francia,Eurofins Scientific,France,ERF,CAC 40
+AC.PA,2020,France,Accor,France,AC,CAC 40
+AI.PA,2020,France,Air Liquide,France,AI,CAC 40
+AIR.PA,2020,France,Airbus,France,AIR,CAC 40
+ALO.PA,2020,France,Alstom,France,ALO,CAC 40
+ATO.PA,2020,France,Atos,France,ATO,CAC 40
+BNP.PA,2020,France,BNP Paribas,France,BNP,CAC 40
+CAP.PA,2020,France,Capgemini,France,CAP,CAC 40
+CA.PA,2020,France,Carrefour,France,CA,CAC 40
+ACA.PA,2020,France,Credit Agricole,France,ACA,CAC 40
+SU.PA,2020,France,Schneider Electric,France,CS,CAC 40
+DSY.PA,2020,France,Dassault Systèmes,France,DAI,CAC 40
+EL.PA,2020,France,EssilorLuxottica,France,EL,CAC 40
+ENGI.PA,2020,France,Engie,France,ENGI,CAC 40
+ERF.PA,2020,France,Eurofins Scientific,France,ERF,CAC 40
 FCA.MI,2020,Francia,Fiat Chrysler Automobiles,France,FCA,CAC 40
-GLE.PA,2020,Francia,Societe Generale,France,GLE,CAC 40
-RMS.PA,2020,Francia,Hermès International,France,HO,CAC 40
-KER.PA,2020,Francia,Kering,France,KER,CAC 40
-OR.PA,2020,Francia,L'Oreal,France,LR,CAC 40
-MC.PA,2020,Francia,LVMH,France,MC,CAC 40
-ML.PA,2020,Francia,Michelin,France,ML,CAC 40
-ORA.PA,2020,Francia,Orange,France,OR,CAC 40
-ORP.PA,2020,Francia,Orpea,France,ORE,CAC 40
-ORA.PA,2020,Francia,Orange,France,ORA,CAC 40
-RI.PA,2020,Francia,Pernod Ricard,France,PA,CAC 40
-PUB.PA,2020,Francia,Publicis Groupe,France,PBI,CAC 40
-RI.PA,2020,Francia,Pernod Ricard,France,PG,CAC 40
-PUB.PA,2020,Francia,Publicis Groupe,France,PUB,CAC 40
-RNO.PA,2020,Francia,Renault,France,RNO,CAC 40
-SAF.PA,2020,Francia,Safran,France,SAF,CAC 40
-SAN.PA,2020,Francia,Sanofi,France,SAN,CAC 40
-SGO.PA,2020,Francia,Saint-Gobain,France,SGO,CAC 40
-SW.PA,2020,Francia,Sodexo,France,SOI,CAC 40
-STM.PA,2020,Francia,STMicroelectronics,France,STE,CAC 40
-SEV.PA,2020,Francia,Suez,France,SU,CAC 40
+GLE.PA,2020,France,Societe Generale,France,GLE,CAC 40
+RMS.PA,2020,France,Hermès International,France,HO,CAC 40
+KER.PA,2020,France,Kering,France,KER,CAC 40
+OR.PA,2020,France,L'Oreal,France,LR,CAC 40
+MC.PA,2020,France,LVMH,France,MC,CAC 40
+ML.PA,2020,France,Michelin,France,ML,CAC 40
+ORA.PA,2020,France,Orange,France,OR,CAC 40
+ORP.PA,2020,France,Orpea,France,ORE,CAC 40
+ORA.PA,2020,France,Orange,France,ORA,CAC 40
+RI.PA,2020,France,Pernod Ricard,France,PA,CAC 40
+PUB.PA,2020,France,Publicis Groupe,France,PBI,CAC 40
+RI.PA,2020,France,Pernod Ricard,France,PG,CAC 40
+PUB.PA,2020,France,Publicis Groupe,France,PUB,CAC 40
+RNO.PA,2020,France,Renault,France,RNO,CAC 40
+SAF.PA,2020,France,Safran,France,SAF,CAC 40
+SAN.PA,2020,France,Sanofi,France,SAN,CAC 40
+SGO.PA,2020,France,Saint-Gobain,France,SGO,CAC 40
+SW.PA,2020,France,Sodexo,France,SOI,CAC 40
+STM.PA,2020,France,STMicroelectronics,France,STE,CAC 40
+SEV.PA,2020,France,Suez,France,SU,CAC 40
 SOLB.BR,2020,Francia,Solvay,France,SW,CAC 40
-FTI.PA,2020,Francia,TechnipFMC,France,TEP,CAC 40
-URW.PA,2020,Francia,Unibail-Rodamco-Westfield,France,URW,CAC 40
-VIE.PA,2020,Francia,Veolia Environnement,France,VIE,CAC 40
-WLN.PA,2020,Francia,Worldline,France,WLN,CAC 40
-AI.PA,2021,Francia,Air Liquide,France,AI,CAC 40
-AIR.PA,2021,Francia,Airbus,France,AIR,CAC 40
-ALO.PA,2021,Francia,Alstom,France,ALO,CAC 40
-ATO.PA,2021,Francia,Atos,France,ATO,CAC 40
-BNP.PA,2021,Francia,BNP Paribas,France,BNP,CAC 40
-CAP.PA,2021,Francia,Capgemini,France,CAP,CAC 40
-CA.PA,2021,Francia,Carrefour,France,CA,CAC 40
-ACA.PA,2021,Francia,Credit Agricole,France,ACA,CAC 40
-SU.PA,2021,Francia,Schneider Electric,France,CS,CAC 40
-DSY.PA,2021,Francia,Dassault Systèmes,France,DAI,CAC 40
-EL.PA,2021,Francia,EssilorLuxottica,France,EL,CAC 40
-ENGI.PA,2021,Francia,Engie,France,ENGI,CAC 40
-ERF.PA,2021,Francia,Eurofins Scientific,France,ERF,CAC 40
+FTI.PA,2020,France,TechnipFMC,France,TEP,CAC 40
+URW.PA,2020,France,Unibail-Rodamco-Westfield,France,URW,CAC 40
+VIE.PA,2020,France,Veolia Environnement,France,VIE,CAC 40
+WLN.PA,2020,France,Worldline,France,WLN,CAC 40
+AI.PA,2021,France,Air Liquide,France,AI,CAC 40
+AIR.PA,2021,France,Airbus,France,AIR,CAC 40
+ALO.PA,2021,France,Alstom,France,ALO,CAC 40
+ATO.PA,2021,France,Atos,France,ATO,CAC 40
+BNP.PA,2021,France,BNP Paribas,France,BNP,CAC 40
+CAP.PA,2021,France,Capgemini,France,CAP,CAC 40
+CA.PA,2021,France,Carrefour,France,CA,CAC 40
+ACA.PA,2021,France,Credit Agricole,France,ACA,CAC 40
+SU.PA,2021,France,Schneider Electric,France,CS,CAC 40
+DSY.PA,2021,France,Dassault Systèmes,France,DAI,CAC 40
+EL.PA,2021,France,EssilorLuxottica,France,EL,CAC 40
+ENGI.PA,2021,France,Engie,France,ENGI,CAC 40
+ERF.PA,2021,France,Eurofins Scientific,France,ERF,CAC 40
 FCA.MI,2021,Francia,Fiat Chrysler Automobiles,France,FCA,CAC 40
-GLE.PA,2021,Francia,Societe Generale,France,GLE,CAC 40
-RMS.PA,2021,Francia,Hermès International,France,HO,CAC 40
-KER.PA,2021,Francia,Kering,France,KER,CAC 40
-OR.PA,2021,Francia,L'Oreal,France,LR,CAC 40
-MC.PA,2021,Francia,LVMH,France,MC,CAC 40
-ML.PA,2021,Francia,Michelin,France,ML,CAC 40
-ORA.PA,2021,Francia,Orange,France,OR,CAC 40
-ORP.PA,2021,Francia,Orpea,France,ORE,CAC 40
-ORA.PA,2021,Francia,Orange,France,ORA,CAC 40
-RI.PA,2021,Francia,Pernod Ricard,France,PA,CAC 40
-PUB.PA,2021,Francia,Publicis Groupe,France,PBI,CAC 40
-RI.PA,2021,Francia,Pernod Ricard,France,PG,CAC 40
-PUB.PA,2021,Francia,Publicis Groupe,France,PUB,CAC 40
-RNO.PA,2021,Francia,Renault,France,RNO,CAC 40
-SAF.PA,2021,Francia,Safran,France,SAF,CAC 40
-SAN.PA,2021,Francia,Sanofi,France,SAN,CAC 40
-SGO.PA,2021,Francia,Saint-Gobain,France,SGO,CAC 40
-SW.PA,2021,Francia,Sodexo,France,SOI,CAC 40
-STM.PA,2021,Francia,STMicroelectronics,France,STE,CAC 40
-SEV.PA,2021,Francia,Suez,France,SU,CAC 40
+GLE.PA,2021,France,Societe Generale,France,GLE,CAC 40
+RMS.PA,2021,France,Hermès International,France,HO,CAC 40
+KER.PA,2021,France,Kering,France,KER,CAC 40
+OR.PA,2021,France,L'Oreal,France,LR,CAC 40
+MC.PA,2021,France,LVMH,France,MC,CAC 40
+ML.PA,2021,France,Michelin,France,ML,CAC 40
+ORA.PA,2021,France,Orange,France,OR,CAC 40
+ORP.PA,2021,France,Orpea,France,ORE,CAC 40
+ORA.PA,2021,France,Orange,France,ORA,CAC 40
+RI.PA,2021,France,Pernod Ricard,France,PA,CAC 40
+PUB.PA,2021,France,Publicis Groupe,France,PBI,CAC 40
+RI.PA,2021,France,Pernod Ricard,France,PG,CAC 40
+PUB.PA,2021,France,Publicis Groupe,France,PUB,CAC 40
+RNO.PA,2021,France,Renault,France,RNO,CAC 40
+SAF.PA,2021,France,Safran,France,SAF,CAC 40
+SAN.PA,2021,France,Sanofi,France,SAN,CAC 40
+SGO.PA,2021,France,Saint-Gobain,France,SGO,CAC 40
+SW.PA,2021,France,Sodexo,France,SOI,CAC 40
+STM.PA,2021,France,STMicroelectronics,France,STE,CAC 40
+SEV.PA,2021,France,Suez,France,SU,CAC 40
 SOLB.BR,2021,Francia,Solvay,France,SW,CAC 40
-FTI.PA,2021,Francia,TechnipFMC,France,TEP,CAC 40
-URW.PA,2021,Francia,Unibail-Rodamco-Westfield,France,URW,CAC 40
-VIE.PA,2021,Francia,Veolia Environnement,France,VIE,CAC 40
-WLN.PA,2021,Francia,Worldline,France,WLN,CAC 40
-STLA.PA,2021,Francia,Stellantis N.V.,France,STLA,CAC 40
-AC.PA,2022,Francia,Accor,France,AC,CAC 40
-AI.PA,2022,Francia,Air Liquide,France,AI,CAC 40
-AIR.PA,2022,Francia,Airbus,France,AIR,CAC 40
-ALO.PA,2022,Francia,Alstom,France,ALO,CAC 40
+FTI.PA,2021,France,TechnipFMC,France,TEP,CAC 40
+URW.PA,2021,France,Unibail-Rodamco-Westfield,France,URW,CAC 40
+VIE.PA,2021,France,Veolia Environnement,France,VIE,CAC 40
+WLN.PA,2021,France,Worldline,France,WLN,CAC 40
+STLA.PA,2021,France,Stellantis N.V.,France,STLA,CAC 40
+AC.PA,2022,France,Accor,France,AC,CAC 40
+AI.PA,2022,France,Air Liquide,France,AI,CAC 40
+AIR.PA,2022,France,Airbus,France,AIR,CAC 40
+ALO.PA,2022,France,Alstom,France,ALO,CAC 40
 MT.AS,2022,Francia,ArcelorMittal,France,MT,CAC 40
-CS.PA,2022,Francia,AXA,France,CS,CAC 40
-BNP.PA,2022,Francia,BNP Paribas,France,BNP,CAC 40
-EN.PA,2022,Francia,Bouygues,France,EN,CAC 40
-CAP.PA,2022,Francia,Capgemini,France,CAP,CAC 40
-CA.PA,2022,Francia,Carrefour,France,CA,CAC 40
-ACA.PA,2022,Francia,Credit Agricole,France,ACA,CAC 40
-BN.PA,2022,Francia,Danone,France,BN,CAC 40
-DSY.PA,2022,Francia,Dassault Systèmes,France,DSY,CAC 40
-ENGI.PA,2022,Francia,Engie,France,ENGI,CAC 40
-EL.PA,2022,Francia,EssilorLuxottica,France,EL,CAC 40
-ERF.PA,2022,Francia,Eurofins Scientific,France,ERF,CAC 40
-RMS.PA,2022,Francia,Hermès International,France,RMS,CAC 40
-KER.PA,2022,Francia,Kering,France,KER,CAC 40
-LR.PA,2022,Francia,Legrand,France,LR,CAC 40
-OR.PA,2022,Francia,L'Oreal,France,OR,CAC 40
-MC.PA,2022,Francia,LVMH,France,MC,CAC 40
-ML.PA,2022,Francia,Michelin,France,ML,CAC 40
-ORA.PA,2022,Francia,Orange,France,ORA,CAC 40
-RI.PA,2022,Francia,Pernod Ricard,France,RI,CAC 40
-PUB.PA,2022,Francia,Publicis Groupe,France,PUB,CAC 40
-RNO.PA,2022,Francia,Renault,France,RNO,CAC 40
-SAF.PA,2022,Francia,Safran,France,SAF,CAC 40
-SGO.PA,2022,Francia,Saint-Gobain,France,SGO,CAC 40
-SAN.PA,2022,Francia,Sanofi,France,SAN,CAC 40
-SU.PA,2022,Francia,Schneider Electric,France,SU,CAC 40
-GLE.PA,2022,Francia,Societe Generale,France,GLE,CAC 40
-STM.PA,2022,Francia,STMicroelectronics,France,STM,CAC 40
-STLA.PA,2022,Francia,Stellantis N.V.,France,STLA,CAC 40
-TEP.PA,2022,Francia,Teleperformance,France,TEP,CAC 40
-HO.PA,2022,Francia,Thales,France,HO,CAC 40
-TTE.PA,2022,Francia,TotalEnergies,France,TTE,CAC 40
-URW.PA,2022,Francia,Unibail-Rodamco-Westfield,France,URW,CAC 40
-VIE.PA,2022,Francia,Veolia Environnement,France,VIE,CAC 40
-DG.PA,2022,Francia,Vinci,France,DG,CAC 40
-WLN.PA,2022,Francia,Worldline,France,WLN,CAC 40
-AI.PA,2023,Francia,Air Liquide,France,AI,CAC 40
-AIR.PA,2023,Francia,Airbus,France,AIR,CAC 40
-ALO.PA,2023,Francia,Alstom,France,ALO,CAC 40
+CS.PA,2022,France,AXA,France,CS,CAC 40
+BNP.PA,2022,France,BNP Paribas,France,BNP,CAC 40
+EN.PA,2022,France,Bouygues,France,EN,CAC 40
+CAP.PA,2022,France,Capgemini,France,CAP,CAC 40
+CA.PA,2022,France,Carrefour,France,CA,CAC 40
+ACA.PA,2022,France,Credit Agricole,France,ACA,CAC 40
+BN.PA,2022,France,Danone,France,BN,CAC 40
+DSY.PA,2022,France,Dassault Systèmes,France,DSY,CAC 40
+ENGI.PA,2022,France,Engie,France,ENGI,CAC 40
+EL.PA,2022,France,EssilorLuxottica,France,EL,CAC 40
+ERF.PA,2022,France,Eurofins Scientific,France,ERF,CAC 40
+RMS.PA,2022,France,Hermès International,France,RMS,CAC 40
+KER.PA,2022,France,Kering,France,KER,CAC 40
+LR.PA,2022,France,Legrand,France,LR,CAC 40
+OR.PA,2022,France,L'Oreal,France,OR,CAC 40
+MC.PA,2022,France,LVMH,France,MC,CAC 40
+ML.PA,2022,France,Michelin,France,ML,CAC 40
+ORA.PA,2022,France,Orange,France,ORA,CAC 40
+RI.PA,2022,France,Pernod Ricard,France,RI,CAC 40
+PUB.PA,2022,France,Publicis Groupe,France,PUB,CAC 40
+RNO.PA,2022,France,Renault,France,RNO,CAC 40
+SAF.PA,2022,France,Safran,France,SAF,CAC 40
+SGO.PA,2022,France,Saint-Gobain,France,SGO,CAC 40
+SAN.PA,2022,France,Sanofi,France,SAN,CAC 40
+SU.PA,2022,France,Schneider Electric,France,SU,CAC 40
+GLE.PA,2022,France,Societe Generale,France,GLE,CAC 40
+STM.PA,2022,France,STMicroelectronics,France,STM,CAC 40
+STLA.PA,2022,France,Stellantis N.V.,France,STLA,CAC 40
+TEP.PA,2022,France,Teleperformance,France,TEP,CAC 40
+HO.PA,2022,France,Thales,France,HO,CAC 40
+TTE.PA,2022,France,TotalEnergies,France,TTE,CAC 40
+URW.PA,2022,France,Unibail-Rodamco-Westfield,France,URW,CAC 40
+VIE.PA,2022,France,Veolia Environnement,France,VIE,CAC 40
+DG.PA,2022,France,Vinci,France,DG,CAC 40
+WLN.PA,2022,France,Worldline,France,WLN,CAC 40
+AI.PA,2023,France,Air Liquide,France,AI,CAC 40
+AIR.PA,2023,France,Airbus,France,AIR,CAC 40
+ALO.PA,2023,France,Alstom,France,ALO,CAC 40
 MT.AS,2023,Francia,ArcelorMittal,France,MT,CAC 40
-CS.PA,2023,Francia,AXA,France,CS,CAC 40
-BNP.PA,2023,Francia,BNP Paribas,France,BNP,CAC 40
-EN.PA,2023,Francia,Bouygues,France,EN,CAC 40
-CAP.PA,2023,Francia,Capgemini,France,CAP,CAC 40
-CA.PA,2023,Francia,Carrefour,France,CA,CAC 40
-ACA.PA,2023,Francia,Credit Agricole,France,ACA,CAC 40
-BN.PA,2023,Francia,Danone,France,BN,CAC 40
-DSY.PA,2023,Francia,Dassault Systèmes,France,DSY,CAC 40
-ENGI.PA,2023,Francia,Engie,France,ENGI,CAC 40
-EL.PA,2023,Francia,EssilorLuxottica,France,EL,CAC 40
-ERF.PA,2023,Francia,Eurofins Scientific,France,ERF,CAC 40
-RMS.PA,2023,Francia,Hermès International,France,RMS,CAC 40
-KER.PA,2023,Francia,Kering,France,KER,CAC 40
-LR.PA,2023,Francia,Legrand,France,LR,CAC 40
-OR.PA,2023,Francia,L'Oreal,France,OR,CAC 40
-MC.PA,2023,Francia,LVMH,France,MC,CAC 40
-ML.PA,2023,Francia,Michelin,France,ML,CAC 40
-ORA.PA,2023,Francia,Orange,France,ORA,CAC 40
-RI.PA,2023,Francia,Pernod Ricard,France,RI,CAC 40
-PUB.PA,2023,Francia,Publicis Groupe,France,PUB,CAC 40
-RNO.PA,2023,Francia,Renault,France,RNO,CAC 40
-SAF.PA,2023,Francia,Safran,France,SAF,CAC 40
-SGO.PA,2023,Francia,Saint-Gobain,France,SGO,CAC 40
-SAN.PA,2023,Francia,Sanofi,France,SAN,CAC 40
-SU.PA,2023,Francia,Schneider Electric,France,SU,CAC 40
-GLE.PA,2023,Francia,Societe Generale,France,GLE,CAC 40
-STM.PA,2023,Francia,STMicroelectronics,France,STM,CAC 40
-STLA.PA,2023,Francia,Stellantis N.V.,France,STLA,CAC 40
-TEP.PA,2023,Francia,Teleperformance,France,TEP,CAC 40
-HO.PA,2023,Francia,Thales,France,HO,CAC 40
-TTE.PA,2023,Francia,TotalEnergies,France,TTE,CAC 40
-URW.PA,2023,Francia,Unibail-Rodamco-Westfield,France,URW,CAC 40
-VIE.PA,2023,Francia,Veolia Environnement,France,VIE,CAC 40
-DG.PA,2023,Francia,Vinci,France,DG,CAC 40
-VIV.PA,2023,Francia,Vivendi,France,VIV,CAC 40
-EDEN.PA,2023,Francia,Edenred,France,EDEN,CAC 40
-AC.PA,2024,Francia,Accor,France,AC,CAC 40
-AI.PA,2024,Francia,Air Liquide,France,AI,CAC 40
-AIR.PA,2024,Francia,Airbus,France,AIR,CAC 40
+CS.PA,2023,France,AXA,France,CS,CAC 40
+BNP.PA,2023,France,BNP Paribas,France,BNP,CAC 40
+EN.PA,2023,France,Bouygues,France,EN,CAC 40
+CAP.PA,2023,France,Capgemini,France,CAP,CAC 40
+CA.PA,2023,France,Carrefour,France,CA,CAC 40
+ACA.PA,2023,France,Credit Agricole,France,ACA,CAC 40
+BN.PA,2023,France,Danone,France,BN,CAC 40
+DSY.PA,2023,France,Dassault Systèmes,France,DSY,CAC 40
+ENGI.PA,2023,France,Engie,France,ENGI,CAC 40
+EL.PA,2023,France,EssilorLuxottica,France,EL,CAC 40
+ERF.PA,2023,France,Eurofins Scientific,France,ERF,CAC 40
+RMS.PA,2023,France,Hermès International,France,RMS,CAC 40
+KER.PA,2023,France,Kering,France,KER,CAC 40
+LR.PA,2023,France,Legrand,France,LR,CAC 40
+OR.PA,2023,France,L'Oreal,France,OR,CAC 40
+MC.PA,2023,France,LVMH,France,MC,CAC 40
+ML.PA,2023,France,Michelin,France,ML,CAC 40
+ORA.PA,2023,France,Orange,France,ORA,CAC 40
+RI.PA,2023,France,Pernod Ricard,France,RI,CAC 40
+PUB.PA,2023,France,Publicis Groupe,France,PUB,CAC 40
+RNO.PA,2023,France,Renault,France,RNO,CAC 40
+SAF.PA,2023,France,Safran,France,SAF,CAC 40
+SGO.PA,2023,France,Saint-Gobain,France,SGO,CAC 40
+SAN.PA,2023,France,Sanofi,France,SAN,CAC 40
+SU.PA,2023,France,Schneider Electric,France,SU,CAC 40
+GLE.PA,2023,France,Societe Generale,France,GLE,CAC 40
+STM.PA,2023,France,STMicroelectronics,France,STM,CAC 40
+STLA.PA,2023,France,Stellantis N.V.,France,STLA,CAC 40
+TEP.PA,2023,France,Teleperformance,France,TEP,CAC 40
+HO.PA,2023,France,Thales,France,HO,CAC 40
+TTE.PA,2023,France,TotalEnergies,France,TTE,CAC 40
+URW.PA,2023,France,Unibail-Rodamco-Westfield,France,URW,CAC 40
+VIE.PA,2023,France,Veolia Environnement,France,VIE,CAC 40
+DG.PA,2023,France,Vinci,France,DG,CAC 40
+VIV.PA,2023,France,Vivendi,France,VIV,CAC 40
+EDEN.PA,2023,France,Edenred,France,EDEN,CAC 40
+AC.PA,2024,France,Accor,France,AC,CAC 40
+AI.PA,2024,France,Air Liquide,France,AI,CAC 40
+AIR.PA,2024,France,Airbus,France,AIR,CAC 40
 MT.AS,2024,Francia,ArcelorMittal,France,MT,CAC 40
-CS.PA,2024,Francia,AXA,France,CS,CAC 40
-BNP.PA,2024,Francia,BNP Paribas,France,BNP,CAC 40
-EN.PA,2024,Francia,Bouygues,France,EN,CAC 40
-BVI.PA,2024,Francia,Bureau Veritas,France,BVI,CAC 40
-CAP.PA,2024,Francia,Capgemini,France,CAP,CAC 40
-CA.PA,2024,Francia,Carrefour,France,CA,CAC 40
-ACA.PA,2024,Francia,Credit Agricole,France,ACA,CAC 40
-BN.PA,2024,Francia,Danone,France,BN,CAC 40
-DSY.PA,2024,Francia,Dassault Systèmes,France,DSY,CAC 40
-EDEN.PA,2024,Francia,Edenred,France,EDEN,CAC 40
-ENGI.PA,2024,Francia,Engie,France,ENGI,CAC 40
-EL.PA,2024,Francia,EssilorLuxottica,France,EL,CAC 40
-ERF.PA,2024,Francia,Eurofins Scientific,France,ERF,CAC 40
-RMS.PA,2024,Francia,Hermès International,France,RMS,CAC 40
-KER.PA,2024,Francia,Kering,France,KER,CAC 40
-LR.PA,2024,Francia,Legrand,France,LR,CAC 40
-OR.PA,2024,Francia,L'Oreal,France,OR,CAC 40
-MC.PA,2024,Francia,LVMH,France,MC,CAC 40
-ML.PA,2024,Francia,Michelin,France,ML,CAC 40
-ORA.PA,2024,Francia,Orange,France,ORA,CAC 40
-RI.PA,2024,Francia,Pernod Ricard,France,RI,CAC 40
-PUB.PA,2024,Francia,Publicis Groupe,France,PUB,CAC 40
-RNO.PA,2024,Francia,Renault,France,RNO,CAC 40
-SAF.PA,2024,Francia,Safran,France,SAF,CAC 40
-SGO.PA,2024,Francia,Saint-Gobain,France,SGO,CAC 40
-SAN.PA,2024,Francia,Sanofi,France,SAN,CAC 40
-SU.PA,2024,Francia,Schneider Electric,France,SU,CAC 40
-GLE.PA,2024,Francia,Societe Generale,France,GLE,CAC 40
-STLA.PA,2024,Francia,Stellantis N.V.,France,STLA,CAC 40
-STM.PA,2024,Francia,STMicroelectronics,France,STM,CAC 40
-TEP.PA,2024,Francia,Teleperformance,France,TEP,CAC 40
-HO.PA,2024,Francia,Thales,France,HO,CAC 40
-TTE.PA,2024,Francia,TotalEnergies,France,TTE,CAC 40
-URW.PA,2024,Francia,Unibail-Rodamco-Westfield,France,URW,CAC 40
-VIE.PA,2024,Francia,Veolia Environnement,France,VIE,CAC 40
-DG.PA,2024,Francia,Vinci,France,DG,CAC 40
-AC.PA,2025,Francia,Accor,France,AC,CAC 40
-AI.PA,2025,Francia,Air Liquide,France,AI,CAC 40
-AIR.PA,2025,Francia,Airbus,France,AIR,CAC 40
+CS.PA,2024,France,AXA,France,CS,CAC 40
+BNP.PA,2024,France,BNP Paribas,France,BNP,CAC 40
+EN.PA,2024,France,Bouygues,France,EN,CAC 40
+BVI.PA,2024,France,Bureau Veritas,France,BVI,CAC 40
+CAP.PA,2024,France,Capgemini,France,CAP,CAC 40
+CA.PA,2024,France,Carrefour,France,CA,CAC 40
+ACA.PA,2024,France,Credit Agricole,France,ACA,CAC 40
+BN.PA,2024,France,Danone,France,BN,CAC 40
+DSY.PA,2024,France,Dassault Systèmes,France,DSY,CAC 40
+EDEN.PA,2024,France,Edenred,France,EDEN,CAC 40
+ENGI.PA,2024,France,Engie,France,ENGI,CAC 40
+EL.PA,2024,France,EssilorLuxottica,France,EL,CAC 40
+ERF.PA,2024,France,Eurofins Scientific,France,ERF,CAC 40
+RMS.PA,2024,France,Hermès International,France,RMS,CAC 40
+KER.PA,2024,France,Kering,France,KER,CAC 40
+LR.PA,2024,France,Legrand,France,LR,CAC 40
+OR.PA,2024,France,L'Oreal,France,OR,CAC 40
+MC.PA,2024,France,LVMH,France,MC,CAC 40
+ML.PA,2024,France,Michelin,France,ML,CAC 40
+ORA.PA,2024,France,Orange,France,ORA,CAC 40
+RI.PA,2024,France,Pernod Ricard,France,RI,CAC 40
+PUB.PA,2024,France,Publicis Groupe,France,PUB,CAC 40
+RNO.PA,2024,France,Renault,France,RNO,CAC 40
+SAF.PA,2024,France,Safran,France,SAF,CAC 40
+SGO.PA,2024,France,Saint-Gobain,France,SGO,CAC 40
+SAN.PA,2024,France,Sanofi,France,SAN,CAC 40
+SU.PA,2024,France,Schneider Electric,France,SU,CAC 40
+GLE.PA,2024,France,Societe Generale,France,GLE,CAC 40
+STLA.PA,2024,France,Stellantis N.V.,France,STLA,CAC 40
+STM.PA,2024,France,STMicroelectronics,France,STM,CAC 40
+TEP.PA,2024,France,Teleperformance,France,TEP,CAC 40
+HO.PA,2024,France,Thales,France,HO,CAC 40
+TTE.PA,2024,France,TotalEnergies,France,TTE,CAC 40
+URW.PA,2024,France,Unibail-Rodamco-Westfield,France,URW,CAC 40
+VIE.PA,2024,France,Veolia Environnement,France,VIE,CAC 40
+DG.PA,2024,France,Vinci,France,DG,CAC 40
+AC.PA,2025,France,Accor,France,AC,CAC 40
+AI.PA,2025,France,Air Liquide,France,AI,CAC 40
+AIR.PA,2025,France,Airbus,France,AIR,CAC 40
 MT.AS,2025,Francia,ArcelorMittal,France,MT,CAC 40
-CS.PA,2025,Francia,AXA,France,CS,CAC 40
-BNP.PA,2025,Francia,BNP Paribas,France,BNP,CAC 40
-EN.PA,2025,Francia,Bouygues,France,EN,CAC 40
-BVI.PA,2025,Francia,Bureau Veritas,France,BVI,CAC 40
-CAP.PA,2025,Francia,Capgemini,France,CAP,CAC 40
-CA.PA,2025,Francia,Carrefour,France,CA,CAC 40
-ACA.PA,2025,Francia,Credit Agricole,France,ACA,CAC 40
-BN.PA,2025,Francia,Danone,France,BN,CAC 40
-DSY.PA,2025,Francia,Dassault Systèmes,France,DSY,CAC 40
-EDEN.PA,2025,Francia,Edenred,France,EDEN,CAC 40
-ENGI.PA,2025,Francia,Engie,France,ENGI,CAC 40
-EL.PA,2025,Francia,EssilorLuxottica,France,EL,CAC 40
-ERF.PA,2025,Francia,Eurofins Scientific,France,ERF,CAC 40
-RMS.PA,2025,Francia,Hermès International,France,RMS,CAC 40
-KER.PA,2025,Francia,Kering,France,KER,CAC 40
-LR.PA,2025,Francia,Legrand,France,LR,CAC 40
-OR.PA,2025,Francia,L'Oreal,France,OR,CAC 40
-MC.PA,2025,Francia,LVMH,France,MC,CAC 40
-ML.PA,2025,Francia,Michelin,France,ML,CAC 40
-ORA.PA,2025,Francia,Orange,France,ORA,CAC 40
-RI.PA,2025,Francia,Pernod Ricard,France,RI,CAC 40
-PUB.PA,2025,Francia,Publicis Groupe,France,PUB,CAC 40
-RNO.PA,2025,Francia,Renault,France,RNO,CAC 40
-SAF.PA,2025,Francia,Safran,France,SAF,CAC 40
-SGO.PA,2025,Francia,Saint-Gobain,France,SGO,CAC 40
-SAN.PA,2025,Francia,Sanofi,France,SAN,CAC 40
-SU.PA,2025,Francia,Schneider Electric,France,SU,CAC 40
-GLE.PA,2025,Francia,Societe Generale,France,GLE,CAC 40
-STLA.PA,2025,Francia,Stellantis N.V.,France,STLA,CAC 40
-STM.PA,2025,Francia,STMicroelectronics,France,STM,CAC 40
-TEP.PA,2025,Francia,Teleperformance,France,TEP,CAC 40
-HO.PA,2025,Francia,Thales,France,HO,CAC 40
-TTE.PA,2025,Francia,TotalEnergies,France,TTE,CAC 40
-URW.PA,2025,Francia,Unibail-Rodamco-Westfield,France,URW,CAC 40
-VIE.PA,2025,Francia,Veolia Environnement,France,VIE,CAC 40
-DG.PA,2025,Francia,Vinci,France,DG,CAC 40
+CS.PA,2025,France,AXA,France,CS,CAC 40
+BNP.PA,2025,France,BNP Paribas,France,BNP,CAC 40
+EN.PA,2025,France,Bouygues,France,EN,CAC 40
+BVI.PA,2025,France,Bureau Veritas,France,BVI,CAC 40
+CAP.PA,2025,France,Capgemini,France,CAP,CAC 40
+CA.PA,2025,France,Carrefour,France,CA,CAC 40
+ACA.PA,2025,France,Credit Agricole,France,ACA,CAC 40
+BN.PA,2025,France,Danone,France,BN,CAC 40
+DSY.PA,2025,France,Dassault Systèmes,France,DSY,CAC 40
+EDEN.PA,2025,France,Edenred,France,EDEN,CAC 40
+ENGI.PA,2025,France,Engie,France,ENGI,CAC 40
+EL.PA,2025,France,EssilorLuxottica,France,EL,CAC 40
+ERF.PA,2025,France,Eurofins Scientific,France,ERF,CAC 40
+RMS.PA,2025,France,Hermès International,France,RMS,CAC 40
+KER.PA,2025,France,Kering,France,KER,CAC 40
+LR.PA,2025,France,Legrand,France,LR,CAC 40
+OR.PA,2025,France,L'Oreal,France,OR,CAC 40
+MC.PA,2025,France,LVMH,France,MC,CAC 40
+ML.PA,2025,France,Michelin,France,ML,CAC 40
+ORA.PA,2025,France,Orange,France,ORA,CAC 40
+RI.PA,2025,France,Pernod Ricard,France,RI,CAC 40
+PUB.PA,2025,France,Publicis Groupe,France,PUB,CAC 40
+RNO.PA,2025,France,Renault,France,RNO,CAC 40
+SAF.PA,2025,France,Safran,France,SAF,CAC 40
+SGO.PA,2025,France,Saint-Gobain,France,SGO,CAC 40
+SAN.PA,2025,France,Sanofi,France,SAN,CAC 40
+SU.PA,2025,France,Schneider Electric,France,SU,CAC 40
+GLE.PA,2025,France,Societe Generale,France,GLE,CAC 40
+STLA.PA,2025,France,Stellantis N.V.,France,STLA,CAC 40
+STM.PA,2025,France,STMicroelectronics,France,STM,CAC 40
+TEP.PA,2025,France,Teleperformance,France,TEP,CAC 40
+HO.PA,2025,France,Thales,France,HO,CAC 40
+TTE.PA,2025,France,TotalEnergies,France,TTE,CAC 40
+URW.PA,2025,France,Unibail-Rodamco-Westfield,France,URW,CAC 40
+VIE.PA,2025,France,Veolia Environnement,France,VIE,CAC 40
+DG.PA,2025,France,Vinci,France,DG,CAC 40
 A2A.MI,2020,Italia,A2A,Italy,A2A,FTSE MIB
 AMP.MI,2020,Italia,Amplifon,Italy,AMP,FTSE MIB
 ATL.MI,2020,Italia,Atlantia,Italy,ATL,FTSE MIB
