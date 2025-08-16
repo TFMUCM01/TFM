@@ -161,7 +161,7 @@ def scrape_country(spec: Dict) -> pd.DataFrame:
         # Respeto a TradingView (pequeña pausa)
         time.sleep(0.15)
 
-    df = pd.DataFrame(rows, columns=["Ticker_yahoo", "Nombre", "Pais", "Ticket"])
+    df = pd.DataFrame(rows, columns=["TICKER_YAHOO", "NOMBRE", "PAIS", "TICKET"])
     return df
 
 def overwrite_snowflake(df: pd.DataFrame, cfg: Dict):
@@ -172,6 +172,7 @@ def overwrite_snowflake(df: pd.DataFrame, cfg: Dict):
         warehouse=cfg["warehouse"],
         database=cfg["database"],
         schema=cfg["schema"],
+        quote_identifiers=False
     )
     try:
         fq_table = f'{cfg["database"]}.{cfg["schema"]}.{cfg["table"]}'
@@ -200,6 +201,10 @@ if __name__ == "__main__":
     full_df = pd.concat(all_frames, ignore_index=True)
     # Quita posibles duplicados exactos por seguridad
     full_df = full_df.drop_duplicates(subset=["Ticker_yahoo"]).reset_index(drop=True)
+
+    # 2) Justo antes de subir todo a Snowflake (por si acaso):
+    full_df.columns = [c.upper() for c in full_df.columns]
+
 
     print(f"TOTAL filas a subir: {len(full_df)}")
     overwrite_snowflake(full_df, SNOWFLAKE_CONFIG)
