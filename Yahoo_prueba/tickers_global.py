@@ -199,13 +199,18 @@ if __name__ == "__main__":
         all_frames.append(df)
 
     full_df = pd.concat(all_frames, ignore_index=True)
-    # Quita posibles duplicados exactos por seguridad
-    full_df = full_df.drop_duplicates(subset=["Ticker_yahoo"]).reset_index(drop=True)
 
-    # 2) Justo antes de subir todo a Snowflake (por si acaso):
-    full_df.columns = [c.upper() for c in full_df.columns]
+    # 👇 Normaliza nombres de columnas y valida
+    full_df = full_df.rename(columns=str.upper)
+    expected = {"TICKER_YAHOO", "NOMBRE", "PAIS", "TICKET"}
+    missing = expected - set(full_df.columns)
+    if missing:
+        raise ValueError(f"Faltan columnas en el DataFrame: {missing}. Columnas actuales: {list(full_df.columns)}")
 
+    # 👇 Deduplicado por ticker de Yahoo
+    full_df = full_df.drop_duplicates(subset=["TICKER_YAHOO"]).reset_index(drop=True)
 
-    print(f"TOTAL filas a subir: {len(full_df)}")
+    print(f"TOTAL filas a subir (tras dedupe): {len(full_df)}")
     overwrite_snowflake(full_df, SNOWFLAKE_CONFIG)
     print("¡Hecho!")
+
