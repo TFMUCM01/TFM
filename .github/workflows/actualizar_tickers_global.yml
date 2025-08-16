@@ -43,6 +43,7 @@ jobs:
           pip install requests pandas snowflake-connector-python beautifulsoup4 lxml
 
       - name: Run scraper & load to Snowflake
+        working-directory: Yahoo_prueba   # <--- tu carpeta
         run: python tickers_global.py
 
       # (Opcional) Notificación a n8n/Discord/Slack si todo OK
