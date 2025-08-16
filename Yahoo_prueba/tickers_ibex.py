@@ -1,74 +1,68 @@
 # pip install requests beautifulsoup4 lxml pandas
 
 import re
+import time
 from pathlib import Path
-import requests as rq
+
 import pandas as pd
+import requests as rq
 from bs4 import BeautifulSoup
 
-URL = "https://www.tradingview.com/symbols/BME-IBC/components/"
-HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; IBEX35-components/1.1)"}
+URL_COMPONENTS = "https://www.tradingview.com/symbols/BME-IBC/components/"
+URL_STOCK = "https://www.tradingview.com/symbols/BME-{ticker}/"
+HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/124.0.0.0 Safari/537.36"
+    )
+}
 
-def fetch_ibex_components() -> pd.DataFrame:
-    """
-    Raspa símbolos (BME) y nombres de empresa del IBEX-35 desde TradingView,
-    arma un DataFrame con columnas: NOMBRE_EMPRESA, PAIS, INDEX, TICKER (sin .MC).
-    """
-    resp = rq.get(URL, headers=HEADERS, timeout=30)
+def fetch_component_tickers() -> list[str]:
+    """Raspa la página de componentes y devuelve tickers BME (sin .MC)."""
+    resp = rq.get(URL_COMPONENTS, headers=HEADERS, timeout=30)
+    resp.raise_for_status()
+    html = resp.text
+
+    # 1) símbolos en los href: /symbols/BME-<TICKER>/
+    tickers = set(re.findall(r"/symbols/BME-([A-Z0-9]{2,6})", html, flags=re.I))
+
+    # 2) refuerza con apariciones del patrón 'BME:<TICKER>' en alt/textos
+    tickers |= set(re.findall(r"\bBME:([A-Z0-9]{2,6})\b", html, flags=re.I))
+
+    # limpia y filtra
+    tickers = {t.upper() for t in tickers if t.upper() != "IBC"}
+    tickers = sorted(tickers)
+
+    if len(tickers) < 34:  # normalmente 35
+        raise RuntimeError(f"Lista incompleta: {len(tickers)} símbolos encontrados.")
+    return tickers
+
+def fetch_company_name(ticker: str) -> str:
+    """Abre la página del valor y toma el <h1> como nombre de la empresa."""
+    url = URL_STOCK.format(ticker=ticker)
+    resp = rq.get(url, headers=HEADERS, timeout=30)
     resp.raise_for_status()
     soup = BeautifulSoup(resp.text, "lxml")
 
-    data = {}  # ticker -> nombre empresa
+    # 1) h1 (caso más estable)
+    h1 = soup.find("h1")
+    if h1 and h1.get_text(strip=True):
+        return h1.get_text(strip=True)
 
-    # Cada fila tiene un <a href="/symbols/BME-<TICKER>/">TICKER</a> seguido del nombre de empresa
-    for a in soup.select('a[href*="/symbols/BME-"]'):
-        href = a.get("href", "")
-        m = re.search(r"/symbols/BME-([A-Z0-9]+)", href.upper())
-        if not m:
-            continue
-        ticker = m.group(1)
-        if ticker == "IBC":
-            continue  # evita el propio índice
-
-        # Intenta tomar el texto inmediatamente después del enlace (el nombre de la empresa)
-        node = a.next_sibling
-        # salta espacios vacíos
-        while node and isinstance(node, str) and not node.strip():
-            node = node.next_sibling
-
-        if isinstance(node, str):
-            raw = " ".join(node.split())
-        else:
-            raw = " ".join(node.get_text(" ", strip=True).split()) if node else ""
-
-        # Recorta hasta antes del primer número (la tabla sigue con cap. bursátil, precio, etc.)
-        name_match = re.match(r"([^\d]+)", raw)
-        name = (name_match.group(1) if name_match else raw).strip(" -–—|·")
-
-        # Fallback: si quedó vacío, usa el texto del contenedor sin el ticker y corta antes de números
-        if not name:
-            container_text = a.parent.get_text(" ", strip=True)
-            container_text = re.sub(rf"\b{re.escape(ticker)}\b", "", container_text).strip()
-            name = re.split(r"\s+\d", container_text)[0].strip(" -–—|·")
-
+    # 2) og:title (fallback)
+    og = soup.find("meta", {"property": "og:title"})
+    if og and og.get("content"):
+        name = og["content"]
+        name = re.sub(r"\s*—\s*TradingView.*$", "", name).strip()
         if name:
-            name = re.sub(r"\s{2,}", " ", name)
-            data[ticker] = name
+            return name
 
-    if len(data) < 34:  # deberían salir 35; si no, falla para que lo veas en tu scheduler
-        raise RuntimeError(f"Lista incompleta desde TradingView: {len(data)} símbolos extraídos.")
+    # 3) último recurso: deja vacío (o podrías devolver el propio ticker)
+    return ""
 
-    rows = [{
-        "NOMBRE_EMPRESA": name,
-        "PAIS": "España",
-        "INDEX": "IBEX35",
-        "TICKER": ticker,   # sin .MC
-    } for ticker, name in sorted(data.items())]
-
-    return pd.DataFrame(rows, columns=["NOMBRE_EMPRESA", "PAIS", "INDEX", "TICKER"])
-
-def save_csv(df: pd.DataFrame, filename: str = "ticker_ibex_35.csv") -> str:
-    # Guarda al lado del .py; si no existe __file__ (p.ej. REPL), usa cwd()
+def save_csv(rows: list[dict], filename: str = "ticker_ibex_35.csv") -> str:
+    df = pd.DataFrame(rows, columns=["NOMBRE_EMPRESA", "PAIS", "INDEX", "TICKER"])
     try:
         base_dir = Path(__file__).resolve().parent
     except NameError:
@@ -78,6 +72,17 @@ def save_csv(df: pd.DataFrame, filename: str = "ticker_ibex_35.csv") -> str:
     return str(out_path)
 
 if __name__ == "__main__":
-    df = fetch_ibex_components()
-    out = save_csv(df)
-    print(f"✅ Guardado {len(df)} componentes en {out}")
+    tickers = fetch_component_tickers()
+    rows = []
+    for t in tickers:
+        # Pequeña pausa para ser amables con el sitio
+        time.sleep(0.15)
+        nombre = fetch_company_name(t)
+        rows.append({
+            "NOMBRE_EMPRESA": nombre,
+            "PAIS": "España",
+            "INDEX": "IBEX35",
+            "TICKER": t,  # sin .MC
+        })
+    out = save_csv(rows)
+    print(f"✅ Extraídos {len(rows)} componentes IBEX35 y guardados en: {out}")
