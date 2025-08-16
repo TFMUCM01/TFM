@@ -21,16 +21,16 @@ SNOWFLAKE_CONFIG = {
     'table': 'LISTA_IBEX_35'
 }
 
-# ========= ÍNDICES A RASTREAR =========
+# ========= ÍNDICES (con conteo exacto por país) =========
 INDEX_SPECS = [
-    dict(pais="España",        index="IBEX 35",  components_url="https://www.tradingview.com/symbols/BME-IBC/components/",       accept_exchanges={"BME"},    tv_stock_exchange="BME",     yahoo_suffix=".MC", min_count=35),
-    dict(pais="Alemania",      index="DAX 40",   components_url="https://www.tradingview.com/symbols/XETR-DAX/components/",      accept_exchanges={"XETR"},   tv_stock_exchange="XETR",    yahoo_suffix=".DE", min_count=40),
-    dict(pais="Francia",       index="CAC 40",   components_url="https://www.tradingview.com/symbols/EURONEXT-PX1/components/",  accept_exchanges={"EURONEXT"}, tv_stock_exchange="EURONEXT", yahoo_suffix=".PA", min_count=40),
-    dict(pais="Italia",        index="FTSE MIB", components_url="https://www.tradingview.com/symbols/INDEX-FTSEMIB/components/", accept_exchanges={"MIL"},    tv_stock_exchange="MIL",     yahoo_suffix=".MI", min_count=40),
-    dict(pais="Países Bajos",  index="AEX",      components_url="https://www.tradingview.com/symbols/EURONEXT-AEX/components/",  accept_exchanges={"EURONEXT"}, tv_stock_exchange="EURONEXT", yahoo_suffix=".AS", min_count=50),
-    dict(pais="Reino Unido",   index="FTSE 100", components_url="https://www.tradingview.com/symbols/FTSE-UKX/components/",      accept_exchanges={"LSE"},    tv_stock_exchange="LSE",     yahoo_suffix=".L",  min_count=100),
-    dict(pais="Suecia",        index="OMXS30",   components_url="https://www.tradingview.com/symbols/NASDAQ-OMXS30/components/", accept_exchanges={"OMXSTO"}, tv_stock_exchange="OMXSTO",  yahoo_suffix=".ST", min_count=30),
-    dict(pais="Suiza",         index="SMI",      components_url="https://www.tradingview.com/symbols/SIX-SMI/components/",        accept_exchanges={"SIX"},    tv_stock_exchange="SIX",     yahoo_suffix=".SW", min_count=21),
+    dict(pais="España",        index="IBEX 35",  components_url="https://www.tradingview.com/symbols/BME-IBC/components/",       accept_exchanges={"BME"},     tv_stock_exchange="BME",     yahoo_suffix=".MC", expected_count=35),
+    dict(pais="Alemania",      index="DAX 40",   components_url="https://www.tradingview.com/symbols/XETR-DAX/components/",      accept_exchanges={"XETR"},    tv_stock_exchange="XETR",    yahoo_suffix=".DE", expected_count=40),
+    dict(pais="Francia",       index="CAC 40",   components_url="https://www.tradingview.com/symbols/EURONEXT-PX1/components/",  accept_exchanges={"EURONEXT"},tv_stock_exchange="EURONEXT", yahoo_suffix=".PA", expected_count=40),
+    dict(pais="Italia",        index="FTSE MIB", components_url="https://www.tradingview.com/symbols/INDEX-FTSEMIB/components/", accept_exchanges={"MIL"},     tv_stock_exchange="MIL",     yahoo_suffix=".MI", expected_count=40),
+    dict(pais="Países Bajos",  index="AEX",      components_url="https://www.tradingview.com/symbols/EURONEXT-AEX/components/",  accept_exchanges={"EURONEXT"},tv_stock_exchange="EURONEXT", yahoo_suffix=".AS", expected_count=25),
+    dict(pais="Reino Unido",   index="FTSE 100", components_url="https://www.tradingview.com/symbols/FTSE-UKX/components/",      accept_exchanges={"LSE"},     tv_stock_exchange="LSE",     yahoo_suffix=".L",  expected_count=100),
+    dict(pais="Suecia",        index="OMXS30",   components_url="https://www.tradingview.com/symbols/NASDAQ-OMXS30/components/", accept_exchanges={"OMXSTO"},  tv_stock_exchange="OMXSTO",  yahoo_suffix=".ST", expected_count=30),
+    dict(pais="Suiza",         index="SMI",      components_url="https://www.tradingview.com/symbols/SIX-SMI/components/",        accept_exchanges={"SIX"},     tv_stock_exchange="SIX",     yahoo_suffix=".SW", expected_count=20),
 ]
 
 # ========= HTTP =========
@@ -42,11 +42,8 @@ SESSION.headers.update({
 })
 TIMEOUT = 25
 
-# ========= REGEX =========
-SYMBOL_LINK_RE = re.compile(r'/symbols/([A-Z]+)-([A-Z0-9_.-]{1,20})/', re.I)
-SYMBOL_TEXT_RE = re.compile(r'\b([A-Z]+):([A-Z0-9_.-]{1,20})\b', re.I)
-OG_URL_RE      = re.compile(r'/symbols/([A-Z]+)-([A-Z0-9_.-]{1,20})/?$', re.I)
-
+# ========= PATRONES =========
+HREF_SYMBOL_RE = re.compile(r'/symbols/([A-Z]+)-([A-Z0-9_.-]{1,20})/?$', re.I)
 INVALID_KEYWORDS = (
     " INDEX", " ÍNDICE", " ETF", " ETN", " ETC",
     " FUTURE", " FUTURO", " FUTURES",
@@ -59,77 +56,81 @@ def fetch_html(url: str) -> str:
     r.raise_for_status()
     return r.text
 
-def extract_tickers_from_components(html: str, accept_exchanges: Set[str]) -> List[str]:
-    found = set()
-    for exch, ticker in SYMBOL_LINK_RE.findall(html):
-        if exch.upper() in accept_exchanges:
-            found.add(ticker)
-    for exch, ticker in SYMBOL_TEXT_RE.findall(html):
-        if exch.upper() in accept_exchanges:
-            found.add(ticker)
-    # eliminar tokens comunes que no son símbolos
-    bad_like = {"INDEX", "FX", "TVC"}
-    found = {t for t in found if t.upper() not in bad_like}
-    return sorted(found)
+def class_contains(tag, fragment: str) -> bool:
+    cls = tag.get("class", [])
+    if isinstance(cls, str):
+        cls = cls.split()
+    return any(fragment in c for c in cls)
 
-def clean_company_name(raw: str, ticker: str) -> str:
-    if not raw:
-        return ticker
-    s = raw.strip()
+def extract_rows_precise(html: str, accept_exchanges: Set[str]) -> List[Tuple[str, str, str]]:
+    """
+    Devuelve lista de tuplas (EXCHANGE, SYMBOL, NAME) extrayendo
+    - símbolo desde <a href="/symbols/EXCH-SYMBOL/">
+    - nombre desde <sup class="... tickerDescription-..."> dentro de la MISMA fila.
+    """
+    soup = BeautifulSoup(html, "lxml")
+
+    # 1) Encuentra todos los sup con la clase de DESCRIPCIÓN
+    desc_nodes = soup.find_all("sup", class_=lambda v: v and "tickerDescription-" in " ".join(v if isinstance(v, list) else v.split()))
+    rows = []
+    for sup in desc_nodes:
+        name = sup.get_text(strip=True)
+        if not name:
+            continue
+        # 2) Sube hasta un contenedor de fila (div con clase que contenga 'row-')
+        row = sup
+        found = None
+        for _ in range(8):
+            row = row.parent
+            if row is None:
+                break
+            if class_contains(row, "row-"):
+                # 3) Dentro de esa fila, busca el link del símbolo
+                a = row.find("a", href=True)
+                if a:
+                    m = HREF_SYMBOL_RE.search(a["href"])
+                    if m:
+                        exch = m.group(1).upper()
+                        sym  = m.group(2)
+                        if exch in accept_exchanges:
+                            rows.append((exch, sym, name))
+                break
+
+    # Fallback: si por alguna razón no se detectan filas por la clase 'row-',
+    # intenta emparejar por proximidad (hermanos) buscando el primer link ascendente.
+    if not rows:
+        for sup in desc_nodes:
+            name = sup.get_text(strip=True)
+            cur = sup
+            for _ in range(8):
+                cur = cur.parent
+                if cur is None:
+                    break
+                link = cur.find("a", href=True)
+                if link:
+                    m = HREF_SYMBOL_RE.search(link["href"])
+                    if m:
+                        exch = m.group(1).upper()
+                        sym  = m.group(2)
+                        if exch in accept_exchanges:
+                            rows.append((exch, sym, name))
+                        break
+
+    # Limpia: elimina duplicados y descarta si el nombre aparenta ser índice/ETF/etc.
+    out = {}
+    for exch, sym, name in rows:
+        if any(kw in name.upper() for kw in INVALID_KEYWORDS):
+            continue
+        out[(exch, sym)] = name
+    result = [(ex, sy, nm) for (ex, sy), nm in out.items()]
+    return result
+
+def clean_company_name(s: str, ticker: str) -> str:
+    if not s: return ticker
     s = re.sub(r"\s*—\s*TradingView.*$", "", s, flags=re.I)
     s = re.sub(r"\(\s*[A-Z]+:[A-Z0-9_.-]{1,20}\s*\)", "", s)
     s = re.sub(r"\s{2,}", " ", s).strip(" -–—|·")
     return s or ticker
-
-def fetch_symbol_info(exchange: str, ticker_for_tv_path: str) -> Tuple[str, str, str, bool]:
-    """
-    Devuelve: (nombre_limpio, canonical_exchange, canonical_symbol, es_equity_valida)
-    - es_equity_valida = False si detectamos Index/ETF/Futures/CFD/etc. o si el exchange canonical no coincide.
-    """
-    url = f"https://www.tradingview.com/symbols/{exchange}-{ticker_for_tv_path}/"
-    try:
-        html = fetch_html(url)
-    except Exception:
-        return (ticker_for_tv_path, exchange, ticker_for_tv_path, False)
-
-    soup = BeautifulSoup(html, "lxml")
-
-    # Nombre
-    name = ""
-    h1 = soup.find("h1")
-    if h1 and h1.get_text(strip=True):
-        name = clean_company_name(h1.get_text(" ", strip=True), ticker_for_tv_path)
-    if not name:
-        ogt = soup.find("meta", {"property": "og:title"})
-        if ogt and ogt.get("content"):
-            name = clean_company_name(ogt["content"], ticker_for_tv_path)
-
-    # Meta textos para detección de tipo
-    meta_texts = [name.upper()]
-    ogd = soup.find("meta", {"property": "og:description"})
-    if ogd and ogd.get("content"):
-        meta_texts.append(ogd["content"].upper())
-    title_tag = soup.find("title")
-    if title_tag and title_tag.get_text():
-        meta_texts.append(title_tag.get_text().upper())
-    big_text = " ".join(meta_texts)
-
-    # Exchange y símbolo canónicos desde og:url (si está)
-    canonical_exchange, canonical_symbol = exchange, ticker_for_tv_path
-    ogu = soup.find("meta", {"property": "og:url"})
-    if ogu and ogu.get("content"):
-        m = OG_URL_RE.search(ogu["content"])
-        if m:
-            canonical_exchange = m.group(1).upper()
-            canonical_symbol   = m.group(2)
-
-    # Heurística: descartar si parece índice/ETF/etc.
-    is_invalid_kind = any(kw in big_text for kw in INVALID_KEYWORDS)
-
-    # Válido sólo si NO es índice/ETF/... y el exchange canónico coincide
-    es_equity_valida = (not is_invalid_kind) and (canonical_exchange == exchange)
-
-    return (name or ticker_for_tv_path, canonical_exchange, canonical_symbol, es_equity_valida)
 
 def yahoo_ticker_from_local(local_ticker: str, pais: str) -> str:
     t = local_ticker.strip().upper()
@@ -141,40 +142,30 @@ def yahoo_ticker_from_local(local_ticker: str, pais: str) -> str:
 
 def scrape_country(spec: Dict) -> pd.DataFrame:
     html = fetch_html(spec["components_url"])
-    candidates = extract_tickers_from_components(html, spec["accept_exchanges"])
-    if len(candidates) < spec["min_count"]:
-        raise RuntimeError(f"{spec['index']} ({spec['pais']}): sólo {len(candidates)} símbolos candidatos (<{spec['min_count']}).")
+    pairs = extract_rows_precise(html, spec["accept_exchanges"])
 
+    # Validación estricta de cantidad
+    if len(pairs) != spec["expected_count"]:
+        raise RuntimeError(f"{spec['index']} ({spec['pais']}): se extrajeron {len(pairs)} filas, se esperaban {spec['expected_count']}.")
+
+    # Construye filas finales
     rows = []
-    kept, skipped = 0, 0
-    for tk in candidates:
-        # Info del símbolo (validación de tipo y exchange)
-        nombre, exch_can, sym_can, ok = fetch_symbol_info(spec["tv_stock_exchange"], tk)
-        if not ok:
-            skipped += 1
-            continue
-
-        base_for_yahoo = yahoo_ticker_from_local(sym_can, spec["pais"])
+    for exch, sym, name in pairs:
+        base_for_yahoo = yahoo_ticker_from_local(sym, spec["pais"])
         yahoo = f"{base_for_yahoo}{spec['yahoo_suffix']}"
         rows.append({
             "TICKER_YAHOO": yahoo,
-            "NOMBRE": nombre,
+            "NOMBRE": clean_company_name(name, sym),
             "PAIS": spec["pais"],
             "TICKET": base_for_yahoo
         })
-        kept += 1
-        time.sleep(0.12)  # cortesía
-
-    if kept < spec["min_count"]:
-        # si tras filtrar quedaron muy pocos, mejor avisar
-        raise RuntimeError(f"{spec['index']} ({spec['pais']}): tras filtrar quedaron {kept} (<{spec['min_count']}). Revisa cambios de página.")
-    print(f"   → filtrados: {kept} válidos, {skipped} descartados")
+        time.sleep(0.05)  # cortesía (mínima, ya no abrimos páginas individuales)
 
     df = pd.DataFrame(rows, columns=["TICKER_YAHOO", "NOMBRE", "PAIS", "TICKET"])
     return df
 
 # ========= CARGA EN SNOWFLAKE (TRUNCATE + INSERT) =========
-def df_to_rows(df: pd.DataFrame) -> List[tuple]:
+def df_to_rows(df: pd.DataFrame):
     required = ["TICKER_YAHOO", "NOMBRE", "PAIS", "TICKET"]
     df = df.rename(columns=str.upper)
     missing = [c for c in required if c not in df.columns]
@@ -214,12 +205,11 @@ if __name__ == "__main__":
     for spec in INDEX_SPECS:
         print(f"Raspando {spec['index']} ({spec['pais']}) ...")
         df_country = scrape_country(spec)
-        print(f" - {spec['pais']}: {len(df_country)} tickers")
+        print(f" - {spec['pais']}: {len(df_country)} tickers (OK)")
         frames.append(df_country)
 
     full_df = pd.concat(frames, ignore_index=True).rename(columns=str.upper)
-
-    # Dedup por Yahoo (por si un emisor cotiza en más de un mercado con mismo ticker Yahoo)
+    # Dedup por Yahoo por seguridad (debería ser 0 si los conteos son exactos)
     full_df = full_df.drop_duplicates(subset=["TICKER_YAHOO"]).reset_index(drop=True)
 
     if full_df.empty:
