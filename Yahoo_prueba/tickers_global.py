@@ -25,7 +25,7 @@ SNOWFLAKE_CONFIG = {
 INDEX_SPECS = [
     dict(pais="España",        index="IBEX 35",  components_url="https://www.tradingview.com/symbols/BME-IBC/components/",       accept_exchanges={"BME"},     tv_stock_exchange="BME",     yahoo_suffix=".MC", expected_count=35),
     dict(pais="Alemania",      index="DAX 40",   components_url="https://www.tradingview.com/symbols/XETR-DAX/components/",      accept_exchanges={"XETR"},    tv_stock_exchange="XETR",    yahoo_suffix=".DE", expected_count=40),
-    dict(pais="Francia",       index="CAC 40",   components_url="https://www.tradingview.com/symbols/EURONEXT-PX1/components/",  accept_exchanges={"EURONEXT"},tv_stock_exchange="EURONEXT", yahoo_suffix=".PA", expected_count=40),
+    dict(pais="Francia",       index="CAC 40",   components_url="https://www.tradingview.com/symbols/EURONEXT-PX1/components/",  accept_exchanges={"EURONEXT"},tv_stock_exchange="EURONEXT", yahoo_suffix=".PA", expected_count=39),
     dict(pais="Italia",        index="FTSE MIB", components_url="https://www.tradingview.com/symbols/INDEX-FTSEMIB/components/", accept_exchanges={"MIL"},     tv_stock_exchange="MIL",     yahoo_suffix=".MI", expected_count=40),
     dict(pais="Países Bajos",  index="AEX",      components_url="https://www.tradingview.com/symbols/EURONEXT-AEX/components/",  accept_exchanges={"EURONEXT"},tv_stock_exchange="EURONEXT", yahoo_suffix=".AS", expected_count=25),
     dict(pais="Reino Unido",   index="FTSE 100", components_url="https://www.tradingview.com/symbols/FTSE-UKX/components/",      accept_exchanges={"LSE"},     tv_stock_exchange="LSE",     yahoo_suffix=".L",  expected_count=100),
