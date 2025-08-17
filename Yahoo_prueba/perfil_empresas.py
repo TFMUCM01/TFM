@@ -47,8 +47,7 @@ def ensure_profile_table(conn):
       MONEDA            STRING,
       EXCHANGE          STRING,
       MARKET_CAP        NUMBER,
-      RESUMEN           STRING,
-      UPDATED_AT        TIMESTAMP_TZ
+      RESUMEN           STRING
     )
     """
     with conn.cursor() as cur:
@@ -79,7 +78,6 @@ def fetch_profile_one(ticker: str, retries: int = 3, pause: float = 0.6) -> dict
                 "EXCHANGE": info.get("exchange") or info.get("fullExchangeName"),
                 "MARKET_CAP": info.get("marketCap"),
                 "RESUMEN": info.get("longBusinessSummary"),
-                "UPDATED_AT": datetime.now(TZ),
             }
         except Exception:
             if i < retries - 1:
@@ -89,7 +87,7 @@ def fetch_profile_one(ticker: str, retries: int = 3, pause: float = 0.6) -> dict
                     "TICKER": ticker, "NOMBRE": None, "SECTOR": None, "INDUSTRIA": None,
                     "EMPLEADOS": None, "PAIS": None, "CIUDAD": None, "DIRECCION": None,
                     "WEBSITE": None, "TELEFONO": None, "MONEDA": None, "EXCHANGE": None,
-                    "MARKET_CAP": None, "RESUMEN": None, "UPDATED_AT": datetime.now(TZ),
+                    "MARKET_CAP": None, "RESUMEN": None,
                 }
 
 def fetch_profiles(tickers, max_workers=8):
@@ -98,20 +96,28 @@ def fetch_profiles(tickers, max_workers=8):
         for res in ex.map(fetch_profile_one, tickers):
             rows.append(res)
     df = pd.DataFrame(rows)
-    # opcional: filtra filas totalmente nulas (cuando no hay perfil)
-    has_any = df.drop(columns=["TICKER", "UPDATED_AT"]).notna().any(axis=1)
+    has_any = df.drop(columns=["TICKER"]).notna().any(axis=1)
     return df[has_any].reset_index(drop=True)
+
 
 def merge_profiles(conn, df: pd.DataFrame):
     if df.empty:
         print("No hay perfiles para actualizar.")
         return
-    # Carga en tabla temporal con write_pandas y luego MERGE
+
+    # Asegura orden/columnas:
+    df = df[[
+        "TICKER","NOMBRE","SECTOR","INDUSTRIA","EMPLEADOS","PAIS","CIUDAD",
+        "DIRECCION","WEBSITE","TELEFONO","MONEDA","EXCHANGE","MARKET_CAP","RESUMEN"
+    ]].copy()
+
     with conn.cursor() as cur:
         cur.execute("CREATE OR REPLACE TEMP TABLE TMP_PROFILE LIKE " + PROFILE_TABLE)
+
     ok, _, nrows, _ = write_pandas(conn, df, table_name="TMP_PROFILE", quote_identifiers=False)
     if not ok:
         raise RuntimeError("write_pandas falló al cargar TMP_PROFILE.")
+
     merge_sql = f"""
     MERGE INTO {PROFILE_TABLE} t
     USING TMP_PROFILE s
@@ -129,16 +135,16 @@ def merge_profiles(conn, df: pd.DataFrame):
       t.MONEDA = s.MONEDA,
       t.EXCHANGE = s.EXCHANGE,
       t.MARKET_CAP = s.MARKET_CAP,
-      t.RESUMEN = s.RESUMEN,
-      t.UPDATED_AT = s.UPDATED_AT
+      t.RESUMEN = s.RESUMEN
     WHEN NOT MATCHED THEN
-      INSERT (TICKER,NOMBRE,SECTOR,INDUSTRIA,EMPLEADOS,PAIS,CIUDAD,DIRECCION,WEBSITE,TELEFONO,MONEDA,EXCHANGE,MARKET_CAP,RESUMEN,UPDATED_AT)
-      VALUES (s.TICKER,s.NOMBRE,s.SECTOR,s.INDUSTRIA,s.EMPLEADOS,s.PAIS,s.CIUDAD,s.DIRECCION,s.WEBSITE,s.TELEFONO,s.MONEDA,s.EXCHANGE,s.MARKET_CAP,s.RESUMEN,s.UPDATED_AT)
+      INSERT (TICKER,NOMBRE,SECTOR,INDUSTRIA,EMPLEADOS,PAIS,CIUDAD,DIRECCION,WEBSITE,TELEFONO,MONEDA,EXCHANGE,MARKET_CAP,RESUMEN)
+      VALUES (s.TICKER,s.NOMBRE,s.SECTOR,s.INDUSTRIA,s.EMPLEADOS,s.PAIS,s.CIUDAD,s.DIRECCION,s.WEBSITE,s.TELEFONO,s.MONEDA,s.EXCHANGE,s.MARKET_CAP,s.RESUMEN)
     """
     with conn.cursor() as cur:
         cur.execute(merge_sql)
         conn.commit()
     print(f"Perfiles actualizados/insertados: {len(df)} (cargados {nrows})")
+
 
 if __name__ == "__main__":
     conn = sf_connect()
