@@ -1,47 +1,47 @@
 # -*- coding: utf-8 -*-
-# pip install requests pandas snowflake-connector-python beautifulsoup4 lxml yfinance python-dateutil
+# pip install requests pandas snowflake-connector-python beautifulsoup4 lxml yfinance
 
 import os, re, time
 from typing import List, Dict, Set, Tuple, Iterable
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from zoneinfo import ZoneInfo
 
 import requests
 import pandas as pd
 from bs4 import BeautifulSoup
 import snowflake.connector
+from snowflake.connector.pandas_tools import write_pandas
 import yfinance as yf
 
-# ========= CONFIG (por variables de entorno en GitHub Actions) =========
-SNOW = dict(
-    user=os.environ['SNOWFLAKE_USER'],
-    password=os.environ['SNOWFLAKE_PASSWORD'],
-    account=os.environ['SNOWFLAKE_ACCOUNT'],
-    warehouse=os.environ.get('SNOWFLAKE_WAREHOUSE', 'TFM_WH'),
-    database=os.environ.get('SNOWFLAKE_DATABASE', 'YAHOO_PRUEBA'),
-    schema=os.environ.get('SNOWFLAKE_SCHEMA', 'IBEX'),
-)
-# Tabla de TICKERS (destino del listado)
-TICKERS_TABLE = os.environ.get('TICKERS_TABLE', 'YAHOO_PRUEBA.IBEX.LISTA_IBEX_35')
-# Tabla de PRECIOS (destino de OHLCV)
-PRICES_TABLE  = os.environ.get('PRICES_TABLE',  'YAHOO_PRUEBA.IBEX.TICKERS_INDEX')
-# Fecha mínima histórica
-START_DATE = pd.to_datetime(os.environ.get('START_DATE', '2020-01-01')).date()
+# =======================
+# Config por variables de entorno (secrets)
+# =======================
+SNOWFLAKE_USER      = os.environ["SNOWFLAKE_USER"]
+SNOWFLAKE_PASSWORD  = os.environ["SNOWFLAKE_PASSWORD"]
+SNOWFLAKE_ACCOUNT   = os.environ["SNOWFLAKE_ACCOUNT"]          # ej: WYNIFVB-YE01854 (o con región)
+SNOWFLAKE_WAREHOUSE = os.environ["SNOWFLAKE_WAREHOUSE"]
+SNOWFLAKE_DATABASE  = os.environ["SNOWFLAKE_DATABASE"]         # ej: YAHOO_PRUEBA
+SNOWFLAKE_SCHEMA    = os.environ["SNOWFLAKE_SCHEMA"]           # ej: IBEX
+SNOWFLAKE_ROLE      = os.environ.get("SNOWFLAKE_ROLE")         # opcional
+
+TICKERS_TABLE = os.environ.get("TICKERS_TABLE", f"{SNOWFLAKE_DATABASE}.{SNOWFLAKE_SCHEMA}.LISTA_IBEX_35")
+PRICES_TABLE  = os.environ.get("PRICES_TABLE",  f"{SNOWFLAKE_DATABASE}.{SNOWFLAKE_SCHEMA}.TICKERS_INDEX")
+START_DATE    = pd.to_datetime(os.environ.get("START_DATE", "2020-01-01")).date()
 TZ = ZoneInfo("Europe/Madrid")
 
-# ========= ÍNDICES (conteo exacto por país, según dejaste) =========
+# ============ ÍNDICES (conteo exacto) ============
 INDEX_SPECS = [
-    dict(pais="España",        index="IBEX 35",  components_url="https://www.tradingview.com/symbols/BME-IBC/components/",       accept_exchanges={"BME"},     tv_stock_exchange="BME",     yahoo_suffix=".MC", expected_count=35),
-    dict(pais="Alemania",      index="DAX 40",   components_url="https://www.tradingview.com/symbols/XETR-DAX/components/",      accept_exchanges={"XETR"},    tv_stock_exchange="XETR",    yahoo_suffix=".DE", expected_count=40),
-    dict(pais="Francia",       index="CAC 40",   components_url="https://www.tradingview.com/symbols/EURONEXT-PX1/components/",  accept_exchanges={"EURONEXT"},tv_stock_exchange="EURONEXT", yahoo_suffix=".PA", expected_count=39),
-    dict(pais="Italia",        index="FTSE MIB", components_url="https://www.tradingview.com/symbols/INDEX-FTSEMIB/components/", accept_exchanges={"MIL"},     tv_stock_exchange="MIL",     yahoo_suffix=".MI", expected_count=40),
-    dict(pais="Países Bajos",  index="AEX",      components_url="https://www.tradingview.com/symbols/EURONEXT-AEX/components/",  accept_exchanges={"EURONEXT"},tv_stock_exchange="EURONEXT", yahoo_suffix=".AS", expected_count=25),
-    dict(pais="Reino Unido",   index="FTSE 100", components_url="https://www.tradingview.com/symbols/FTSE-UKX/components/",      accept_exchanges={"LSE"},     tv_stock_exchange="LSE",     yahoo_suffix=".L",  expected_count=100),
-    dict(pais="Suecia",        index="OMXS30",   components_url="https://www.tradingview.com/symbols/NASDAQ-OMXS30/components/", accept_exchanges={"OMXSTO"},  tv_stock_exchange="OMXSTO",  yahoo_suffix=".ST", expected_count=30),
-    dict(pais="Suiza",         index="SMI",      components_url="https://www.tradingview.com/symbols/SIX-SMI/components/",        accept_exchanges={"SIX"},     tv_stock_exchange="SIX",     yahoo_suffix=".SW", expected_count=21),
+    dict(pais="España",        index="IBEX 35",  components_url="https://www.tradingview.com/symbols/BME-IBC/components/",       accept_exchanges={"BME"},     yahoo_suffix=".MC", expected_count=35),
+    dict(pais="Alemania",      index="DAX 40",   components_url="https://www.tradingview.com/symbols/XETR-DAX/components/",      accept_exchanges={"XETR"},    yahoo_suffix=".DE", expected_count=40),
+    dict(pais="Francia",       index="CAC 40",   components_url="https://www.tradingview.com/symbols/EURONEXT-PX1/components/",  accept_exchanges={"EURONEXT"},yahoo_suffix=".PA", expected_count=39),
+    dict(pais="Italia",        index="FTSE MIB", components_url="https://www.tradingview.com/symbols/INDEX-FTSEMIB/components/", accept_exchanges={"MIL"},     yahoo_suffix=".MI", expected_count=40),
+    dict(pais="Países Bajos",  index="AEX",      components_url="https://www.tradingview.com/symbols/EURONEXT-AEX/components/",  accept_exchanges={"EURONEXT"},yahoo_suffix=".AS", expected_count=25),
+    dict(pais="Reino Unido",   index="FTSE 100", components_url="https://www.tradingview.com/symbols/FTSE-UKX/components/",      accept_exchanges={"LSE"},     yahoo_suffix=".L",  expected_count=100),
+    dict(pais="Suecia",        index="OMXS30",   components_url="https://www.tradingview.com/symbols/NASDAQ-OMXS30/components/", accept_exchanges={"OMXSTO"},  yahoo_suffix=".ST", expected_count=30),
+    dict(pais="Suiza",         index="SMI",      components_url="https://www.tradingview.com/symbols/SIX-SMI/components/",        accept_exchanges={"SIX"},     yahoo_suffix=".SW", expected_count=21),
 ]
 
-# ========= HTTP =========
+# ============ HTTP ============
 SESSION = requests.Session()
 SESSION.headers.update({
     "User-Agent": ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
@@ -50,7 +50,6 @@ SESSION.headers.update({
 })
 TIMEOUT = 25
 
-# ========= Selectores / patrones =========
 HREF_SYMBOL_RE = re.compile(r'/symbols/([A-Z]+)-([A-Z0-9_.-]{1,20})/?$', re.I)
 INVALID_KEYWORDS = (
     " INDEX", " ÍNDICE", " ETF", " ETN", " ETC",
@@ -59,6 +58,7 @@ INVALID_KEYWORDS = (
     " BOND", " YIELD", " WARRANT", " OPTION"
 )
 
+# ----------------- Utilidades scraping -----------------
 def fetch_html(url: str) -> str:
     r = SESSION.get(url, timeout=TIMEOUT)
     r.raise_for_status()
@@ -71,7 +71,6 @@ def class_contains(tag, fragment: str) -> bool:
     return any(fragment in c for c in cls)
 
 def extract_rows_precise(html: str, accept_exchanges: Set[str]) -> List[Tuple[str, str, str]]:
-    """Devuelve (EXCHANGE, SYMBOL, NAME) desde la tabla de componentes."""
     soup = BeautifulSoup(html, "lxml")
     desc_nodes = soup.find_all("sup", class_=lambda v: v and "tickerDescription-" in " ".join(v if isinstance(v, list) else v.split()))
     rows = []
@@ -94,7 +93,7 @@ def extract_rows_precise(html: str, accept_exchanges: Set[str]) -> List[Tuple[st
                         if exch in accept_exchanges:
                             rows.append((exch, sym, name))
                 break
-    # Limpia y descarta índices/ETF/etc.
+    # Limpieza / filtro
     out = {}
     for exch, sym, name in rows:
         if any(kw in name.upper() for kw in INVALID_KEYWORDS):
@@ -130,12 +129,24 @@ def scrape_country(spec: Dict) -> pd.DataFrame:
         time.sleep(0.03)
     return pd.DataFrame(rows, columns=["TICKER_YAHOO", "NOMBRE", "PAIS", "TICKET"])
 
-# === Snowflake helpers ===
+# ----------------- Snowflake helpers -----------------
 def sf_connect():
     return snowflake.connector.connect(
-        user=SNOW["user"], password=SNOW["password"], account=SNOW["account"],
-        warehouse=SNOW["warehouse"], database=SNOW["database"], schema=SNOW["schema"]
+        user=SNOWFLAKE_USER,
+        password=SNOWFLAKE_PASSWORD,
+        account=SNOWFLAKE_ACCOUNT,
+        warehouse=SNOWFLAKE_WAREHOUSE,
+        database=SNOWFLAKE_DATABASE,
+        schema=SNOWFLAKE_SCHEMA,
+        role=SNOWFLAKE_ROLE
     )
+
+def ensure_db_schema(conn):
+    with conn.cursor() as cur:
+        cur.execute(f"CREATE DATABASE IF NOT EXISTS {SNOWFLAKE_DATABASE}")
+        cur.execute(f"CREATE SCHEMA IF NOT EXISTS {SNOWFLAKE_DATABASE}.{SNOWFLAKE_SCHEMA}")
+        cur.execute(f"USE DATABASE {SNOWFLAKE_DATABASE}")
+        cur.execute(f"USE SCHEMA {SNOWFLAKE_SCHEMA}")
 
 def overwrite_tickers(conn, df: pd.DataFrame):
     if df.empty:
@@ -147,8 +158,12 @@ def overwrite_tickers(conn, df: pd.DataFrame):
             )
         """)
         cur.execute(f"TRUNCATE TABLE {TICKERS_TABLE}")
-        rows = [tuple(map(lambda x: str(x).strip(), r)) for r in df[["TICKER_YAHOO","NOMBRE","PAIS","TICKET"]].fillna("").to_numpy().tolist()]
-        cur.executemany(f"INSERT INTO {TICKERS_TABLE} (TICKER_YAHOO,NOMBRE,PAIS,TICKET) VALUES (%s,%s,%s,%s)", rows)
+    rows = df[["TICKER_YAHOO","NOMBRE","PAIS","TICKET"]].fillna("").copy()
+    # write_pandas maneja el stage interno y COPY INTO sin límite de expresiones
+    ok, nchunks, nrows, _ = write_pandas(conn, rows, table_name=TICKERS_TABLE.split('.')[-1], quote_identifiers=False)
+    if not ok:
+        raise RuntimeError("write_pandas falló al cargar la tabla de tickers.")
+    with conn.cursor() as cur:
         cur.execute(f"SELECT COUNT(*) FROM {TICKERS_TABLE}")
         print("Tickers en tabla:", cur.fetchone()[0])
 
@@ -171,7 +186,7 @@ def read_tickers(conn) -> List[str]:
         cur.execute(f"SELECT TICKER_YAHOO FROM {TICKERS_TABLE} ORDER BY 1")
         return [str(r[0]).strip().upper() for r in cur.fetchall() if r[0]]
 
-def read_last_dates(conn, tickers: List[str]) -> Dict[str, datetime.date]:
+def read_last_dates(conn, tickers: List[str]) -> Dict[str, date]:
     if not tickers:
         return {}
     in_list = ",".join(f"'{t}'" for t in tickers)
@@ -191,16 +206,19 @@ def yesterday_madrid():
     y = (datetime.now(TZ) - timedelta(days=1)).date()
     return y, y + timedelta(days=1)
 
+# ----------------- Descarga y MERGE de precios -----------------
 def download_batch(tickers: List[str], start_date, end_excl) -> pd.DataFrame:
     if not tickers:
         return pd.DataFrame(columns=["TICKER","CLOSE","HIGH","LOW","OPEN","VOLUME","FECHA"])
-    df = yf.download(tickers, start=start_date, end=end_excl, interval="1d",
-                     group_by="ticker", auto_adjust=False, progress=False, threads=True)
+    df = yf.download(
+        tickers, start=start_date, end=end_excl, interval="1d",
+        group_by="ticker", auto_adjust=False, progress=False, threads=True
+    )
     rows = []
     for t in tickers:
         try:
             if isinstance(df.columns, pd.MultiIndex):
-                if t not in df.columns.get_level_values(0):  # ticker falló
+                if t not in df.columns.get_level_values(0):
                     continue
                 dft = df[t]
             else:
@@ -225,35 +243,36 @@ def download_batch(tickers: List[str], start_date, end_excl) -> pd.DataFrame:
     return out.dropna(subset=["CLOSE","HIGH","LOW","OPEN"])
 
 def merge_with_temp(conn, df: pd.DataFrame):
+    """Carga df a TMP_PRICES con write_pandas y luego MERGE → sin límite de expresiones."""
     if df.empty:
         return
+    # Asegura columnas y tipos
+    df2 = df[["TICKER","CLOSE","HIGH","LOW","OPEN","VOLUME","FECHA"]].copy()
+    # Crear/limpiar tabla temporal
     with conn.cursor() as cur:
-        cur.execute(f"CREATE TEMP TABLE TMP_PRICES LIKE {PRICES_TABLE}")
-        rows = [
-            (
-                str(r.TICKER), float(r.CLOSE), float(r.HIGH), float(r.LOW), float(r.OPEN),
-                int(r.VOLUME) if pd.notna(r.VOLUME) else None, r.FECHA
-            ) for _, r in df.iterrows()
-        ]
-        cur.executemany(
-            f"INSERT INTO TMP_PRICES (TICKER,CLOSE,HIGH,LOW,OPEN,VOLUME,FECHA) VALUES (%s,%s,%s,%s,%s,%s,%s)",
-            rows
-        )
-        cur.execute(f"""
-            MERGE INTO {PRICES_TABLE} t
-            USING TMP_PRICES s
-              ON t.TICKER = s.TICKER AND t.FECHA = s.FECHA
-            WHEN MATCHED THEN UPDATE SET
-              t.CLOSE = s.CLOSE, t.HIGH = s.HIGH, t.LOW = s.LOW, t.OPEN = s.OPEN, t.VOLUME = s.VOLUME
-            WHEN NOT MATCHED THEN
-              INSERT (TICKER, CLOSE, HIGH, LOW, OPEN, VOLUME, FECHA)
-              VALUES (s.TICKER, s.CLOSE, s.HIGH, s.LOW, s.OPEN, s.VOLUME, s.FECHA)
-        """)
+        cur.execute(f"CREATE OR REPLACE TEMP TABLE TMP_PRICES LIKE {PRICES_TABLE}")
+    # Cargar con write_pandas (usa current database/schema)
+    ok, nchunks, nrows, _ = write_pandas(conn, df2, table_name="TMP_PRICES", quote_identifiers=False)
+    if not ok:
+        raise RuntimeError("write_pandas falló al cargar TMP_PRICES.")
+    # MERGE
+    merge_sql = f"""
+        MERGE INTO {PRICES_TABLE} t
+        USING TMP_PRICES s
+          ON t.TICKER = s.TICKER AND t.FECHA = s.FECHA
+        WHEN MATCHED THEN UPDATE SET
+          t.CLOSE = s.CLOSE, t.HIGH = s.HIGH, t.LOW = s.LOW, t.OPEN = s.OPEN, t.VOLUME = s.VOLUME
+        WHEN NOT MATCHED THEN
+          INSERT (TICKER, CLOSE, HIGH, LOW, OPEN, VOLUME, FECHA)
+          VALUES (s.TICKER, s.CLOSE, s.HIGH, s.LOW, s.OPEN, s.VOLUME, s.FECHA)
+    """
+    with conn.cursor() as cur:
+        cur.execute(merge_sql)
         conn.commit()
 
-# ========= MAIN =========
+# ----------------- MAIN -----------------
 if __name__ == "__main__":
-    # 1) Scrape y update de tickers
+    # 1) SCRAPE TICKERS
     frames = []
     for spec in INDEX_SPECS:
         print(f"Raspando {spec['index']} ({spec['pais']}) ...")
@@ -263,16 +282,32 @@ if __name__ == "__main__":
     tick_df = pd.concat(frames, ignore_index=True).rename(columns=str.upper)
     tick_df = tick_df.drop_duplicates(subset=["TICKER_YAHOO"]).reset_index(drop=True)
 
-    with sf_connect() as conn:
+    # 2) CONEXIÓN SNOWFLAKE
+    print("Conectando a Snowflake...")
+    conn = snowflake.connector.connect(
+        user=SNOWFLAKE_USER,
+        password=SNOWFLAKE_PASSWORD,
+        account=SNOWFLAKE_ACCOUNT,
+        warehouse=SNOWFLAKE_WAREHOUSE,
+        database=SNOWFLAKE_DATABASE,
+        schema=SNOWFLAKE_SCHEMA,
+        role=SNOWFLAKE_ROLE
+    )
+
+    with conn:
+        ensure_db_schema(conn)
+
+        # 3) Sobrescribe lista de tickers (TRUNCATE + write_pandas)
         overwrite_tickers(conn, tick_df)
-        # 2) Precios incrementales por cada ticker (desde 2020 si no existe; si existe, desde max(FECHA)+1)
+
+        # 4) Precios incrementales (2020 si no hay datos; si hay, desde max(FECHA)+1 hasta ayer)
         ensure_prices_table(conn)
         tickers = read_tickers(conn)
         last_dates = read_last_dates(conn, tickers)
         yday, end_excl = yesterday_madrid()
 
-        # Agrupa por fecha de inicio
-        plan: Dict[datetime.date, List[str]] = {}
+        # Plan por fecha de inicio
+        plan: Dict[date, List[str]] = {}
         for t in tickers:
             last = last_dates.get(t)
             start = max(START_DATE, (last + timedelta(days=1)) if last else START_DATE)
@@ -282,16 +317,12 @@ if __name__ == "__main__":
         total_rows = 0
         for start_date, group in sorted(plan.items()):
             print(f"Descargando {len(group)} tickers desde {start_date} → {yday}")
-            frames = []
-            for sub in chunked(group, 60):
+            for sub in chunked(group, 60):  # sub-lotes de tickers para yfinance
                 part = download_batch(sub, start_date, end_excl)
-                if not part.empty:
-                    frames.append(part)
-            if not frames:
-                continue
-            df_new = pd.concat(frames, ignore_index=True)
-            # filtro por rango exacto
-            df_new = df_new[(df_new["FECHA"] >= start_date) & (df_new["FECHA"] <= yday)]
-            merge_with_temp(conn, df_new)
-            total_rows += len(df_new)
-        print("Filas nuevas/actualizadas:", total_rows)
+                if part.empty:
+                    continue
+                part = part[(part["FECHA"] >= start_date) & (part["FECHA"] <= yday)]
+                merge_with_temp(conn, part)   # write_pandas + MERGE (sin límite)
+                total_rows += len(part)
+
+        print("✅ Filas nuevas/actualizadas:", total_rows)
