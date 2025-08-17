@@ -24,7 +24,7 @@ SNOW = dict(
 # Tabla de TICKERS (destino del listado)
 TICKERS_TABLE = os.environ.get('TICKERS_TABLE', 'YAHOO_PRUEBA.IBEX.LISTA_IBEX_35')
 # Tabla de PRECIOS (destino de OHLCV)
-PRICES_TABLE  = os.environ.get('PRICES_TABLE',  'YAHOO_PRUEBA.MACHINE_LEARNING.TICKERS_INDEX')
+PRICES_TABLE  = os.environ.get('PRICES_TABLE',  'YAHOO_PRUEBA.IBEX.TICKERS_INDEX')
 # Fecha mínima histórica
 START_DATE = pd.to_datetime(os.environ.get('START_DATE', '2020-01-01')).date()
 TZ = ZoneInfo("Europe/Madrid")
