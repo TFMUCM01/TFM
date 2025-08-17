@@ -11,15 +11,19 @@ jobs:
     timeout-minutes: 60
     env:
       TZ: Europe/Madrid
+      # Secrets necesarios
       SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
       SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
       SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
       SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
-      SNOWFLAKE_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE }}   # YAHOO_PRUEBA
-      SNOWFLAKE_SCHEMA: ${{ secrets.SNOWFLAKE_SCHEMA }}       # IBEX
-      # SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}         # si aplica
+      SNOWFLAKE_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE }}   # p.ej. YAHOO_PRUEBA
+      SNOWFLAKE_SCHEMA: ${{ secrets.SNOWFLAKE_SCHEMA }}       # p.ej. IBEX
+      # SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}         # opcional
+
+      # Tablas / parámetros (puedes dejarlos así o moverlos a secrets/vars)
       TICKERS_TABLE: YAHOO_PRUEBA.IBEX.LISTA_IBEX_35
-      PRICES_TABLE:  YAHOO_PRUEBA.IBEX.TICKERS_INDEX          # o donde la quieras
+      PRICES_TABLE:  YAHOO_PRUEBA.IBEX.TICKERS_INDEX
+      PROFILE_TABLE: YAHOO_PRUEBA.IBEX.COMPANY_PROFILE
       START_DATE: '2020-01-01'
 
     steps:
@@ -34,21 +38,17 @@ jobs:
           [ -n "$SNOWFLAKE_DATABASE" ] || (echo "ERROR: SNOWFLAKE_DATABASE is empty" && exit 1)
           [ -n "$SNOWFLAKE_SCHEMA" ] || (echo "ERROR: SNOWFLAKE_SCHEMA is empty" && exit 1)
 
-      - name: Debug secrets (solo longitud)
-        run: |
-          echo "ACCOUNT len: ${#SNOWFLAKE_ACCOUNT}"
-          echo "USER    len: ${#SNOWFLAKE_USER}"
-          echo "PASS    len: ${#SNOWFLAKE_PASSWORD}"
-
-      - uses: actions/setup-python@v5
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
           cache: 'pip'
 
-      - name: Install deps
+      - name: Install deps (incl. write_pandas)
         run: |
           python -m pip install --upgrade pip
-          pip install requests pandas snowflake-connector-python beautifulsoup4 lxml yfinance python-dateutil
+          pip install "pandas>=2.0,<2.3" "snowflake-connector-python[pandas]>=3.5.0" pyarrow
+          pip install requests beautifulsoup4 lxml yfinance
 
       - name: Snowflake connection test
         run: |
@@ -61,7 +61,7 @@ jobs:
             warehouse=os.environ['SNOWFLAKE_WAREHOUSE'],
             database=os.environ['SNOWFLAKE_DATABASE'],
             schema=os.environ['SNOWFLAKE_SCHEMA'],
-            # role=os.environ.get('SNOWFLAKE_ROLE'),
+            role=os.environ.get('SNOWFLAKE_ROLE')
           )
           cur = con.cursor()
           cur.execute("select current_user(), current_account(), current_database(), current_schema()")
@@ -74,3 +74,9 @@ jobs:
         run: |
           test -f tickers_precios_global.py || (echo "Falta Yahoo_prueba/tickers_precios_global.py" && exit 1)
           python tickers_precios_global.py
+
+      - name: Update company profiles (sector/industria/empleados/...)
+        working-directory: Yahoo_prueba
+        run: |
+          test -f perfil_empresas.py || (echo "Falta Yahoo_prueba/perfil_empresas.py" && exit 1)
+          python perfil_empresas.py
