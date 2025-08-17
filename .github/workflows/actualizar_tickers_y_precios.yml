@@ -2,7 +2,7 @@ name: Update tickers & prices (TradingView + Yahoo → Snowflake)
 
 on:
   schedule:
-    - cron: '20 5 * * *'
+    - cron: '20 5 * * *'   # 05:20 UTC (07:20 Madrid aprox.)
   workflow_dispatch: {}
 
 jobs:
@@ -15,11 +15,11 @@ jobs:
       SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
       SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
       SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
-      SNOWFLAKE_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE }}
-      SNOWFLAKE_SCHEMA: ${{ secrets.SNOWFLAKE_SCHEMA }}
-      # SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}  # si te hace falta
+      SNOWFLAKE_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE }}   # YAHOO_PRUEBA
+      SNOWFLAKE_SCHEMA: ${{ secrets.SNOWFLAKE_SCHEMA }}       # IBEX
+      # SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}         # si aplica
       TICKERS_TABLE: YAHOO_PRUEBA.IBEX.LISTA_IBEX_35
-      PRICES_TABLE:  YAHOO_PRUEBA.IBEX.TICKERS_INDEX
+      PRICES_TABLE:  YAHOO_PRUEBA.IBEX.TICKERS_INDEX          # o donde la quieras
       START_DATE: '2020-01-01'
 
     steps:
@@ -31,6 +31,8 @@ jobs:
           [ -n "$SNOWFLAKE_ACCOUNT" ] || (echo "ERROR: SNOWFLAKE_ACCOUNT is empty" && exit 1)
           [ -n "$SNOWFLAKE_USER" ] || (echo "ERROR: SNOWFLAKE_USER is empty" && exit 1)
           [ -n "$SNOWFLAKE_PASSWORD" ] || (echo "ERROR: SNOWFLAKE_PASSWORD is empty" && exit 1)
+          [ -n "$SNOWFLAKE_DATABASE" ] || (echo "ERROR: SNOWFLAKE_DATABASE is empty" && exit 1)
+          [ -n "$SNOWFLAKE_SCHEMA" ] || (echo "ERROR: SNOWFLAKE_SCHEMA is empty" && exit 1)
 
       - name: Debug secrets (solo longitud)
         run: |
@@ -57,9 +59,12 @@ jobs:
             password=os.environ['SNOWFLAKE_PASSWORD'],
             account=os.environ['SNOWFLAKE_ACCOUNT'],
             warehouse=os.environ['SNOWFLAKE_WAREHOUSE'],
+            database=os.environ['SNOWFLAKE_DATABASE'],
+            schema=os.environ['SNOWFLAKE_SCHEMA'],
+            # role=os.environ.get('SNOWFLAKE_ROLE'),
           )
           cur = con.cursor()
-          cur.execute("select current_user(), current_account(), current_region()")
+          cur.execute("select current_user(), current_account(), current_database(), current_schema()")
           print("Connected as:", cur.fetchone())
           cur.close(); con.close()
           PY
