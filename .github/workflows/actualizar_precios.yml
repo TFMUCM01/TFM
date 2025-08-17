@@ -1,0 +1,33 @@
+name: Update daily prices (Yahoo Finance → Snowflake)
+
+on:
+  schedule:
+    - cron: '10 6 * * *'   # 06:10 UTC (08:10 Madrid aprox.)
+  workflow_dispatch: {}
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    env:
+      TZ: Europe/Madrid
+      SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+      SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+      SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+      SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
+      SNOWFLAKE_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE }}
+      SNOWFLAKE_SCHEMA: ${{ secrets.SNOWFLAKE_SCHEMA }}
+      SNOWFLAKE_TABLE: ${{ secrets.SNOWFLAKE_TABLE }}
+      TICKERS_TABLE: YAHOO_PRUEBA.IBEX.LISTA_IBEX_35
+      PRICES_TABLE:  YAHOO_FINANCE.MACHINE_LEARNING.TICKERS_INDEX
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11', cache: 'pip' }
+      - run: |
+          python -m pip install --upgrade pip
+          pip install yfinance pandas snowflake-connector-python python-dateutil
+      - name: Run price downloader
+        working-directory: Yahoo_prueba
+        run: |
+          test -f descargar_precios.py || (echo "Falta Yahoo_prueba/descargar_precios.py" && exit 1)
+          python descargar_precios.py
