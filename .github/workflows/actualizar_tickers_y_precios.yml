@@ -46,5 +46,5 @@ jobs:
       - name: Run update (tickers + incremental prices)
         working-directory: Yahoo_prueba   # ajusta si tu script está en otra carpeta
         run: |
-          test -f update_tickers_and_prices.py || (echo "Falta Yahoo_prueba/update_tickers_and_prices.py" && exit 1)
-          python update_tickers_and_prices.py
+          test -f tickers_precios_global.py || (echo "Falta Yahoo_prueba/tickers_precios_global.py" && exit 1)
+          python tickers_precios_global.py
