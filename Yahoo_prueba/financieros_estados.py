@@ -3,9 +3,8 @@
 #   pip install "pandas>=2.0,<2.3" "snowflake-connector-python[pandas]>=3.5.0" pyarrow
 #   pip install yfinance requests beautifulsoup4 lxml
 
-import os, re, time
-from typing import List, Dict, Tuple, Iterable
-from datetime import datetime, date
+import os, time, re
+from typing import List, Iterable
 import pandas as pd
 import yfinance as yf
 import snowflake.connector
@@ -25,18 +24,13 @@ INCOME_TABLE  = os.environ.get("INCOME_TABLE",  f"{SNOWFLAKE_DATABASE}.{SNOWFLAK
 BAL_TABLE     = os.environ.get("BALANCE_TABLE", f"{SNOWFLAKE_DATABASE}.{SNOWFLAKE_SCHEMA}.FIN_BALANCE")
 CF_TABLE      = os.environ.get("CASHFLOW_TABLE",f"{SNOWFLAKE_DATABASE}.{SNOWFLAKE_SCHEMA}.FIN_CASHFLOW")
 
-INCLUDE_QUARTERLY = os.environ.get("INCLUDE_QUARTERLY", "true").lower() in ("1","true","yes")
-BATCH_TICKERS     = int(os.environ.get("FIN_BATCH_TICKERS", "40"))  # nº tickers por lote para descargar y subir
+BATCH_TICKERS = int(os.environ.get("FIN_BATCH_TICKERS", "40"))  # nº de tickers por lote
 
 # ============ Conexión Snowflake ============
 def sf_connect():
     return snowflake.connector.connect(
-        user=SNOWFLAKE_USER,
-        password=SNOWFLAKE_PASSWORD,
-        account=SNOWFLAKE_ACCOUNT,
-        warehouse=SNOWFLAKE_WAREHOUSE,
-        database=SNOWFLAKE_DATABASE,
-        schema=SNOWFLAKE_SCHEMA,
+        user=SNOWFLAKE_USER, password=SNOWFLAKE_PASSWORD, account=SNOWFLAKE_ACCOUNT,
+        warehouse=SNOWFLAKE_WAREHOUSE, database=SNOWFLAKE_DATABASE, schema=SNOWFLAKE_SCHEMA,
         role=SNOWFLAKE_ROLE
     )
 
@@ -45,7 +39,7 @@ def ensure_table(conn, table_name: str):
     CREATE TABLE IF NOT EXISTS {table_name} (
       TICKER     STRING,
       PERIOD     DATE,
-      FREQUENCY  STRING,   -- 'A' anual, 'Q' trimestral
+      FREQUENCY  STRING,   -- 'A' anual
       METRIC     STRING,
       VALUE      FLOAT
     )
@@ -72,113 +66,62 @@ def norm_metric(s: str) -> str:
 
 def tidy_statement(df: pd.DataFrame, ticker: str, freq: str) -> pd.DataFrame:
     """
-    yfinance devuelve un DataFrame con:
-      - filas: métricas
-      - columnas: periodos (DatetimeIndex o strings)
-    Lo convertimos a largo: TICKER, PERIOD(date), FREQUENCY, METRIC, VALUE
+    yfinance: filas = métricas, columnas = periodos.
+    Devuelve: TICKER, PERIOD(date), FREQUENCY, METRIC, VALUE
     """
     if df is None or df.empty:
         return pd.DataFrame(columns=["TICKER","PERIOD","FREQUENCY","METRIC","VALUE"])
 
     df = df.copy()
-    # Asegura índices/columnas manejables
     df.index = df.index.astype(str)
 
-    # Asegura que las columnas sean fechas (date)
-    periods: List[date] = []
+    # columnas → fechas válidas
+    valid_cols = []
     for c in df.columns:
-        try:
-            d = pd.to_datetime(c).date()
-        except Exception:
-            # si viene Timestamp ya sirve; si es string raro, intenta coerce
-            d = pd.to_datetime(str(c), errors="coerce")
-            d = d.date() if pd.notna(d) else None
-        if d is None:
-            # si no se puede parsear, lo saltamos
-            continue
-        periods.append(d)
-    # mapea columnas a periods válidos
-    valid_cols = [col for col in df.columns if pd.notna(pd.to_datetime(str(col), errors="coerce"))]
+        d = pd.to_datetime(str(c), errors="coerce")
+        if pd.notna(d):
+            valid_cols.append(c)
     if not valid_cols:
         return pd.DataFrame(columns=["TICKER","PERIOD","FREQUENCY","METRIC","VALUE"])
 
-    # stack → largo
     long = df[valid_cols].stack().reset_index()
     long.columns = ["METRIC","PERIOD","VALUE"]
-
-    # parse PERIOD a date
     long["PERIOD"] = pd.to_datetime(long["PERIOD"], errors="coerce").dt.date
     long = long[long["PERIOD"].notna()]
-    # limpia métrica y NaNs
     long["METRIC"] = long["METRIC"].map(norm_metric)
     long = long[pd.to_numeric(long["VALUE"], errors="coerce").notna()]
     long["VALUE"] = long["VALUE"].astype(float)
-
     long["TICKER"] = ticker
-    long["FREQUENCY"] = freq  # 'A' o 'Q'
-
+    long["FREQUENCY"] = freq
     return long[["TICKER","PERIOD","FREQUENCY","METRIC","VALUE"]]
 
-# ============ Descarga y upsert por reporte ============
-def get_income_frames(ticker: str) -> List[pd.DataFrame]:
-    t = yf.Ticker(ticker)
-    frames = []
+# ============ Descarga solo ANUAL ============
+def get_income_annual(ticker: str) -> pd.DataFrame:
     try:
-        frames.append(tidy_statement(t.financials, ticker, "A"))
+        return tidy_statement(yf.Ticker(ticker).financials, ticker, "A")
     except Exception:
-        pass
-    if INCLUDE_QUARTERLY:
-        try:
-            frames.append(tidy_statement(t.quarterly_financials, ticker, "Q"))
-        except Exception:
-            pass
-    return [f for f in frames if f is not None and not f.empty]
+        return pd.DataFrame(columns=["TICKER","PERIOD","FREQUENCY","METRIC","VALUE"])
 
-def get_balance_frames(ticker: str) -> List[pd.DataFrame]:
-    t = yf.Ticker(ticker)
-    frames = []
+def get_balance_annual(ticker: str) -> pd.DataFrame:
     try:
-        frames.append(tidy_statement(t.balance_sheet, ticker, "A"))
+        return tidy_statement(yf.Ticker(ticker).balance_sheet, ticker, "A")
     except Exception:
-        pass
-    if INCLUDE_QUARTERLY:
-        try:
-            frames.append(tidy_statement(t.quarterly_balance_sheet, ticker, "Q"))
-        except Exception:
-            pass
-    return [f for f in frames if f is not None and not f.empty]
+        return pd.DataFrame(columns=["TICKER","PERIOD","FREQUENCY","METRIC","VALUE"])
 
-def get_cashflow_frames(ticker: str) -> List[pd.DataFrame]:
-    t = yf.Ticker(ticker)
-    frames = []
+def get_cashflow_annual(ticker: str) -> pd.DataFrame:
     try:
-        frames.append(tidy_statement(t.cashflow, ticker, "A"))
+        return tidy_statement(yf.Ticker(ticker).cashflow, ticker, "A")
     except Exception:
-        pass
-    if INCLUDE_QUARTERLY:
-        try:
-            frames.append(tidy_statement(t.quarterly_cashflow, ticker, "Q"))
-        except Exception:
-            pass
-    return [f for f in frames if f is not None and not f.empty]
+        return pd.DataFrame(columns=["TICKER","PERIOD","FREQUENCY","METRIC","VALUE"])
 
 def upsert_long_table(conn, df: pd.DataFrame, table_name: str):
-    """
-    Carga df a TEMP TABLE con write_pandas y hace MERGE en:
-      PK lógica: (TICKER, PERIOD, FREQUENCY, METRIC)
-    """
+    """Carga df a TEMP TABLE con write_pandas y MERGE en (TICKER, PERIOD, FREQUENCY, METRIC)."""
     if df is None or df.empty:
         return
-
-    # Asegura orden/columnas y tipos
     df = df[["TICKER","PERIOD","FREQUENCY","METRIC","VALUE"]].copy()
     df["PERIOD"] = pd.to_datetime(df["PERIOD"]).dt.date
-    df["FREQUENCY"] = df["FREQUENCY"].astype(str)
-    df["METRIC"] = df["METRIC"].astype(str)
-    df["TICKER"] = df["TICKER"].astype(str)
     df["VALUE"]  = pd.to_numeric(df["VALUE"], errors="coerce")
 
-    # TEMP y carga
     with conn.cursor() as cur:
         cur.execute(f"CREATE OR REPLACE TEMP TABLE TMP_FS LIKE {table_name}")
     ok, _, nrows, _ = write_pandas(conn, df, table_name="TMP_FS", quote_identifiers=False)
@@ -212,33 +155,28 @@ if __name__ == "__main__":
             ensure_table(conn, tbl)
 
         tickers = read_tickers(conn)
-        print("Tickers para estados financieros:", len(tickers))
+        print("Tickers para estados financieros (solo anual):", len(tickers))
 
-        # Procesa por lotes para no saturar memoria/red
         for batch in chunked(tickers, BATCH_TICKERS):
-            print(f"Procesando lote de {len(batch)} tickers...")
-            inc_frames, bal_frames, cf_frames = [], [], []
+            print(f"Lote de {len(batch)} tickers...")
+            inc_rows, bal_rows, cf_rows = [], [], []
 
-            for t in batch:
-                # Income
-                inc_frames.extend(get_income_frames(t))
-                # Balance
-                bal_frames.extend(get_balance_frames(t))
-                # Cash Flow
-                cf_frames.extend(get_cashflow_frames(t))
-                time.sleep(0.05)  # cortesía mínima para yfinance
+            for tck in batch:
+                inc = get_income_annual(tck)
+                if not inc.empty: inc_rows.append(inc)
+                bal = get_balance_annual(tck)
+                if not bal.empty: bal_rows.append(bal)
+                cf  = get_cashflow_annual(tck)
+                if not cf.empty: cf_rows.append(cf)
+                time.sleep(0.05)  # cortesía mínima a Yahoo
 
-            # Concatenar y subir cada reporte
-            if inc_frames:
-                df_inc = pd.concat(inc_frames, ignore_index=True)
-                upsert_long_table(conn, df_inc, INCOME_TABLE)
-            if bal_frames:
-                df_bal = pd.concat(bal_frames, ignore_index=True)
-                upsert_long_table(conn, df_bal, BAL_TABLE)
-            if cf_frames:
-                df_cf = pd.concat(cf_frames, ignore_index=True)
-                upsert_long_table(conn, df_cf, CF_TABLE)
+            if inc_rows:
+                upsert_long_table(conn, pd.concat(inc_rows, ignore_index=True), INCOME_TABLE)
+            if bal_rows:
+                upsert_long_table(conn, pd.concat(bal_rows, ignore_index=True), BAL_TABLE)
+            if cf_rows:
+                upsert_long_table(conn, pd.concat(cf_rows, ignore_index=True), CF_TABLE)
 
-        print("✅ Estados financieros actualizados.")
+        print("✅ Estados financieros ANUALES actualizados (sin exclusiones).")
     finally:
         conn.close()
