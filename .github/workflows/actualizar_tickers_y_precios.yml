@@ -1,0 +1,50 @@
+name: Update tickers & prices (TradingView + Yahoo → Snowflake)
+
+on:
+  schedule:
+    - cron: '20 5 * * *'   # 05:20 UTC (07:20 Madrid aprox.)
+  workflow_dispatch: {}
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      TZ: Europe/Madrid
+      SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+      SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+      SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+      SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
+      SNOWFLAKE_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE }}
+      SNOWFLAKE_SCHEMA: ${{ secrets.SNOWFLAKE_SCHEMA }}
+      TICKERS_TABLE: YAHOO_PRUEBA.IBEX.LISTA_IBEX_35
+      PRICES_TABLE:  YAHOO_PRUEBA.MACHINE_LEARNING.TICKERS_INDEX
+      START_DATE: '2020-01-01'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with: { fetch-depth: 1 }
+
+      - name: Validate required secrets
+        run: |
+          [ -n "$SNOWFLAKE_ACCOUNT" ] || (echo "ERROR: SNOWFLAKE_ACCOUNT is empty" && exit 1)
+          [ -n "$SNOWFLAKE_USER" ] || (echo "ERROR: SNOWFLAKE_USER is empty" && exit 1)
+          [ -n "$SNOWFLAKE_PASSWORD" ] || (echo "ERROR: SNOWFLAKE_PASSWORD is empty" && exit 1)
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests pandas snowflake-connector-python beautifulsoup4 lxml yfinance python-dateutil
+
+      - name: Run update (tickers + incremental prices)
+        working-directory: Yahoo_prueba   # ajusta si tu script está en otra carpeta
+        run: |
+          test -f update_tickers_and_prices.py || (echo "Falta Yahoo_prueba/update_tickers_and_prices.py" && exit 1)
+          python update_tickers_and_prices.py
