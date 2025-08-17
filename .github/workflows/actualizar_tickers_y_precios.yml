@@ -80,3 +80,17 @@ jobs:
         run: |
           test -f perfil_empresas.py || (echo "Falta Yahoo_prueba/perfil_empresas.py" && exit 1)
           python perfil_empresas.py
+
+
+      - name: Update financial statements (income/balance/cashflow)
+        working-directory: Yahoo_prueba
+        env:
+          INCOME_TABLE:  YAHOO_PRUEBA.IBEX.FIN_INCOME
+          BALANCE_TABLE: YAHOO_PRUEBA.IBEX.FIN_BALANCE
+          CASHFLOW_TABLE: YAHOO_PRUEBA.IBEX.FIN_CASHFLOW
+          INCLUDE_QUARTERLY: 'true'   # pon 'false' si solo quieres anual
+          FIN_BATCH_TICKERS: '40'     # ajusta si ves rate limiting
+        run: |
+          test -f financieros_estados.py || (echo "Falta Yahoo_prueba/financieros_estados.py" && exit 1)
+          python financieros_estados.py
+
