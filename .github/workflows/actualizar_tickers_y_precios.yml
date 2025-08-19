@@ -98,3 +98,13 @@ jobs:
         run: |
           test -f financieros_resumen_anual.py || (echo "Falta Yahoo_prueba/financieros_resumen_anual.py" && exit 1)
           python financieros_resumen_anual.py
+          
+      - name: Update market snapshot (non-historical ratios)
+        working-directory: Yahoo_prueba
+        env:
+          SNAPSHOT_TABLE: YAHOO_PRUEBA.IBEX.FIN_MARKET_SNAPSHOT
+          SNAPSHOT_MAX_WORKERS: '8'   # ajusta si ves rate limiting
+          SNAPSHOT_SLEEP: '0.05'      # pausa corta entre tareas
+        run: |
+          test -f financieros_snapshot.py || (echo "Falta Yahoo_prueba/financieros_snapshot.py" && exit 1)
+          python financieros_snapshot.py
