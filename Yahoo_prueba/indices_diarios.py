@@ -72,16 +72,71 @@ def yesterday_madrid():
     return y, y + timedelta(days=1)
 
 def fetch_index(symbol: str, start_d: date, end_excl: date) -> pd.DataFrame:
-    df = yf.download(symbol, start=start_d, end=end_excl, interval="1d", auto_adjust=False, progress=False)
+    df = yf.download(
+        symbol,
+        start=start_d,
+        end=end_excl,
+        interval="1d",
+        auto_adjust=False,
+        progress=False,
+        group_by="ticker",
+        threads=True,
+    )
     if df is None or df.empty:
         return pd.DataFrame(columns=["FECHA","OPEN","HIGH","LOW","CLOSE"])
-    df = df.reset_index().rename(columns={"Date":"FECHA","Open":"OPEN","High":"HIGH","Low":"LOW","Close":"CLOSE"})
-    df["FECHA"] = pd.to_datetime(df["FECHA"]).dt.date
-    out = df[["FECHA","OPEN","HIGH","LOW","CLOSE"]].dropna(subset=["CLOSE"])
-    # convierte a float por seguridad
-    for c in ["OPEN","HIGH","LOW","CLOSE"]:
-        out[c] = pd.to_numeric(out[c], errors="coerce")
-    return out.dropna(subset=["CLOSE"])
+
+    # Si viene MultiIndex (por ejemplo con el símbolo en el nivel 0)
+    if isinstance(df.columns, pd.MultiIndex):
+        if symbol in df.columns.get_level_values(0):
+            df = df.xs(symbol, level=0, axis=1)
+        else:
+            # a veces viene con un solo nivel implícito
+            try:
+                df.columns = [c[-1] if isinstance(c, tuple) else c for c in df.columns]
+            except Exception:
+                pass
+
+    # Normaliza nombres disponibles (case-insensitive)
+    colmap_lower = {c.lower(): c for c in df.columns}
+
+    def pick(*candidates):
+        for cand in candidates:
+            # exacto
+            if cand in df.columns:
+                return cand
+            # por lower
+            lc = cand.lower()
+            if lc in colmap_lower:
+                return colmap_lower[lc]
+        return None
+
+    open_col  = pick("Open")
+    high_col  = pick("High")
+    low_col   = pick("Low")
+    close_col = pick("Close", "Adj Close")  # <— usa Adj Close si falta Close
+
+    # Construye salida
+    out = pd.DataFrame(index=df.index.copy())
+    out["FECHA"] = pd.to_datetime(out.index).date
+
+    def col_to_float(colname):
+        if colname is None or colname not in df.columns:
+            return pd.Series([pd.NA]*len(df), index=df.index, dtype="Float64")
+        return pd.to_numeric(df[colname], errors="coerce").astype("Float64")
+
+    out["OPEN"]  = col_to_float(open_col)
+    out["HIGH"]  = col_to_float(high_col)
+    out["LOW"]   = col_to_float(low_col)
+    out["CLOSE"] = col_to_float(close_col)
+
+    # Reglas de limpieza mínimas
+    out = out[["FECHA","OPEN","HIGH","LOW","CLOSE"]]
+    out = out.dropna(subset=["CLOSE"])  # si no hay close/adj close, esa fila no sirve
+
+    # Convierte FECHA a tipo date puro
+    out["FECHA"] = pd.to_datetime(out["FECHA"]).dt.date
+    return out.reset_index(drop=True)
+
 
 def merge_chunk(conn, df_chunk: pd.DataFrame):
     if df_chunk.empty:
