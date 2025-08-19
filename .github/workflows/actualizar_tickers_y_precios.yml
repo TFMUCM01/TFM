@@ -108,7 +108,7 @@ jobs:
         run: |
           test -f financieros_snapshot.py || (echo "Falta Yahoo_prueba/financieros_snapshot.py" && exit 1)
           python financieros_snapshot.py
-          
+
       - name: Update ESG snapshot
         working-directory: Yahoo_prueba
         env:
@@ -118,3 +118,23 @@ jobs:
         run: |
           test -f financieros_esg_snapshot.py || (echo "Falta Yahoo_prueba/financieros_esg_snapshot.py" && exit 1)
           python financieros_esg_snapshot.py
+
+      - name: Append market snapshot history (daily)
+        working-directory: Yahoo_prueba
+        env:
+          SNAPSHOT_HIST_TABLE: YAHOO_PRUEBA.IBEX.FIN_MARKET_SNAPSHOT_HIST
+          SNAPSHOT_MAX_WORKERS: '8'
+          SNAPSHOT_SLEEP: '0.05'
+        run: |
+          test -f financieros_snapshot_hist.py || (echo "Falta Yahoo_prueba/financieros_snapshot_hist.py" && exit 1)
+          python financieros_snapshot_hist.py
+
+      - name: Append ESG snapshot history (daily)
+        working-directory: Yahoo_prueba
+        env:
+          ESG_HIST_TABLE: YAHOO_PRUEBA.IBEX.FIN_ESG_SNAPSHOT_HIST
+          ESG_MAX_WORKERS: '8'
+          ESG_SLEEP: '0.05'
+        run: |
+          test -f financieros_esg_snapshot_hist.py || (echo "Falta Yahoo_prueba/financieros_esg_snapshot_hist.py" && exit 1)
+          python financieros_esg_snapshot_hist.py
