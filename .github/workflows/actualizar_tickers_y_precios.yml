@@ -81,18 +81,6 @@ jobs:
           test -f perfil_empresas.py || (echo "Falta Yahoo_prueba/perfil_empresas.py" && exit 1)
           python perfil_empresas.py
 
-
-      - name: Update financial statements (annual only)
-        working-directory: Yahoo_prueba
-        env:
-          INCOME_TABLE:  YAHOO_PRUEBA.IBEX.FIN_INCOME
-          BALANCE_TABLE: YAHOO_PRUEBA.IBEX.FIN_BALANCE
-          CASHFLOW_TABLE: YAHOO_PRUEBA.IBEX.FIN_CASHFLOW
-          FIN_BATCH_TICKERS: '40'     # ajusta si ves rate limiting
-        run: |
-          test -f financieros_estados.py || (echo "Falta Yahoo_prueba/financieros_estados.py" && exit 1)
-          python financieros_estados.py
-
       - name: Update index daily OHLC (IBEX/DAX/CAC/MIB/AEX/FTSE/OMXS30/SMI)
         env:
           INDEX_TABLE: YAHOO_PRUEBA.IBEX.INDEX_DAILY
@@ -101,3 +89,12 @@ jobs:
           test -f Yahoo_prueba/indices_diarios.py || (echo "Falta Yahoo_prueba/indices_diarios.py" && exit 1)
           python Yahoo_prueba/indices_diarios.py
 
+      - name: Update annual financial summary (2021..last closed year)
+        working-directory: Yahoo_prueba
+        env:
+          SUMMARY_TABLE:  YAHOO_PRUEBA.IBEX.FIN_SUMMARY_MAIN
+          SUMMARY_START_YEAR: '2021'
+          # SUMMARY_END_YEAR:  <-- opcional; por defecto = (año actual - 1)
+        run: |
+          test -f financieros_resumen_anual.py || (echo "Falta Yahoo_prueba/financieros_resumen_anual.py" && exit 1)
+          python financieros_resumen_anual.py
