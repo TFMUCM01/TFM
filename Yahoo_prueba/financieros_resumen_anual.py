@@ -2,7 +2,7 @@
 # pip install "pandas>=2.0,<2.3" "snowflake-connector-python[pandas]>=3.5.0" pyarrow yfinance
 
 import os, time
-from typing import List, Iterable, Optional
+from typing import List, Iterable, Optional, Dict, Set
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -75,6 +75,28 @@ def read_tickers(conn) -> List[str]:
         cur.execute(f"SELECT TICKER_YAHOO FROM {TICKERS_TABLE} ORDER BY 1")
         return [str(r[0]).strip().upper() for r in cur.fetchall() if r[0]]
 
+def read_existing_years(conn) -> Dict[str, Set[int]]:
+    """
+    Devuelve {ticker: {years ya existentes en [START_YEAR..END_YEAR] }}.
+    """
+    with conn.cursor() as cur:
+        try:
+            cur.execute(
+                f"SELECT TICKER, YEAR FROM {SUMMARY_TABLE} "
+                f"WHERE YEAR BETWEEN %s AND %s",
+                (START_YEAR, END_YEAR)
+            )
+            rows = cur.fetchall()
+        except snowflake.connector.errors.ProgrammingError:
+            return {}
+    out: Dict[str, Set[int]] = {}
+    for t, y in rows:
+        if t is None or y is None: 
+            continue
+        t = str(t).upper().strip()
+        out.setdefault(t, set()).add(int(y))
+    return out
+
 def chunked(seq: List[str], size: int) -> Iterable[List[str]]:
     for i in range(0, len(seq), size):
         yield seq[i:i+size]
@@ -108,7 +130,13 @@ FINCF_KEYS     = ["Financing Cash Flow", "Net Cash Provided by (Used for) Financ
 FCF_KEYS       = ["Free Cash Flow"]
 CAPEX_KEYS     = ["Capital Expenditure", "Purchase of Property, Plant & Equipment", "Purchase Of Fixed Assets"]
 
-def summarize_by_year_compact_fs(ticker: str) -> pd.DataFrame:
+def summarize_missing_years(ticker: str, allowed_years: Set[int]) -> pd.DataFrame:
+    """
+    Devuelve sólo las filas de los años en allowed_years (ya filtrado por rango).
+    """
+    if not allowed_years:
+        return pd.DataFrame(columns=COLS_ORDER)
+
     tk = yf.Ticker(ticker)
     balance = tk.balance_sheet        # anual
     income  = tk.financials           # anual
@@ -123,9 +151,9 @@ def summarize_by_year_compact_fs(ticker: str) -> pd.DataFrame:
         return pd.DataFrame(columns=COLS_ORDER)
 
     rows = []
-    for col in sorted(cols, key=lambda x: pd.Timestamp(x), reverse=True):
-        year = pd.Timestamp(col).year
-        if not (START_YEAR <= year <= END_YEAR):
+    for col in cols:
+        year = int(pd.Timestamp(col).year)
+        if year not in allowed_years:
             continue
 
         assets = safe_get_cell(balance, ASSETS_KEYS, col)
@@ -176,7 +204,6 @@ def summarize_by_year_compact_fs(ticker: str) -> pd.DataFrame:
         return pd.DataFrame(columns=COLS_ORDER)
 
     df = pd.DataFrame(rows)
-    # asegurar orden/tipos
     df = df.reindex(columns=COLS_ORDER)
     df["TICKER"] = df["TICKER"].astype(str)
     df["YEAR"] = pd.to_numeric(df["YEAR"], errors="coerce").astype("Int64")
@@ -184,70 +211,69 @@ def summarize_by_year_compact_fs(ticker: str) -> pd.DataFrame:
         df[c] = pd.to_numeric(df[c], errors="coerce")
     return df.sort_values(["TICKER","YEAR"])
 
-def upsert_summary(conn, df: pd.DataFrame):
+def insert_only_missing(conn, df: pd.DataFrame):
+    """
+    Inserta solo nuevas filas (sin actualizar existentes).
+    Además incluye una segunda protección en SQL con NOT EXISTS.
+    """
     if df is None or df.empty:
+        print("No hay filas nuevas para insertar.")
         return
+
     df = df.reindex(columns=COLS_ORDER)
     with conn.cursor() as cur:
         cur.execute(f"CREATE OR REPLACE TEMP TABLE TMP_SUMMARY LIKE {SUMMARY_TABLE}")
     ok, _, nrows, _ = write_pandas(conn, df, table_name="TMP_SUMMARY", quote_identifiers=False)
     if not ok:
         raise RuntimeError("write_pandas falló al cargar TMP_SUMMARY.")
-    merge_sql = f"""
-    MERGE INTO {SUMMARY_TABLE} t
-    USING TMP_SUMMARY s
-      ON  t.TICKER = s.TICKER AND t.YEAR = s.YEAR
-    WHEN MATCHED THEN UPDATE SET
-      t.ASSETS = s.ASSETS,
-      t.LIABILITIES = s.LIABILITIES,
-      t.EQUITY = s.EQUITY,
-      t.REVENUE = s.REVENUE,
-      t.EXPENSES = s.EXPENSES,
-      t.NET_INCOME = s.NET_INCOME,
-      t.OPERATING_CF = s.OPERATING_CF,
-      t.INVESTING_CF = s.INVESTING_CF,
-      t.FINANCING_CF = s.FINANCING_CF,
-      t.FREE_CF = s.FREE_CF,
-      t.NET_MARGIN = s.NET_MARGIN,
-      t.ROA = s.ROA,
-      t.ROE = s.ROE,
-      t.DEBT_EQUITY = s.DEBT_EQUITY
-    WHEN NOT MATCHED THEN
-      INSERT (TICKER, YEAR, ASSETS, LIABILITIES, EQUITY, REVENUE, EXPENSES, NET_INCOME,
-              OPERATING_CF, INVESTING_CF, FINANCING_CF, FREE_CF, NET_MARGIN, ROA, ROE, DEBT_EQUITY)
-      VALUES (s.TICKER, s.YEAR, s.ASSETS, s.LIABILITIES, s.EQUITY, s.REVENUE, s.EXPENSES, s.NET_INCOME,
-              s.OPERATING_CF, s.INVESTING_CF, s.FINANCING_CF, s.FREE_CF, s.NET_MARGIN, s.ROA, s.ROE, s.DEBT_EQUITY)
+
+    insert_sql = f"""
+    INSERT INTO {SUMMARY_TABLE} ({", ".join(COLS_ORDER)})
+    SELECT {", ".join("s."+c for c in COLS_ORDER)} 
+    FROM TMP_SUMMARY s
+    WHERE NOT EXISTS (
+      SELECT 1 FROM {SUMMARY_TABLE} t
+      WHERE t.TICKER = s.TICKER AND t.YEAR = s.YEAR
+    )
     """
     with conn.cursor() as cur:
-        cur.execute(merge_sql)
+        cur.execute(insert_sql)
         conn.commit()
-    print(f"Upsert FIN_SUMMARY_COMPACT_FS: {nrows} filas")
+    print(f"Insert (solo faltantes) cargados desde TMP_SUMMARY: {nrows} filas candidatas")
 
 # ================== MAIN ==================
 if __name__ == "__main__":
-    print(f"Rango de años: {START_YEAR} … {END_YEAR} (anuales, cerrados)")
+    print(f"Años objetivo: {START_YEAR}…{END_YEAR} (solo agregar faltantes)")
     conn = sf_connect()
     try:
         ensure_table(conn)
         tickers = read_tickers(conn)
+        existing = read_existing_years(conn)
+
+        target_years = set(range(START_YEAR, END_YEAR + 1))
         print("Tickers:", len(tickers))
 
         all_rows = []
         for batch in chunked(tickers, FIN_BATCH_TICKERS):
             print(f"Lote de {len(batch)} tickers…")
             for tck in batch:
+                have = existing.get(tck, set())
+                missing_years = target_years - have
+                if not missing_years:
+                    continue
                 try:
-                    df = summarize_by_year_compact_fs(tck)
+                    df = summarize_missing_years(tck, missing_years)
                     if not df.empty:
                         all_rows.append(df)
                 except Exception:
                     pass
                 time.sleep(0.05)
+
         if all_rows:
             big = pd.concat(all_rows, ignore_index=True)
-            upsert_summary(conn, big)
+            insert_only_missing(conn, big)
         else:
-            print("No hubo datos para el rango solicitado.")
-        print("✅ Resumen financiero ANUAL (solo FS) actualizado.")
+            print("No hay años faltantes que insertar.")
+        print("✅ Financial summary: solo años faltantes agregados.")
     finally:
         conn.close()
