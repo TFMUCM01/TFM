@@ -94,10 +94,10 @@ jobs:
           python financieros_estados.py
 
       - name: Update index daily OHLC (IBEX/DAX/CAC/MIB/AEX/FTSE/OMXS30/SMI)
-        working-directory: Yahoo_prueba
         env:
           INDEX_TABLE: YAHOO_PRUEBA.IBEX.INDEX_DAILY
           START_DATE: '2020-01-01'
         run: |
-          test -f indices_diarios.py || (echo "Falta Yahoo_prueba/indices_diarios.py" && exit 1)
-          python indices_diarios.py
+          test -f Yahoo_prueba/indices_diarios.py || (echo "Falta Yahoo_prueba/indices_diarios.py" && exit 1)
+          python Yahoo_prueba/indices_diarios.py
+
