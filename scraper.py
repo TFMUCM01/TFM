@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 from config import WAYBACK_TIMEOUT, SNAPSHOT_TIMEOUT
 
+# --8<-- [start:obtener_ultima_fecha_en_snowflake]
 def obtener_snapshot_url(original_url, fecha_str):
     wayback_api = f'https://archive.org/wayback/available?url={original_url}&timestamp={fecha_str}'
     try:
@@ -20,8 +21,8 @@ def obtener_snapshot_url(original_url, fecha_str):
     except Exception as e:
         log_error(f"❌ Error consultando Wayback API para {original_url} en {fecha_str}: {e}")
         return None
-
-
+# --8<-- [end:obtener_ultima_fecha_en_snowflake]
+# --8<-- [start:extraer_titulares]
 def extraer_titulares(snapshot_url, fecha_str, fuente=None):
     titulares = []
     try:
@@ -57,7 +58,7 @@ def extraer_titulares(snapshot_url, fecha_str, fuente=None):
         log_error(f"[{fuente or 'GENERAL'}] Error accediendo a snapshot: {e}")
 
     return titulares
-
+# --8<-- [end:extraer_titulares]
 
 def log_error(mensaje):
     with open("scraping_log.txt", "a", errors="ignore") as f:

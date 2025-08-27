@@ -143,6 +143,25 @@
 </ol>
 <p><strong>Preparación del procesamiento por medio</strong></p>
 <p>Recorremos <code class="docutils literal notranslate"><span class="pre">NOTICIEROS</span></code>, extraemos metadatos del medio y fijamos el rango de fechas (desde la última cargada hasta ayer).</p>
+<p>Verificacion de las ultimas fechas cargada</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="k">def</span><span class="w"> </span><span class="nf">obtener_snapshot_url</span><span class="p">(</span><span class="n">original_url</span><span class="p">,</span> <span class="n">fecha_str</span><span class="p">):</span>
+<span class="linenos"> 2</span>    <span class="n">wayback_api</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;https://archive.org/wayback/available?url=</span><span class="si">{</span><span class="n">original_url</span><span class="si">}</span><span class="s1">&amp;timestamp=</span><span class="si">{</span><span class="n">fecha_str</span><span class="si">}</span><span class="s1">&#39;</span>
+<span class="linenos"> 3</span>    <span class="k">try</span><span class="p">:</span>
+<span class="linenos"> 4</span>        <span class="n">res</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">wayback_api</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">WAYBACK_TIMEOUT</span><span class="p">)</span>
+<span class="linenos"> 5</span>        <span class="n">data</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+<span class="linenos"> 6</span>        <span class="n">snapshots</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;archived_snapshots&#39;</span><span class="p">,</span> <span class="p">{})</span>
+<span class="linenos"> 7</span>        <span class="k">if</span> <span class="n">snapshots</span> <span class="ow">and</span> <span class="s1">&#39;closest&#39;</span> <span class="ow">in</span> <span class="n">snapshots</span><span class="p">:</span>
+<span class="linenos"> 8</span>            <span class="n">url_snapshot</span> <span class="o">=</span> <span class="n">snapshots</span><span class="p">[</span><span class="s1">&#39;closest&#39;</span><span class="p">][</span><span class="s1">&#39;url&#39;</span><span class="p">]</span>
+<span class="linenos"> 9</span>            <span class="k">return</span> <span class="n">url_snapshot</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;http://&quot;</span><span class="p">,</span> <span class="s2">&quot;https://&quot;</span><span class="p">)</span>
+<span class="linenos">10</span>        <span class="k">else</span><span class="p">:</span>
+<span class="linenos">11</span>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;⚠️ No snapshot disponible para </span><span class="si">{</span><span class="n">original_url</span><span class="si">}</span><span class="s2"> en </span><span class="si">{</span><span class="n">fecha_str</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">12</span>            <span class="k">return</span> <span class="kc">None</span>
+<span class="linenos">13</span>    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+<span class="linenos">14</span>        <span class="n">log_error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;❌ Error consultando Wayback API para </span><span class="si">{</span><span class="n">original_url</span><span class="si">}</span><span class="s2"> en </span><span class="si">{</span><span class="n">fecha_str</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">15</span>        <span class="k">return</span> <span class="kc">None</span>
+</pre></div>
+</div>
+<p>Configuracion de las fechas y url</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="k">for</span> <span class="n">medio</span> <span class="ow">in</span> <span class="n">NOTICIEROS</span><span class="p">:</span>
 <span class="linenos"> 2</span>    <span class="n">nombre</span> <span class="o">=</span> <span class="n">medio</span><span class="p">[</span><span class="s2">&quot;nombre&quot;</span><span class="p">]</span>
 <span class="linenos"> 3</span>    <span class="n">url</span> <span class="o">=</span> <span class="n">medio</span><span class="p">[</span><span class="s2">&quot;url&quot;</span><span class="p">]</span>
@@ -164,6 +183,45 @@
 </div>
 <p><strong>Extracción de titulares</strong></p>
 <p>Bucle diario: resolvemos el snapshot del día, extraemos titulares y los enriquecemos con metadatos; errores se registran sin detener el flujo.</p>
+<p>Modulo de descarga en API’s</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="k">def</span><span class="w"> </span><span class="nf">extraer_titulares</span><span class="p">(</span><span class="n">snapshot_url</span><span class="p">,</span> <span class="n">fecha_str</span><span class="p">,</span> <span class="n">fuente</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="linenos"> 2</span>    <span class="n">titulares</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="linenos"> 3</span>    <span class="k">try</span><span class="p">:</span>
+<span class="linenos"> 4</span>        <span class="n">res</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">snapshot_url</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">SNAPSHOT_TIMEOUT</span><span class="p">)</span>
+<span class="linenos"> 5</span>        <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="s1">&#39;html.parser&#39;</span><span class="p">)</span>
+<span class="linenos"> 6</span>        <span class="n">encabezados</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">([</span><span class="s1">&#39;h1&#39;</span><span class="p">,</span> <span class="s1">&#39;h2&#39;</span><span class="p">,</span> <span class="s1">&#39;h3&#39;</span><span class="p">])</span>
+<span class="linenos"> 7</span>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;🔬 [</span><span class="si">{</span><span class="n">fuente</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">encabezados</span><span class="p">)</span><span class="si">}</span><span class="s2"> encabezados encontrados en </span><span class="si">{</span><span class="n">snapshot_url</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos"> 8</span>
+<span class="linenos"> 9</span>        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">encabezados</span><span class="p">:</span>
+<span class="linenos">10</span>            <span class="n">texto</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">get_text</span><span class="p">(</span><span class="n">strip</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="linenos">11</span>            <span class="n">clases</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;class&#39;</span><span class="p">,</span> <span class="p">[]))</span> <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;class&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+<span class="linenos">12</span>
+<span class="linenos">13</span>            <span class="k">if</span> <span class="n">fuente</span> <span class="o">==</span> <span class="s2">&quot;THE TIMES&quot;</span><span class="p">:</span>
+<span class="linenos">14</span>                <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="bp">cls</span> <span class="ow">in</span> <span class="n">clases</span> <span class="k">for</span> <span class="bp">cls</span> <span class="ow">in</span> <span class="p">[</span>
+<span class="linenos">15</span>                    <span class="s1">&#39;responsive__HeadlineContainer-sc-3t8ix5-3&#39;</span><span class="p">,</span>
+<span class="linenos">16</span>                    <span class="s1">&#39;responsive__Heading-sc-1k9kzho-1&#39;</span><span class="p">,</span>
+<span class="linenos">17</span>                    <span class="s1">&#39;responsive__Title-sc-1ij0d4n-5&#39;</span>
+<span class="linenos">18</span>                <span class="p">])</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">texto</span><span class="o">.</span><span class="n">split</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+<span class="linenos">19</span>                    <span class="n">titulares</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+<span class="linenos">20</span>                        <span class="s2">&quot;fecha&quot;</span><span class="p">:</span> <span class="n">fecha_str</span><span class="p">,</span>
+<span class="linenos">21</span>                        <span class="s2">&quot;titular&quot;</span><span class="p">:</span> <span class="n">texto</span><span class="p">,</span>
+<span class="linenos">22</span>                        <span class="s2">&quot;url_archivo&quot;</span><span class="p">:</span> <span class="n">snapshot_url</span>
+<span class="linenos">23</span>                    <span class="p">})</span>
+<span class="linenos">24</span>            <span class="k">else</span><span class="p">:</span>
+<span class="linenos">25</span>                <span class="k">if</span> <span class="n">texto</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">texto</span><span class="o">.</span><span class="n">split</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+<span class="linenos">26</span>                    <span class="n">titulares</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+<span class="linenos">27</span>                        <span class="s2">&quot;fecha&quot;</span><span class="p">:</span> <span class="n">fecha_str</span><span class="p">,</span>
+<span class="linenos">28</span>                        <span class="s2">&quot;titular&quot;</span><span class="p">:</span> <span class="n">texto</span><span class="p">,</span>
+<span class="linenos">29</span>                        <span class="s2">&quot;url_archivo&quot;</span><span class="p">:</span> <span class="n">snapshot_url</span>
+<span class="linenos">30</span>                    <span class="p">})</span>
+<span class="linenos">31</span>
+<span class="linenos">32</span>    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+<span class="linenos">33</span>        <span class="n">log_error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">fuente</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="s1">&#39;GENERAL&#39;</span><span class="si">}</span><span class="s2">] Error accediendo a snapshot: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">34</span>
+<span class="linenos">35</span>    <span class="k">return</span> <span class="n">titulares</span>
+</pre></div>
+</div>
+<p>Solicitud de titulares por fecha</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span>    <span class="k">while</span> <span class="n">fecha</span> <span class="o">&lt;=</span> <span class="n">fecha_fin_dt</span><span class="p">:</span>
 <span class="linenos"> 2</span>        <span class="n">fecha_str</span> <span class="o">=</span> <span class="n">fecha</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="linenos"> 3</span>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;🔍 [</span><span class="si">{</span><span class="n">fuente</span><span class="si">}</span><span class="s2">] Procesando </span><span class="si">{</span><span class="n">fecha_str</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">)</span>
@@ -190,13 +248,49 @@
 </div>
 <p><strong>Carga en Snowflake</strong></p>
 <p>Consolidamos resultados, eliminamos duplicados y subimos a la tabla destino.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span>    <span class="k">if</span> <span class="n">resultados</span><span class="p">:</span>
-<span class="linenos">2</span>        <span class="n">df_nuevo</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">resultados</span><span class="p">)</span>
-<span class="linenos">3</span>        <span class="n">df_nuevo</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;fecha&quot;</span><span class="p">,</span> <span class="s2">&quot;titular&quot;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="linenos">4</span>        <span class="n">subir_a_snowflake</span><span class="p">(</span><span class="n">df_nuevo</span><span class="p">,</span> <span class="n">SNOWFLAKE_CONFIG</span><span class="p">,</span> <span class="n">tabla</span><span class="p">)</span>
-<span class="linenos">5</span>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;📥 Total titulares subidos para </span><span class="si">{</span><span class="n">fuente</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">df_nuevo</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="linenos">6</span>    <span class="k">else</span><span class="p">:</span>
-<span class="linenos">7</span>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;⚠️ No se encontraron titulares nuevos para </span><span class="si">{</span><span class="n">fuente</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+<p>Modulo de carga en Snowflaje</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="k">def</span><span class="w"> </span><span class="nf">subir_a_snowflake</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">tabla</span><span class="p">):</span>
+<span class="linenos"> 2</span>    <span class="k">if</span> <span class="n">df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+<span class="linenos"> 3</span>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;⚠️ No hay datos para subir a </span><span class="si">{</span><span class="n">tabla</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+<span class="linenos"> 4</span>        <span class="k">return</span>
+<span class="linenos"> 5</span>
+<span class="linenos"> 6</span>    <span class="c1"># Convertir &#39;fecha&#39; a datetime.date</span>
+<span class="linenos"> 7</span>    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;fecha&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;fecha&quot;</span><span class="p">],</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">date</span>
+<span class="linenos"> 8</span>
+<span class="linenos"> 9</span>    <span class="n">ctx</span> <span class="o">=</span> <span class="n">snowflake</span><span class="o">.</span><span class="n">connector</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+<span class="linenos">10</span>        <span class="n">user</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">],</span>
+<span class="linenos">11</span>        <span class="n">password</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;password&#39;</span><span class="p">],</span>
+<span class="linenos">12</span>        <span class="n">account</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;account&#39;</span><span class="p">],</span>
+<span class="linenos">13</span>        <span class="n">warehouse</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;warehouse&#39;</span><span class="p">],</span>
+<span class="linenos">14</span>        <span class="n">database</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;database&#39;</span><span class="p">],</span>
+<span class="linenos">15</span>        <span class="n">schema</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;schema&#39;</span><span class="p">]</span>
+<span class="linenos">16</span>    <span class="p">)</span>
+<span class="linenos">17</span>    <span class="n">cs</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+<span class="linenos">18</span>    <span class="k">try</span><span class="p">:</span>
+<span class="linenos">19</span>        <span class="n">tabla_completa</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;database&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;schema&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">tabla</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="linenos">20</span>
+<span class="linenos">21</span>        <span class="c1"># Crear tabla si no existe</span>
+<span class="linenos">22</span>        <span class="n">cs</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="linenos">23</span><span class="s2">            CREATE TABLE IF NOT EXISTS </span><span class="si">{</span><span class="n">tabla_completa</span><span class="si">}</span><span class="s2"> (</span>
+<span class="linenos">24</span><span class="s2">                fecha DATE,</span>
+<span class="linenos">25</span><span class="s2">                titular STRING,</span>
+<span class="linenos">26</span><span class="s2">                url_archivo STRING,</span>
+<span class="linenos">27</span><span class="s2">                fuente STRING,</span>
+<span class="linenos">28</span><span class="s2">                idioma STRING</span>
+<span class="linenos">29</span><span class="s2">            );</span>
+<span class="linenos">30</span><span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+<span class="linenos">31</span>
+<span class="linenos">32</span>        <span class="n">insert_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="linenos">33</span><span class="s2">            INSERT INTO </span><span class="si">{</span><span class="n">tabla_completa</span><span class="si">}</span><span class="s2"> (fecha, titular, url_archivo, fuente, idioma)</span>
+<span class="linenos">34</span><span class="s2">            VALUES (%s, %s, %s, %s, %s)</span>
+<span class="linenos">35</span><span class="s2">        &quot;&quot;&quot;</span>
+<span class="linenos">36</span>        <span class="n">rows_to_insert</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="s2">&quot;fecha&quot;</span><span class="p">,</span> <span class="s2">&quot;titular&quot;</span><span class="p">,</span> <span class="s2">&quot;url_archivo&quot;</span><span class="p">,</span> <span class="s2">&quot;fuente&quot;</span><span class="p">,</span> <span class="s2">&quot;idioma&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="linenos">37</span>        <span class="n">cs</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span><span class="n">insert_query</span><span class="p">,</span> <span class="n">rows_to_insert</span><span class="p">)</span>
+<span class="linenos">38</span>
+<span class="linenos">39</span>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✅ </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="si">}</span><span class="s2"> filas insertadas en </span><span class="si">{</span><span class="n">tabla</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+<span class="linenos">40</span>    <span class="k">finally</span><span class="p">:</span>
+<span class="linenos">41</span>        <span class="n">cs</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="linenos">42</span>        <span class="n">ctx</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 </pre></div>
 </div>
 </section>

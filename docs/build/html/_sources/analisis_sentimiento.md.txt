@@ -47,6 +47,15 @@ Crearemos un **orquestador** del proyecto para coordina el scraping por medio y 
 
 Recorremos `NOTICIEROS`, extraemos metadatos del medio y fijamos el rango de fechas (desde la última cargada hasta ayer).
 
+Verificacion de las ultimas fechas cargada
+```{literalinclude} ../../scraper.py
+:language: python
+:linenos:
+:start-after: --8<-- [start:obtener_ultima_fecha_en_snowflake]
+:end-before: --8<-- [end:obtener_ultima_fecha_en_snowflake]
+```
+
+Configuracion de las fechas y url
 ```{literalinclude} ../../main.py
 :language: python
 :linenos:
@@ -58,6 +67,15 @@ Recorremos `NOTICIEROS`, extraemos metadatos del medio y fijamos el rango de fec
 
 Bucle diario: resolvemos el snapshot del día, extraemos titulares y los enriquecemos con metadatos; errores se registran sin detener el flujo.
 
+Modulo de descarga en API's
+```{literalinclude} ../../scraper.py
+:language: python
+:linenos:
+:start-after: --8<-- [start:extraer_titulares]
+:end-before: --8<-- [end:extraer_titulares]
+```
+
+Solicitud de titulares por fecha
 ```{literalinclude} ../../main.py
 :language: python
 :linenos:
@@ -69,9 +87,11 @@ Bucle diario: resolvemos el snapshot del día, extraemos titulares y los enrique
 
 Consolidamos resultados, eliminamos duplicados y subimos a la tabla destino.
 
-```{literalinclude} ../../main.py
+Modulo de carga en Snowflaje
+
+```{literalinclude} ../../snowflake_utils.py
 :language: python
 :linenos:
-:start-after: --8<-- [start:subida-snowflake]
-:end-before: --8<-- [end:subida-snowflake]
+:start-after: --8<-- [start:subir_a_snowflake]
+:end-before: --8<-- [end:subir_a_snowflake]
 ```

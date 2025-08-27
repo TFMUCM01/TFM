@@ -28,7 +28,7 @@ def obtener_ultima_fecha_en_snowflake(config, tabla):
     finally:
         cs.close()
         ctx.close()
-
+# --8<-- [start:subir_a_snowflake]
 def subir_a_snowflake(df, config, tabla):
     if df.empty:
         print(f"⚠️ No hay datos para subir a {tabla}.")
@@ -71,3 +71,4 @@ def subir_a_snowflake(df, config, tabla):
     finally:
         cs.close()
         ctx.close()
+# --8<-- [end:subir_a_snowflake]
