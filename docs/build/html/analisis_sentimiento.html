@@ -45,10 +45,11 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Datos y Preparación</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#analisis-de-sentimiento">Analisis de sentimiento</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#titulares-de-noticieros">Titulares de noticieros</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#descarga-de-titulos-de-noticias">Descarga de titulos de noticias</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#precios-por-tickers">Precios por tickers</a></li>
 </ul>
 </li>
 </ul>
@@ -81,8 +82,8 @@
 <h1>Datos y Preparación<a class="headerlink" href="#datos-y-preparacion" title="Link to this heading"></a></h1>
 <p>Este trabajo integra dos fuentes complementarias para anticipar el comportamiento del precio de acciones europeas: señales de sentimiento extraídas de titulares de prensa y información cuantitativa de mercado y estados financieros. Los titulares se obtuvieron mediante scraping y de medios generalistas y económicos —BBC, ABC, El Economista, Bloomberg Europa, El País, The Times y Expansión—. Sobre estos textos se aplicó una depuración sistemática (eliminación de duplicados y de ruidos como elementos de navegación, normalización de caracteres/idiomas y control de fechas) para construir indicadores diarios de sentimiento por medio e instrumento.</p>
 <p>En paralelo, los datos de mercado (OHLCV por ticker) se descargaron y consolidaron en Snowflake, armonizando formatos de fecha y símbolos, verificando huecos y coherencia (festivos, sesiones sin volumen) y, cuando procede, incorporando información contable resumida por compañía. Finalmente, se integraron ambas fuentes en un único dataset analítico a nivel (ticker, fecha) que incluye rendimientos y rezagos, volumen y métricas de sentimiento agregadas. Este conjunto sirve de base para los modelos predictivos, combinando la dimensión informativa de las noticias con la evidencia numérica del mercado para obtener señales de compra/venta más robustas.</p>
-<section id="analisis-de-sentimiento">
-<h2>Analisis de sentimiento<a class="headerlink" href="#analisis-de-sentimiento" title="Link to this heading"></a></h2>
+<section id="titulares-de-noticieros">
+<h2>Titulares de noticieros<a class="headerlink" href="#titulares-de-noticieros" title="Link to this heading"></a></h2>
 <p>Como primera fase, se recopilaron titulares de noticieros financieros y generalistas de acceso público —entre ellos El País, The Times y Bloomberg— a través de sus respectivas fuentes web y archivos digitales. Posteriormente, estos textos fueron procesados mediante técnicas de análisis de texto <span style="color:red">[aquí se puede especificar el método exacto]</span> , con el objetivo de identificar noticias relevantes capaces de influir en el comportamiento bursátil de las acciones.</p>
 <p>Ejemplo de base da datos de titulares:</p>
 <table class="docutils align-default">
@@ -142,8 +143,8 @@
 <li><p>Se suben los nuevos registros a Snowflake.</p></li>
 </ol>
 <p><strong>Preparación del procesamiento por medio</strong></p>
-<p>Recorremos <code class="docutils literal notranslate"><span class="pre">NOTICIEROS</span></code>, extraemos metadatos del medio y fijamos el rango de fechas (desde la última cargada hasta ayer).</p>
-<p>Verificacion de las ultimas fechas cargada</p>
+<p>Recorremos <code class="docutils literal notranslate"><span class="pre">NOTICIEROS</span></code>, extraemos metadatos del medio y fijamos el rango de fechas (desde la última cargada hasta ayer).
+Verificacion de las ultimas fechas cargada</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="k">def</span><span class="w"> </span><span class="nf">obtener_snapshot_url</span><span class="p">(</span><span class="n">original_url</span><span class="p">,</span> <span class="n">fecha_str</span><span class="p">):</span>
 <span class="linenos"> 2</span>    <span class="n">wayback_api</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;https://archive.org/wayback/available?url=</span><span class="si">{</span><span class="n">original_url</span><span class="si">}</span><span class="s1">&amp;timestamp=</span><span class="si">{</span><span class="n">fecha_str</span><span class="si">}</span><span class="s1">&#39;</span>
 <span class="linenos"> 3</span>    <span class="k">try</span><span class="p">:</span>
@@ -294,6 +295,9 @@
 </pre></div>
 </div>
 </section>
+</section>
+<section id="precios-por-tickers">
+<h2>Precios por tickers<a class="headerlink" href="#precios-por-tickers" title="Link to this heading"></a></h2>
 </section>
 </section>
 

@@ -4,7 +4,7 @@ Este trabajo integra dos fuentes complementarias para anticipar el comportamient
 
 En paralelo, los datos de mercado (OHLCV por ticker) se descargaron y consolidaron en Snowflake, armonizando formatos de fecha y símbolos, verificando huecos y coherencia (festivos, sesiones sin volumen) y, cuando procede, incorporando información contable resumida por compañía. Finalmente, se integraron ambas fuentes en un único dataset analítico a nivel (ticker, fecha) que incluye rendimientos y rezagos, volumen y métricas de sentimiento agregadas. Este conjunto sirve de base para los modelos predictivos, combinando la dimensión informativa de las noticias con la evidencia numérica del mercado para obtener señales de compra/venta más robustas.
 
-## Analisis de sentimiento
+## Titulares de noticieros
 
 Como primera fase, se recopilaron titulares de noticieros financieros y generalistas de acceso público —entre ellos El País, The Times y Bloomberg— a través de sus respectivas fuentes web y archivos digitales. Posteriormente, estos textos fueron procesados mediante técnicas de análisis de texto <span style="color:red">[aquí se puede especificar el método exacto]</span> , con el objetivo de identificar noticias relevantes capaces de influir en el comportamiento bursátil de las acciones.
 
@@ -46,7 +46,6 @@ Crearemos un **orquestador** del proyecto para coordina el scraping por medio y 
 **Preparación del procesamiento por medio**
 
 Recorremos `NOTICIEROS`, extraemos metadatos del medio y fijamos el rango de fechas (desde la última cargada hasta ayer).
-
 Verificacion de las ultimas fechas cargada
 ```{literalinclude} ../../scraper.py
 :language: python
@@ -95,3 +94,5 @@ Modulo de carga en Snowflaje
 :start-after: --8<-- [start:subir_a_snowflake]
 :end-before: --8<-- [end:subir_a_snowflake]
 ```
+
+## Precios por tickers
