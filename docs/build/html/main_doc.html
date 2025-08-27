@@ -1,0 +1,160 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="es" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>main_borrar.py &mdash; TFM: Análisis de Tendencias Económicas en Madrid mediante Modelos Financieros y de Sentimiento</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=ba61de6b"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/translations.js?v=f85f4cfb"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Índice" href="genindex.html" />
+    <link rel="search" title="Búsqueda" href="search.html" />
+    <link rel="prev" title="TFM: Análisis de Tendencias Económicas en Madrid mediante Modelos Financieros y de Sentimiento" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            TFM: Análisis de Tendencias Económicas en Madrid mediante Modelos Financieros y de Sentimiento
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Buscar documentos" aria-label="Buscar documentos" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">main_borrar.py</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#modulos-y-dependencias">Módulos y dependencias</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#flujo-general">Flujo general</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#preparacion-del-procesamiento-por-medio">Preparación del procesamiento por medio</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">TFM: Análisis de Tendencias Económicas en Madrid mediante Modelos Financieros y de Sentimiento</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active"><code class="docutils literal notranslate"><span class="pre">main_borrar.py</span></code></li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/main_doc.md.txt" rel="nofollow"> Ver código fuente de la página</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <p>Este módulo actúa como <strong>orquestador</strong> del proyecto. Su función principal es coordinar el proceso de scraping y la carga de datos en Snowflake.</p>
+<section id="main-borrar-py">
+<h1><code class="docutils literal notranslate"><span class="pre">main_borrar.py</span></code><a class="headerlink" href="#main-borrar-py" title="Link to this heading"></a></h1>
+<hr class="docutils" />
+<section id="modulos-y-dependencias">
+<h2>Módulos y dependencias<a class="headerlink" href="#modulos-y-dependencias" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">config.py</span></code></strong></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">NOTICIEROS</span></code>: lista de medios (URL, fuente, idioma, tabla destino)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SNOWFLAKE_CONFIG</span></code>: credenciales y parámetros de conexión</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RETRIES</span></code>, <code class="docutils literal notranslate"><span class="pre">SLEEP_BETWEEN_DIAS</span></code>: reintentos y pausas</p></li>
+</ul>
+</li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">scraper.py</span></code></strong></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">obtener_snapshot_url_directo(url,</span> <span class="pre">fecha)</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">extraer_titulares(url,</span> <span class="pre">fecha,</span> <span class="pre">fuente)</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">log_error(msg)</span></code></p></li>
+</ul>
+</li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">snowflake_utils.py</span></code></strong></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">obtener_ultima_fecha_en_snowflake(config,</span> <span class="pre">tabla)</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">subir_a_snowflake(df,</span> <span class="pre">config,</span> <span class="pre">tabla)</span></code></p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="flujo-general">
+<h2>Flujo general<a class="headerlink" href="#flujo-general" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p>Para cada noticiero en <code class="docutils literal notranslate"><span class="pre">config.py</span></code>, se obtiene la última fecha almacenada.</p></li>
+<li><p>Se recorren los días pendientes hasta el día anterior al actual.</p></li>
+<li><p>Para cada fecha:</p>
+<ul class="simple">
+<li><p>Se obtiene la URL del snapshot.</p></li>
+<li><p>Se extraen los titulares.</p></li>
+<li><p>Se limpian duplicados y se añaden metadatos.</p></li>
+</ul>
+</li>
+<li><p>Se suben los nuevos registros a Snowflake.</p></li>
+</ol>
+</section>
+<hr class="docutils" />
+<section id="preparacion-del-procesamiento-por-medio">
+<h2>Preparación del procesamiento por medio<a class="headerlink" href="#preparacion-del-procesamiento-por-medio" title="Link to this heading"></a></h2>
+<p>En primer lugar, recorremos el documento <code class="docutils literal notranslate"><span class="pre">NOTICIEROS</span></code> donde tenemos todas nuevas url para el analiosos y extraemos <code class="docutils literal notranslate"><span class="pre">nombre</span></code>, <code class="docutils literal notranslate"><span class="pre">url</span></code>, <code class="docutils literal notranslate"><span class="pre">fuente</span></code>, <code class="docutils literal notranslate"><span class="pre">idioma</span></code> y tabla para parametrizar el flujo por periódico. Luego verificamos la ultima fecha de solicitud que esta en Snowflake para no repetir noticias de dia anteriores evitando duplicados siempre teniendo en cuenta que se esta extrayendo noticias de ayer</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Pie de página">
+        <a href="index.html" class="btn btn-neutral float-left" title="TFM: Análisis de Tendencias Económicas en Madrid mediante Modelos Financieros y de Sentimiento" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Anterior</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Derechos de autor 2025, Julia Escudero, Marco Mendieta, Marco Pacora, Piero Rios, Juan Carlos Romero.</p>
+  </div>
+
+  Compilado con <a href="https://www.sphinx-doc.org/">Sphinx</a> usando un
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">tema</a>
+    proporcionado por <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
