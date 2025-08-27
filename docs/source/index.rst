@@ -12,5 +12,4 @@ documentation for details.
    :maxdepth: 2
    :caption: Contents:
 
-   codigo_main
-   api_main
+   main_doc
