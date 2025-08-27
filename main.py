@@ -6,6 +6,7 @@ from config import NOTICIEROS, SNOWFLAKE_CONFIG, RETRIES, SLEEP_BETWEEN_DIAS
 from scraper import obtener_snapshot_url_directo, extraer_titulares, log_error
 from snowflake_utils import subir_a_snowflake, obtener_ultima_fecha_en_snowflake
 
+# --8<-- [start:configfechas-noticieros]
 for medio in NOTICIEROS:
     nombre = medio["nombre"]
     url = medio["url"]
@@ -23,9 +24,10 @@ for medio in NOTICIEROS:
 
     fecha = datetime.combine(FECHA_INICIO, datetime.min.time())
     fecha_fin_dt = datetime.combine(FECHA_FIN, datetime.min.time())
+# --8<-- [end:configfechas-noticieros]
 
     resultados = []
-
+# --8<-- [start:extraer-titulares]
     while fecha <= fecha_fin_dt:
         fecha_str = fecha.strftime("%Y%m%d")
         print(f"🔍 [{fuente}] Procesando {fecha_str}...")
@@ -48,7 +50,9 @@ for medio in NOTICIEROS:
 
         time.sleep(SLEEP_BETWEEN_DIAS)
         fecha += timedelta(days=1)
+# --8<-- [end:extraer-titulares]
 
+# --8<-- [start:subida-snowflake]
     if resultados:
         df_nuevo = pd.DataFrame(resultados)
         df_nuevo.drop_duplicates(subset=["fecha", "titular"], inplace=True)
@@ -56,3 +60,4 @@ for medio in NOTICIEROS:
         print(f"📥 Total titulares subidos para {fuente}: {len(df_nuevo)}")
     else:
         print(f"⚠️ No se encontraron titulares nuevos para {fuente}.")
+# --8<-- [end:subida-snowflake]
