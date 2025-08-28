@@ -4,6 +4,8 @@ import snowflake.connector
 import pandas as pd
 from datetime import datetime, timedelta
 #prueba
+
+# --8<-- [start:obtener_ultima_fecha_en_snowflake]
 def obtener_ultima_fecha_en_snowflake(config, tabla):
     ctx = snowflake.connector.connect(
         user=config['user'],
@@ -20,18 +22,20 @@ def obtener_ultima_fecha_en_snowflake(config, tabla):
         resultado = cs.fetchone()
         if resultado and resultado[0]:
             ultima_fecha = resultado[0]
-            print(f"📌 Última fecha en Snowflake para {tabla}: {ultima_fecha}")
+            print(f"Última fecha en Snowflake para {tabla}: {ultima_fecha}")
             return ultima_fecha + timedelta(days=1)
         else:
-            print(f"⚠️ No se encontraron registros en {tabla}. Iniciando desde 2024-01-01.")
+            print(f"No se encontraron registros en {tabla}. Iniciando desde 2024-01-01.")
             return datetime.strptime("20240101", "%Y%m%d").date()
     finally:
         cs.close()
         ctx.close()
+# --8<-- [end:obtener_ultima_fecha_en_snowflake]
+
 # --8<-- [start:subir_a_snowflake]
 def subir_a_snowflake(df, config, tabla):
     if df.empty:
-        print(f"⚠️ No hay datos para subir a {tabla}.")
+        print(f"No hay datos para subir a {tabla}.")
         return
 
     # Convertir 'fecha' a datetime.date
@@ -67,7 +71,7 @@ def subir_a_snowflake(df, config, tabla):
         rows_to_insert = df[["fecha", "titular", "url_archivo", "fuente", "idioma"]].values.tolist()
         cs.executemany(insert_query, rows_to_insert)
 
-        print(f"✅ {len(df)} filas insertadas en {tabla}.")
+        print(f"{len(df)} filas insertadas en {tabla}.")
     finally:
         cs.close()
         ctx.close()
