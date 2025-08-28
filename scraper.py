@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 from config import WAYBACK_TIMEOUT, SNAPSHOT_TIMEOUT
 
-# --8<-- [start:obtener_ultima_fecha_en_snowflake]
+# --8<-- [start:obtener_snapshot_url]
 def obtener_snapshot_url(original_url, fecha_str):
     wayback_api = f'https://archive.org/wayback/available?url={original_url}&timestamp={fecha_str}'
     try:
@@ -16,12 +16,13 @@ def obtener_snapshot_url(original_url, fecha_str):
             url_snapshot = snapshots['closest']['url']
             return url_snapshot.replace("http://", "https://")
         else:
-            print(f"⚠️ No snapshot disponible para {original_url} en {fecha_str}")
+            print(f"No snapshot disponible para {original_url} en {fecha_str}")
             return None
     except Exception as e:
-        log_error(f"❌ Error consultando Wayback API para {original_url} en {fecha_str}: {e}")
+        log_error(f"Error consultando Wayback API para {original_url} en {fecha_str}: {e}")
         return None
-# --8<-- [end:obtener_ultima_fecha_en_snowflake]
+# --8<-- [end:obtener_snapshot_url]
+
 # --8<-- [start:extraer_titulares]
 def extraer_titulares(snapshot_url, fecha_str, fuente=None):
     titulares = []
@@ -29,7 +30,7 @@ def extraer_titulares(snapshot_url, fecha_str, fuente=None):
         res = requests.get(snapshot_url, timeout=SNAPSHOT_TIMEOUT)
         soup = BeautifulSoup(res.content, 'html.parser')
         encabezados = soup.find_all(['h1', 'h2', 'h3'])
-        print(f"🔬 [{fuente}] {len(encabezados)} encabezados encontrados en {snapshot_url}")
+        print(f"[{fuente}] {len(encabezados)} encabezados encontrados en {snapshot_url}")
 
         for t in encabezados:
             texto = t.get_text(strip=True)
