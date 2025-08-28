@@ -33,6 +33,8 @@ START_DATE    = pd.to_datetime(os.environ.get("START_DATE", "2020-01-01")).date(
 TZ = ZoneInfo("Europe/Madrid")
 
 # ============ ÍNDICES A RASTREAR (conteo exacto) ============
+
+# --8<-- [start:index]
 INDEX_SPECS = [
     dict(pais="España",        index="IBEX 35",  components_url="https://www.tradingview.com/symbols/BME-IBC/components/",       accept_exchanges={"BME"},     yahoo_suffix=".MC", expected_count=35),
     dict(pais="Alemania",      index="DAX 40",   components_url="https://www.tradingview.com/symbols/XETR-DAX/components/",      accept_exchanges={"XETR"},    yahoo_suffix=".DE", expected_count=40),
@@ -43,7 +45,7 @@ INDEX_SPECS = [
     dict(pais="Suecia",        index="OMXS30",   components_url="https://www.tradingview.com/symbols/NASDAQ-OMXS30/components/", accept_exchanges={"OMXSTO"},  yahoo_suffix=".ST", expected_count=30),
     dict(pais="Suiza",         index="SMI",      components_url="https://www.tradingview.com/symbols/SIX-SMI/components/",        accept_exchanges={"SIX"},     yahoo_suffix=".SW", expected_count=21),
 ]
-
+# --8<-- [end:index]
 # ============ HTTP ============
 SESSION = requests.Session()
 SESSION.headers.update({
@@ -73,6 +75,7 @@ def class_contains(tag, fragment: str) -> bool:
         cls = cls.split()
     return any(fragment in c for c in cls)
 
+# --8<-- [start:extract_rows_precise]
 def extract_rows_precise(html: str, accept_exchanges: Set[str]) -> List[Tuple[str, str, str]]:
     soup = BeautifulSoup(html, "lxml")
     desc_nodes = soup.find_all("sup", class_=lambda v: v and "tickerDescription-" in " ".join(v if isinstance(v, list) else v.split()))
@@ -103,6 +106,7 @@ def extract_rows_precise(html: str, accept_exchanges: Set[str]) -> List[Tuple[st
             continue
         out[(exch, sym)] = name
     return [(ex, sy, nm) for (ex, sy), nm in out.items()]
+# --8<-- [end:extract_rows_precise]
 
 def clean_company_name(s: str, ticker: str) -> str:
     if not s: return ticker
@@ -118,7 +122,7 @@ def yahoo_ticker_from_local(local_ticker: str, pais: str) -> str:
     elif pais == "Suecia":
         t = t.replace('_', '-')
     return t
-
+# --8<-- [start:scrape_country.py]
 def scrape_country(spec: Dict) -> pd.DataFrame:
     html = fetch_html(spec["components_url"])
     pairs = extract_rows_precise(html, spec["accept_exchanges"])
@@ -131,6 +135,7 @@ def scrape_country(spec: Dict) -> pd.DataFrame:
         rows.append({"TICKER_YAHOO": yahoo, "NOMBRE": clean_company_name(name, sym), "PAIS": spec["pais"], "TICKET": base_for_yahoo})
         time.sleep(0.03)
     return pd.DataFrame(rows, columns=["TICKER_YAHOO", "NOMBRE", "PAIS", "TICKET"])
+# --8<-- [start:scrape_country.py]
 
 # ----------------- Snowflake helpers -----------------
 def sf_connect():
@@ -169,7 +174,7 @@ def overwrite_tickers(conn, df: pd.DataFrame):
         )
         cur.execute(f"SELECT COUNT(*) FROM {TICKERS_TABLE}")
         print("Tickers en tabla:", cur.fetchone()[0])
-
+# --8<-- [start:ensure_prices_table]
 def ensure_prices_table(conn):
     with conn.cursor() as cur:
         cur.execute(f"""
@@ -183,7 +188,7 @@ def ensure_prices_table(conn):
               FECHA  DATE
             )
         """)
-
+# --8<-- [end:ensure_prices_table]
 def read_tickers(conn) -> List[str]:
     with conn.cursor() as cur:
         cur.execute(f"SELECT TICKER_YAHOO FROM {TICKERS_TABLE} ORDER BY 1")
@@ -210,6 +215,7 @@ def yesterday_madrid():
     return y, y + timedelta(days=1)
 
 # ----------------- Descarga y MERGE de precios -----------------
+# --8<-- [start:download_batch]
 def download_batch(tickers: List[str], start_date, end_excl) -> pd.DataFrame:
     if not tickers:
         return pd.DataFrame(columns=["TICKER","CLOSE","HIGH","LOW","OPEN","VOLUME","FECHA"])
@@ -244,6 +250,7 @@ def download_batch(tickers: List[str], start_date, end_excl) -> pd.DataFrame:
         out[col] = pd.to_numeric(out[col], errors="coerce")
     out["VOLUME"] = pd.to_numeric(out["VOLUME"], errors="coerce").astype("Int64")
     return out.dropna(subset=["CLOSE","HIGH","LOW","OPEN"])
+# --8<-- [end:download_batch]
 
 def merge_with_temp(conn, df: pd.DataFrame):
     """Inserta en chunks para evitar el límite de 200k expresiones y luego MERGE."""
