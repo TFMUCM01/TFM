@@ -43,22 +43,47 @@ jobs:
           echo "📅 Ejecutando main.py el $(date -u)"
           python main.py
 
-      - name: Notificar a n8n (webhook)
+      # 1) Webhook: scraping-finalizado
+      - name: Notificar a n8n - scraping finalizado
         if: success()
         env:
-          N8N_URL: ${{ secrets.N8N_URL }}
+          N8N_URL: ${{ secrets.N8N_URL }}                # ej. https://tu-dominio.tld
           N8N_WEBHOOK_SECRET: ${{ secrets.N8N_WEBHOOK_SECRET }}
-        # Este paso no necesita 'working-directory', pero no afecta dejarlo
         run: |
-          curl -sS -i -X POST "$N8N_URL/webhook/scraping-finalizado" \
+          set -euo pipefail
+          curl -sS --fail --retry 3 -X POST "$N8N_URL/webhook-test/scraping-finalizado" \
             -H "Content-Type: application/json" \
             -H "x-n8n-secret: $N8N_WEBHOOK_SECRET" \
             --data @- <<'JSON'
           {
-            "status": "ok",
+            "status": "success",
             "mensaje": "✅ Scraping finalizado correctamente en GitHub Actions",
             "timestamp": "${{ github.run_started_at }}",
             "run_id": "${{ github.run_id }}",
-            "workflow": "${{ github.workflow }}"
+            "workflow": "${{ github.workflow }}",
+            "repository": "${{ github.repository }}",
+            "sha": "${{ github.sha }}"
+          }
+          JSON
+
+      # 2) Webhook: actualizar-registros
+      - name: Notificar a n8n - actualizar registros
+        if: success()
+        env:
+          N8N_URL: ${{ secrets.N8N_URL }}                # misma base
+          N8N_WEBHOOK_SECRET: ${{ secrets.N8N_WEBHOOK_SECRET }}
+        run: |
+          set -euo pipefail
+          curl -sS --fail --retry 3 -X POST "$N8N_URL/webhook-test/actualizar-registros" \
+            -H "Content-Type: application/json" \
+            -H "x-n8n-secret: $N8N_WEBHOOK_SECRET" \
+            --data @- <<'JSON'
+          {
+            "status": "success",
+            "mensaje": "🔄 Actualizar registros tras scraping",
+            "run_id": "${{ github.run_id }}",
+            "workflow": "${{ github.workflow }}",
+            "repository": "${{ github.repository }}",
+            "sha": "${{ github.sha }}"
           }
           JSON
