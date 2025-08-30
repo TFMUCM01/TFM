@@ -51,7 +51,7 @@ jobs:
           N8N_WEBHOOK_SECRET: ${{ secrets.N8N_WEBHOOK_SECRET }}
         run: |
           set -euo pipefail
-          curl -sS --fail --retry 3 -X POST "$N8N_URL/webhook-test/scraping-finalizado" \
+          curl -sS --fail --retry 3 -X POST "$N8N_URL/webhook/scraping-finalizado" \
             -H "Content-Type: application/json" \
             -H "x-n8n-secret: $N8N_WEBHOOK_SECRET" \
             --data @- <<'JSON'
@@ -74,7 +74,7 @@ jobs:
           N8N_WEBHOOK_SECRET: ${{ secrets.N8N_WEBHOOK_SECRET }}
         run: |
           set -euo pipefail
-          curl -sS --fail --retry 3 -X POST "$N8N_URL/webhook-test/actualizar-registros" \
+          curl -sS --fail --retry 3 -X POST "$N8N_URL/webhook/actualizar-registros" \
             -H "Content-Type: application/json" \
             -H "x-n8n-secret: $N8N_WEBHOOK_SECRET" \
             --data @- <<'JSON'
