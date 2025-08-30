@@ -94,7 +94,6 @@ jobs:
         env:
           SUMMARY_TABLE:  YAHOO_PRUEBA.IBEX.FIN_SUMMARY_MAIN
           SUMMARY_START_YEAR: '2021'
-          # SUMMARY_END_YEAR:  <-- opcional; por defecto = (año actual - 1)
         run: |
           test -f financieros_resumen_anual.py || (echo "Falta Yahoo_prueba/financieros_resumen_anual.py" && exit 1)
           python financieros_resumen_anual.py
@@ -103,8 +102,8 @@ jobs:
         working-directory: Yahoo_prueba
         env:
           SNAPSHOT_TABLE: YAHOO_PRUEBA.IBEX.FIN_MARKET_SNAPSHOT
-          SNAPSHOT_MAX_WORKERS: '8'   # ajusta si ves rate limiting
-          SNAPSHOT_SLEEP: '0.05'      # pausa corta entre tareas
+          SNAPSHOT_MAX_WORKERS: '8'
+          SNAPSHOT_SLEEP: '0.05'
         run: |
           test -f financieros_snapshot.py || (echo "Falta Yahoo_prueba/financieros_snapshot.py" && exit 1)
           python financieros_snapshot.py
@@ -138,3 +137,27 @@ jobs:
         run: |
           test -f financieros_esg_snapshot_hist.py || (echo "Falta Yahoo_prueba/financieros_esg_snapshot_hist.py" && exit 1)
           python financieros_esg_snapshot_hist.py
+
+      # 🔔 Disparar flujo de confirmación en n8n: /webhook/yahoo_finance
+      - name: Trigger n8n confirm flow (yahoo_finance)
+        if: success()   # usa 'always()' si quieres dispararlo aunque falle algo
+        env:
+          N8N_URL: ${{ secrets.N8N_URL }}                # ej. https://tu-dominio.tld  (o https://tu-dominio.tld/n8n)
+          N8N_WEBHOOK_SECRET: ${{ secrets.N8N_WEBHOOK_SECRET }}
+        run: |
+          set -euo pipefail
+          curl -sS --fail --retry 3 -X POST "$N8N_URL/webhook/yahoo_finance" \
+            -H "Content-Type: application/json" \
+            -H "x-n8n-secret: $N8N_WEBHOOK_SECRET" \
+            --data @- <<'JSON'
+          {
+            "status": "success",
+            "mensaje": "🚀 Disparando flujo de confirmación YAHOO_PRUEBA.IBEX desde GitHub Actions",
+            "dataset": "YAHOO_PRUEBA.IBEX",
+            "run_id": "${{ github.run_id }}",
+            "workflow": "${{ github.workflow }}",
+            "repository": "${{ github.repository }}",
+            "sha": "${{ github.sha }}",
+            "started_at": "${{ github.run_started_at }}"
+          }
+          JSON
