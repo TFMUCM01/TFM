@@ -11,12 +11,13 @@ documentation for details.
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
+
    ResumenEjecutivo
    Introduccion
    MarcoTeorico
-   DescripciónProblema 
+   DescripcionProblema
    DatosPreparacion
-   Metodologia 
+   Metodologia
    ModeloPredictivo
    EvaluacionModelo
    Conclusiones
