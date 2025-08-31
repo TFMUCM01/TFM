@@ -20,7 +20,15 @@ Ejemplo de base da datos de titulares:
 
 ### Descarga de titulos de noticias
 
-Crearemos un **orquestador** del proyecto para coordina el scraping por medio y la carga en Snowflake sin ejecutar código desde la documentación. Esto para generar una base de datos de las noticias sobre las empresas que cotizan en la bolsa de valores europea
+Se ha creado un **orquestador** con el objetivo de coordinar el proceso de *scraping* por cada medio de comunicación y la posterior carga de los datos en **Snowflake**, evitando la ejecución manual de código desde la documentación. Este flujo tiene como finalidad construir una base de datos de noticias relacionadas con las empresas que cotizan en las principales bolsas de valores europeas.  
+
+Para la orquestación se ha utilizado la herramienta **n8n**, una plataforma de automatización en la que se centraliza el código encargado de realizar las solicitudes a las distintas API’s y de aplicar los modelos de análisis de sentimiento. En particular, se han empleado los siguientes modelos:  
+
+- **bert-base-multilingual-uncased**, para el análisis de noticias en español.  
+- **DistilRoberta-financial-sentiment**, especializado en noticias financieras en inglés.  
+
+Estos modelos generan una probabilidad asociada a cada noticia, lo que permite clasificarla como **positiva**, **negativa** o **neutral**. Aunque el detalle de la aplicación de los modelos se desarrolla en una sección posterior, en este apartado se describe el procedimiento de descarga de titulares desde las API’s y la construcción del *data lake* en **Snowflake**.  
+
 
 **Módulos y dependencias**
 
@@ -44,9 +52,19 @@ Crearemos un **orquestador** del proyecto para coordina el scraping por medio y 
 4. Se suben los nuevos registros a Snowflake.
 
 **Preparación del procesamiento por medio**
-Primeramente es es necesario recuperar el estado histórico de páginas web —por ejemplo, tasas de interés, condiciones de préstamos, o términos y condiciones de productos financieros— tal como estaban publicadas en una fecha específica. La función se conecta a la Wayback Machine, un archivo de internet, para buscar y obtener la versión más cercana de una URL pública en una fecha dada (fecha_str). Si existe un snapshot disponible, devuelve la URL del contenido archivado (en https para mayor seguridad). Esto permite validar o comparar condiciones actuales con las pasadas, asegurando trazabilidad y respaldo en auditorías o investigaciones. Si no se encuentra un snapshot o hay un error técnico, se maneja de forma controlada, registrando el fallo para análisis posterior.
+En primer lugar, es necesario verificar la última fecha de carga en **Snowflake**, tomando como referencia el período comprendido desde **enero de 2024 hasta el día inmediatamente anterior**. De esta manera se garantiza la continuidad del proceso y se evitan posibles duplicidades. Este enfoque asegura la disponibilidad de comentarios recientes, lo que permite realizar un análisis actualizado y contribuye a mejorar la capacidad de predicción sobre la evolución del valor de las acciones.  
 
-```{literalinclude} ../../scraper.py
+```{literalinclude} ../../scrapping/snowflake_utils.py
+:language: python
+:linenos:
+:start-after: --8<-- [start:obtener_ultima_fecha_en_snowflake]
+:end-before: --8<-- [end:obtener_ultima_fecha_en_snowflake]
+```
+
+Adicionalmente, es necesario extraer las URL correctas por cada noticiero. Para ello, se ha desarrollado la función **`obtener_snapshot_url(original_url, fecha_str)`**, la cual consulta la API de **Wayback Machine** con el objetivo de recuperar la versión archivada más cercana de una página web en una fecha determinada. El procedimiento consiste en construir la URL de la API a partir de la dirección original y la fecha solicitada, realizar una petición `GET` y procesar la respuesta en formato **JSON**.  
+Si existe un *snapshot* disponible, la función devuelve la URL más próxima a la fecha indicada en formato `https`; en caso contrario, retorna `None` mostrando un mensaje informativo.  
+
+```{literalinclude} ../../scrapping/scraper.py
 :language: python
 :linenos:
 :start-after: --8<-- [start:obtener_snapshot_url]
@@ -55,36 +73,31 @@ Primeramente es es necesario recuperar el estado histórico de páginas web —p
 
 **Extracción de titulares**
 
-Esta función forma parte de un sistema de monitoreo financiero que recopila titulares históricos de medios digitales desde snapshots archivados, lo cual permite analizar cómo evolucionó la narrativa mediática sobre eventos económicos relevantes (como crisis, inflación, tasas de interés, etc.). A partir de una URL archivada (snapshot_url) y una fecha (fecha_str), la función descarga el contenido HTML y extrae encabezados (h1, h2, h3) usando BeautifulSoup. Si la fuente es un medio específico como THE TIMES, aplica filtros adicionales para identificar titulares relevantes según clases CSS particulares. En cualquier otro caso, guarda los encabezados con más de 3 palabras como posibles titulares. Esto permite generar una línea temporal informativa y confiable para estudios financieros, análisis de percepción pública o validación documental.
+Una vez verificada la última fecha de carga y obtenidas las URL de las API’s, se procede con la solicitud de la información. Ahora se crea la función está diseñada para obtener los titulares de noticias desde una página web archivada en la Wayback Machine. Para ello, accede al contenido del snapshot, identifica los encabezados relevantes dentro del documento HTML y aplica reglas de filtrado para asegurar que los textos extraídos correspondan efectivamente a titulares. En función del medio, se utilizan criterios específicos de validación, y los resultados se almacenan en una lista estructurada.
 
-```{literalinclude} ../../scraper.py
+Módulo de descarga en API’s 
+```{literalinclude} ../../scrapping/scraper.py
 :language: python
 :linenos:
 :start-after: --8<-- [start:extraer_titulares]
 :end-before: --8<-- [end:extraer_titulares]
 ```
 
-Solicitud de titulares por fecha
-Ahora se necesita que la solicitud de titulares sea al dia anterior y que verifique desde cuando no se hace la consulta, para esto creamos una funcion conectada con snowflake que verifique la ultima fecha de carga dentro de la base de datos, y recuperar la última fecha (MAX(fecha)) registrada. Esto permite determinar desde qué día continuar cargando nuevos datos, asegurando que no se dupliquen registros ni se pierda información. Si encuentra una fecha, suma un día para usarla como nuevo punto de partida. Si no hay datos aún, arranca desde una fecha base fija (1 de enero de 2024).
-
-```{literalinclude} ../../snowflake_utils.py
-:language: python
-:linenos:
-:start-after: --8<-- [start:obtener_ultima_fecha_en_snowflake]
-:end-before: --8<-- [end:obtener_ultima_fecha_en_snowflake]
-```
-
 **Carga en Snowflake**
 
+Por último, se valida si el **DataFrame** contiene información; en caso de estar vacío, no se ejecuta ninguna acción.  
+En caso contrario, se transforma la columna de fecha al tipo de dato adecuado (`datetime.date`) y se establece la conexión con **Snowflake** mediante las credenciales configuradas en el entorno.  
 
-Por último se valida si el DataFrame contiene información; si está vacío y no realiza ninguna acción. Convierte la columna fecha al tipo adecuado (datetime.date) y se conecta a Snowflake usando las credenciales del entorno. Si la tabla de destino no existe, la crea con un esquema definido que incluye campos como fecha, titular de noticia, URL del snapshot, fuente e idioma. Luego, inserta en bloque todos los registros del DataFrame, lo que permite almacenar eficientemente los titulares extraídos de medios archivados para su posterior análisis o visualización.
+Si la tabla de destino no existe, esta se crea con un esquema predefinido que incluye los campos: **fecha**, **titular de la noticia**, **URL del snapshot**, **fuente** e **idioma**. Posteriormente, se realiza una inserción en bloque de todos los registros del DataFrame, lo que permite almacenar de forma eficiente los titulares extraídos de los medios archivados, garantizando su disponibilidad para procesos posteriores de análisis o visualización.   
 
-```{literalinclude} ../../snowflake_utils.py
-:language: python
-:linenos:
-:start-after: --8<-- [start:subir_a_snowflake]
-:end-before: --8<-- [end:subir_a_snowflake]
-```
+| FECHA      | TITULAR                                                                 | URL_ARCHIVO                                                                                     | FUENTE | IDIOMA |
+|------------|-------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------|--------|--------|
+| 2024-01-16 | España desoye a Europa y se resiste a crear un consejo de la productividad | [Link](https://web.archive.org/web/20240119085343/https://www.abc.es/economia/)                 | ABC    | es     |
+| 2024-01-16 | Un patinazo de Montoro aboca a Hacienda a pagar devoluciones millonarias a las grandes empresas | [Link](https://web.archive.org/web/20240119085343/https://www.abc.es/economia/) | ABC    | es     |
+| 2024-01-16 | Cataluña enfila 2024 con 10.000 empresas fugadas tras el 'procés'       | [Link](https://web.archive.org/web/20240119085343/https://www.abc.es/economia/)                 | ABC    | es     |
+
+
+
 
 ## Precios por tickers
 

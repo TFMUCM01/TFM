@@ -1,0 +1,378 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="es" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Datos y Preparación &mdash; TFM: Análisis de Tendencias Económicas en Madrid mediante Modelos Financieros y de Sentimiento</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=ba61de6b"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/translations.js?v=f85f4cfb"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Índice" href="genindex.html" />
+    <link rel="search" title="Búsqueda" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            TFM: Análisis de Tendencias Económicas en Madrid mediante Modelos Financieros y de Sentimiento
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Buscar documentos" aria-label="Buscar documentos" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Datos y Preparación</a><ul>
+<li><a class="reference internal" href="#titulares-de-noticieros">Titulares de noticieros</a><ul>
+<li><a class="reference internal" href="#descarga-de-titulos-de-noticias">Descarga de titulos de noticias</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#precios-por-tickers">Precios por tickers</a><ul>
+<li><a class="reference internal" href="#extraccion-precisa-de-componentes-bursatiles">Extracción precisa de componentes bursátiles</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#solicitud-de">solicitud de</a></li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">TFM: Análisis de Tendencias Económicas en Madrid mediante Modelos Financieros y de Sentimiento</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Datos y Preparación</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/DatosPreparacion.md.txt" rel="nofollow"> Ver código fuente de la página</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="datos-y-preparacion">
+<h1>Datos y Preparación<a class="headerlink" href="#datos-y-preparacion" title="Link to this heading"></a></h1>
+<p>Este trabajo integra dos fuentes complementarias para anticipar el comportamiento del precio de acciones europeas: señales de sentimiento extraídas de titulares de prensa y información cuantitativa de mercado y estados financieros. Los titulares se obtuvieron mediante scraping y de medios generalistas y económicos —BBC, ABC, El Economista, Bloomberg Europa, El País, The Times y Expansión—. Sobre estos textos se aplicó una depuración sistemática (eliminación de duplicados y de ruidos como elementos de navegación, normalización de caracteres/idiomas y control de fechas) para construir indicadores diarios de sentimiento por medio e instrumento.</p>
+<p>En paralelo, los datos de mercado (OHLCV por ticker) se descargaron y consolidaron en Snowflake, armonizando formatos de fecha y símbolos, verificando huecos y coherencia (festivos, sesiones sin volumen) y, cuando procede, incorporando información contable resumida por compañía. Finalmente, se integraron ambas fuentes en un único dataset analítico a nivel (ticker, fecha) que incluye rendimientos y rezagos, volumen y métricas de sentimiento agregadas. Este conjunto sirve de base para los modelos predictivos, combinando la dimensión informativa de las noticias con la evidencia numérica del mercado para obtener señales de compra/venta más robustas.</p>
+<section id="titulares-de-noticieros">
+<h2>Titulares de noticieros<a class="headerlink" href="#titulares-de-noticieros" title="Link to this heading"></a></h2>
+<p>Como primera fase, se recopilaron titulares de noticieros financieros y generalistas de acceso público —entre ellos El País, The Times y Bloomberg— a través de sus respectivas fuentes web y archivos digitales. Posteriormente, estos textos fueron procesados mediante técnicas de análisis de texto <span style="color:red">[aquí se puede especificar el método exacto]</span> , con el objetivo de identificar noticias relevantes capaces de influir en el comportamiento bursátil de las acciones.</p>
+<p>Ejemplo de base da datos de titulares:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>fecha</p></th>
+<th class="head"><p>titular</p></th>
+<th class="head"><p>url_archivo</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>20250101</p></td>
+<td><p>Accessibility Links</p></td>
+<td><p>https://web.archive.org/web/20250101234554/https://www.thetimes.com/</p></td>
+</tr>
+<tr class="row-odd"><td><p>20250101</p></td>
+<td><p>MiCA, entre la proteccion al usuario y la soberania monetaria</p></td>
+<td><p>https://web.archive.org/web/20241227062856/https://elpais.com/economia/</p></td>
+</tr>
+<tr class="row-even"><td><p>20250101</p></td>
+<td><p>The Year AI Broke Into Music</p></td>
+<td><p>https://web.archive.org/web/20250102035656/https://www.bloomberg.com/europe</p></td>
+</tr>
+</tbody>
+</table>
+<p><img alt="Noticia times" src="_images/thetimes.png" /></p>
+<section id="descarga-de-titulos-de-noticias">
+<h3>Descarga de titulos de noticias<a class="headerlink" href="#descarga-de-titulos-de-noticias" title="Link to this heading"></a></h3>
+<p>Se ha creado un <strong>orquestador</strong> con el objetivo de coordinar el proceso de <em>scraping</em> por cada medio de comunicación y la posterior carga de los datos en <strong>Snowflake</strong>, evitando la ejecución manual de código desde la documentación. Este flujo tiene como finalidad construir una base de datos de noticias relacionadas con las empresas que cotizan en las principales bolsas de valores europeas.</p>
+<p>Para la orquestación se ha utilizado la herramienta <strong>n8n</strong>, una plataforma de automatización en la que se centraliza el código encargado de realizar las solicitudes a las distintas API’s y de aplicar los modelos de análisis de sentimiento. En particular, se han empleado los siguientes modelos:</p>
+<ul class="simple">
+<li><p><strong>bert-base-multilingual-uncased</strong>, para el análisis de noticias en español.</p></li>
+<li><p><strong>DistilRoberta-financial-sentiment</strong>, especializado en noticias financieras en inglés.</p></li>
+</ul>
+<p>Estos modelos generan una probabilidad asociada a cada noticia, lo que permite clasificarla como <strong>positiva</strong>, <strong>negativa</strong> o <strong>neutral</strong>. Aunque el detalle de la aplicación de los modelos se desarrolla en una sección posterior, en este apartado se describe el procedimiento de descarga de titulares desde las API’s y la construcción del <em>data lake</em> en <strong>Snowflake</strong>.</p>
+<p><strong>Módulos y dependencias</strong></p>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">config.py</span></code></strong></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">NOTICIEROS</span></code>: lista de medios (URL, fuente, idioma, tabla destino)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SNOWFLAKE_CONFIG</span></code>: credenciales y parámetros de conexión</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RETRIES</span></code>, <code class="docutils literal notranslate"><span class="pre">SLEEP_BETWEEN_DIAS</span></code>: reintentos y pausas</p></li>
+</ul>
+</li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">scraper.py</span></code></strong></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">obtener_snapshot_url_directo(url,</span> <span class="pre">fecha)</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">extraer_titulares(url,</span> <span class="pre">fecha,</span> <span class="pre">fuente)</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">log_error(msg)</span></code></p></li>
+</ul>
+</li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">snowflake_utils.py</span></code></strong></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">obtener_ultima_fecha_en_snowflake(config,</span> <span class="pre">tabla)</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">subir_a_snowflake(df,</span> <span class="pre">config,</span> <span class="pre">tabla)</span></code></p></li>
+</ul>
+</li>
+</ul>
+<p><strong>Flujo general</strong></p>
+<ol class="arabic simple">
+<li><p>Para cada noticiero en <code class="docutils literal notranslate"><span class="pre">config.py</span></code>, se obtiene la última fecha almacenada.</p></li>
+<li><p>Se recorren los días pendientes hasta el día anterior al actual.</p></li>
+<li><p>Para cada fecha: se resuelve el snapshot, se extraen titulares y se enriquecen con metadatos.</p></li>
+<li><p>Se suben los nuevos registros a Snowflake.</p></li>
+</ol>
+<p><strong>Preparación del procesamiento por medio</strong>
+En primer lugar, es necesario verificar la última fecha de carga en <strong>Snowflake</strong>, tomando como referencia el período comprendido desde <strong>enero de 2024 hasta el día inmediatamente anterior</strong>. De esta manera se garantiza la continuidad del proceso y se evitan posibles duplicidades. Este enfoque asegura la disponibilidad de comentarios recientes, lo que permite realizar un análisis actualizado y contribuye a mejorar la capacidad de predicción sobre la evolución del valor de las acciones.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="k">def</span><span class="w"> </span><span class="nf">obtener_ultima_fecha_en_snowflake</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">tabla</span><span class="p">):</span>
+<span class="linenos"> 2</span>    <span class="n">ctx</span> <span class="o">=</span> <span class="n">snowflake</span><span class="o">.</span><span class="n">connector</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+<span class="linenos"> 3</span>        <span class="n">user</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">],</span>
+<span class="linenos"> 4</span>        <span class="n">password</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;password&#39;</span><span class="p">],</span>
+<span class="linenos"> 5</span>        <span class="n">account</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;account&#39;</span><span class="p">],</span>
+<span class="linenos"> 6</span>        <span class="n">warehouse</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;warehouse&#39;</span><span class="p">],</span>
+<span class="linenos"> 7</span>        <span class="n">database</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;database&#39;</span><span class="p">],</span>
+<span class="linenos"> 8</span>        <span class="n">schema</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;schema&#39;</span><span class="p">]</span>
+<span class="linenos"> 9</span>    <span class="p">)</span>
+<span class="linenos">10</span>    <span class="n">cs</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+<span class="linenos">11</span>    <span class="k">try</span><span class="p">:</span>
+<span class="linenos">12</span>        <span class="n">tabla_completa</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;database&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;schema&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">tabla</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="linenos">13</span>        <span class="n">cs</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SELECT MAX(fecha) FROM </span><span class="si">{</span><span class="n">tabla_completa</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">14</span>        <span class="n">resultado</span> <span class="o">=</span> <span class="n">cs</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+<span class="linenos">15</span>        <span class="k">if</span> <span class="n">resultado</span> <span class="ow">and</span> <span class="n">resultado</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+<span class="linenos">16</span>            <span class="n">ultima_fecha</span> <span class="o">=</span> <span class="n">resultado</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="linenos">17</span>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Última fecha en Snowflake para </span><span class="si">{</span><span class="n">tabla</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">ultima_fecha</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">18</span>            <span class="k">return</span> <span class="n">ultima_fecha</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="linenos">19</span>        <span class="k">else</span><span class="p">:</span>
+<span class="linenos">20</span>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No se encontraron registros en </span><span class="si">{</span><span class="n">tabla</span><span class="si">}</span><span class="s2">. Iniciando desde 2024-01-01.&quot;</span><span class="p">)</span>
+<span class="linenos">21</span>            <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="s2">&quot;20240101&quot;</span><span class="p">,</span> <span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+<span class="linenos">22</span>    <span class="k">finally</span><span class="p">:</span>
+<span class="linenos">23</span>        <span class="n">cs</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="linenos">24</span>        <span class="n">ctx</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Adicionalmente, es necesario extraer las URL correctas por cada noticiero. Para ello, se ha desarrollado la función <strong><code class="docutils literal notranslate"><span class="pre">obtener_snapshot_url(original_url,</span> <span class="pre">fecha_str)</span></code></strong>, la cual consulta la API de <strong>Wayback Machine</strong> con el objetivo de recuperar la versión archivada más cercana de una página web en una fecha determinada. El procedimiento consiste en construir la URL de la API a partir de la dirección original y la fecha solicitada, realizar una petición <code class="docutils literal notranslate"><span class="pre">GET</span></code> y procesar la respuesta en formato <strong>JSON</strong>.<br />
+Si existe un <em>snapshot</em> disponible, la función devuelve la URL más próxima a la fecha indicada en formato <code class="docutils literal notranslate"><span class="pre">https</span></code>; en caso contrario, retorna <code class="docutils literal notranslate"><span class="pre">None</span></code> mostrando un mensaje informativo.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="k">def</span><span class="w"> </span><span class="nf">obtener_snapshot_url</span><span class="p">(</span><span class="n">original_url</span><span class="p">,</span> <span class="n">fecha_str</span><span class="p">):</span>
+<span class="linenos"> 2</span>    <span class="n">wayback_api</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;https://archive.org/wayback/available?url=</span><span class="si">{</span><span class="n">original_url</span><span class="si">}</span><span class="s1">&amp;timestamp=</span><span class="si">{</span><span class="n">fecha_str</span><span class="si">}</span><span class="s1">&#39;</span>
+<span class="linenos"> 3</span>    <span class="k">try</span><span class="p">:</span>
+<span class="linenos"> 4</span>        <span class="n">res</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">wayback_api</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">WAYBACK_TIMEOUT</span><span class="p">)</span>
+<span class="linenos"> 5</span>        <span class="n">data</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+<span class="linenos"> 6</span>        <span class="n">snapshots</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;archived_snapshots&#39;</span><span class="p">,</span> <span class="p">{})</span>
+<span class="linenos"> 7</span>        <span class="k">if</span> <span class="n">snapshots</span> <span class="ow">and</span> <span class="s1">&#39;closest&#39;</span> <span class="ow">in</span> <span class="n">snapshots</span><span class="p">:</span>
+<span class="linenos"> 8</span>            <span class="n">url_snapshot</span> <span class="o">=</span> <span class="n">snapshots</span><span class="p">[</span><span class="s1">&#39;closest&#39;</span><span class="p">][</span><span class="s1">&#39;url&#39;</span><span class="p">]</span>
+<span class="linenos"> 9</span>            <span class="k">return</span> <span class="n">url_snapshot</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;http://&quot;</span><span class="p">,</span> <span class="s2">&quot;https://&quot;</span><span class="p">)</span>
+<span class="linenos">10</span>        <span class="k">else</span><span class="p">:</span>
+<span class="linenos">11</span>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No snapshot disponible para </span><span class="si">{</span><span class="n">original_url</span><span class="si">}</span><span class="s2"> en </span><span class="si">{</span><span class="n">fecha_str</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">12</span>            <span class="k">return</span> <span class="kc">None</span>
+<span class="linenos">13</span>    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+<span class="linenos">14</span>        <span class="n">log_error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error consultando Wayback API para </span><span class="si">{</span><span class="n">original_url</span><span class="si">}</span><span class="s2"> en </span><span class="si">{</span><span class="n">fecha_str</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">15</span>        <span class="k">return</span> <span class="kc">None</span>
+</pre></div>
+</div>
+<p><strong>Extracción de titulares</strong></p>
+<p>Una vez verificada la última fecha de carga y obtenidas las URL de las API’s, se procede con la solicitud de la información. Ahora se crea la función está diseñada para obtener los titulares de noticias desde una página web archivada en la Wayback Machine. Para ello, accede al contenido del snapshot, identifica los encabezados relevantes dentro del documento HTML y aplica reglas de filtrado para asegurar que los textos extraídos correspondan efectivamente a titulares. En función del medio, se utilizan criterios específicos de validación, y los resultados se almacenan en una lista estructurada.</p>
+<p>Módulo de descarga en API’s</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="k">def</span><span class="w"> </span><span class="nf">extraer_titulares</span><span class="p">(</span><span class="n">snapshot_url</span><span class="p">,</span> <span class="n">fecha_str</span><span class="p">,</span> <span class="n">fuente</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="linenos"> 2</span>    <span class="n">titulares</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="linenos"> 3</span>    <span class="k">try</span><span class="p">:</span>
+<span class="linenos"> 4</span>        <span class="n">res</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">snapshot_url</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">SNAPSHOT_TIMEOUT</span><span class="p">)</span>
+<span class="linenos"> 5</span>        <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="s1">&#39;html.parser&#39;</span><span class="p">)</span>
+<span class="linenos"> 6</span>        <span class="n">encabezados</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">([</span><span class="s1">&#39;h1&#39;</span><span class="p">,</span> <span class="s1">&#39;h2&#39;</span><span class="p">,</span> <span class="s1">&#39;h3&#39;</span><span class="p">])</span>
+<span class="linenos"> 7</span>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">fuente</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">encabezados</span><span class="p">)</span><span class="si">}</span><span class="s2"> encabezados encontrados en </span><span class="si">{</span><span class="n">snapshot_url</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos"> 8</span>
+<span class="linenos"> 9</span>        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">encabezados</span><span class="p">:</span>
+<span class="linenos">10</span>            <span class="n">texto</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">get_text</span><span class="p">(</span><span class="n">strip</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="linenos">11</span>            <span class="n">clases</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;class&#39;</span><span class="p">,</span> <span class="p">[]))</span> <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;class&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+<span class="linenos">12</span>
+<span class="linenos">13</span>            <span class="k">if</span> <span class="n">fuente</span> <span class="o">==</span> <span class="s2">&quot;THE TIMES&quot;</span><span class="p">:</span>
+<span class="linenos">14</span>                <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="bp">cls</span> <span class="ow">in</span> <span class="n">clases</span> <span class="k">for</span> <span class="bp">cls</span> <span class="ow">in</span> <span class="p">[</span>
+<span class="linenos">15</span>                    <span class="s1">&#39;responsive__HeadlineContainer-sc-3t8ix5-3&#39;</span><span class="p">,</span>
+<span class="linenos">16</span>                    <span class="s1">&#39;responsive__Heading-sc-1k9kzho-1&#39;</span><span class="p">,</span>
+<span class="linenos">17</span>                    <span class="s1">&#39;responsive__Title-sc-1ij0d4n-5&#39;</span>
+<span class="linenos">18</span>                <span class="p">])</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">texto</span><span class="o">.</span><span class="n">split</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+<span class="linenos">19</span>                    <span class="n">titulares</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+<span class="linenos">20</span>                        <span class="s2">&quot;fecha&quot;</span><span class="p">:</span> <span class="n">fecha_str</span><span class="p">,</span>
+<span class="linenos">21</span>                        <span class="s2">&quot;titular&quot;</span><span class="p">:</span> <span class="n">texto</span><span class="p">,</span>
+<span class="linenos">22</span>                        <span class="s2">&quot;url_archivo&quot;</span><span class="p">:</span> <span class="n">snapshot_url</span>
+<span class="linenos">23</span>                    <span class="p">})</span>
+<span class="linenos">24</span>            <span class="k">else</span><span class="p">:</span>
+<span class="linenos">25</span>                <span class="k">if</span> <span class="n">texto</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">texto</span><span class="o">.</span><span class="n">split</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+<span class="linenos">26</span>                    <span class="n">titulares</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+<span class="linenos">27</span>                        <span class="s2">&quot;fecha&quot;</span><span class="p">:</span> <span class="n">fecha_str</span><span class="p">,</span>
+<span class="linenos">28</span>                        <span class="s2">&quot;titular&quot;</span><span class="p">:</span> <span class="n">texto</span><span class="p">,</span>
+<span class="linenos">29</span>                        <span class="s2">&quot;url_archivo&quot;</span><span class="p">:</span> <span class="n">snapshot_url</span>
+<span class="linenos">30</span>                    <span class="p">})</span>
+<span class="linenos">31</span>
+<span class="linenos">32</span>    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+<span class="linenos">33</span>        <span class="n">log_error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">fuente</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="s1">&#39;GENERAL&#39;</span><span class="si">}</span><span class="s2">] Error accediendo a snapshot: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="linenos">34</span>
+<span class="linenos">35</span>    <span class="k">return</span> <span class="n">titulares</span>
+</pre></div>
+</div>
+<p><strong>Carga en Snowflake</strong></p>
+<p>Por último, se valida si el <strong>DataFrame</strong> contiene información; en caso de estar vacío, no se ejecuta ninguna acción.<br />
+En caso contrario, se transforma la columna de fecha al tipo de dato adecuado (<code class="docutils literal notranslate"><span class="pre">datetime.date</span></code>) y se establece la conexión con <strong>Snowflake</strong> mediante las credenciales configuradas en el entorno.</p>
+<p>Si la tabla de destino no existe, esta se crea con un esquema predefinido que incluye los campos: <strong>fecha</strong>, <strong>titular de la noticia</strong>, <strong>URL del snapshot</strong>, <strong>fuente</strong> e <strong>idioma</strong>. Posteriormente, se realiza una inserción en bloque de todos los registros del DataFrame, lo que permite almacenar de forma eficiente los titulares extraídos de los medios archivados, garantizando su disponibilidad para procesos posteriores de análisis o visualización.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>FECHA</p></th>
+<th class="head"><p>TITULAR</p></th>
+<th class="head"><p>URL_ARCHIVO</p></th>
+<th class="head"><p>FUENTE</p></th>
+<th class="head"><p>IDIOMA</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>2024-01-16</p></td>
+<td><p>España desoye a Europa y se resiste a crear un consejo de la productividad</p></td>
+<td><p><a class="reference external" href="https://web.archive.org/web/20240119085343/https://www.abc.es/economia/">Link</a></p></td>
+<td><p>ABC</p></td>
+<td><p>es</p></td>
+</tr>
+<tr class="row-odd"><td><p>2024-01-16</p></td>
+<td><p>Un patinazo de Montoro aboca a Hacienda a pagar devoluciones millonarias a las grandes empresas</p></td>
+<td><p><a class="reference external" href="https://web.archive.org/web/20240119085343/https://www.abc.es/economia/">Link</a></p></td>
+<td><p>ABC</p></td>
+<td><p>es</p></td>
+</tr>
+<tr class="row-even"><td><p>2024-01-16</p></td>
+<td><p>Cataluña enfila 2024 con 10.000 empresas fugadas tras el “procés”</p></td>
+<td><p><a class="reference external" href="https://web.archive.org/web/20240119085343/https://www.abc.es/economia/">Link</a></p></td>
+<td><p>ABC</p></td>
+<td><p>es</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="precios-por-tickers">
+<h2>Precios por tickers<a class="headerlink" href="#precios-por-tickers" title="Link to this heading"></a></h2>
+<p>En el analisis financieron primeramente se necesita los tickers en los que vamos hacer el analisis, por nuestra parte nos hemos dedicado a solicitar los tickers de <strong>Bolsas de valores europeas</strong> que pas podemos ver abajo en total son 8 con sus diferentes tickers y tambien limitaremos solo a las acciones tienen dentro de su portafolio los indices de estos mercados.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>País</p></th>
+<th class="head"><p>Índice</p></th>
+<th class="head"><p>Exchange Aceptado</p></th>
+<th class="head"><p>Sufijo Yahoo</p></th>
+<th class="head"><p>Número Esperado</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>España</p></td>
+<td><p>IBEX 35</p></td>
+<td><p>BME</p></td>
+<td><p>.MC</p></td>
+<td><p>35</p></td>
+</tr>
+<tr class="row-odd"><td><p>Alemania</p></td>
+<td><p>DAX 40</p></td>
+<td><p>XETR</p></td>
+<td><p>.DE</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td><p>Francia</p></td>
+<td><p>CAC 40</p></td>
+<td><p>EURONEXT</p></td>
+<td><p>.PA</p></td>
+<td><p>39</p></td>
+</tr>
+<tr class="row-odd"><td><p>Italia</p></td>
+<td><p>FTSE MIB</p></td>
+<td><p>MIL</p></td>
+<td><p>.MI</p></td>
+<td><p>40</p></td>
+</tr>
+<tr class="row-even"><td><p>Países Bajos</p></td>
+<td><p>AEX</p></td>
+<td><p>EURONEXT</p></td>
+<td><p>.AS</p></td>
+<td><p>25</p></td>
+</tr>
+<tr class="row-odd"><td><p>Reino Unido</p></td>
+<td><p>FTSE 100</p></td>
+<td><p>LSE</p></td>
+<td><p>.L</p></td>
+<td><p>100</p></td>
+</tr>
+<tr class="row-even"><td><p>Suecia</p></td>
+<td><p>OMXS30</p></td>
+<td><p>OMXSTO</p></td>
+<td><p>.ST</p></td>
+<td><p>30</p></td>
+</tr>
+<tr class="row-odd"><td><p>Suiza</p></td>
+<td><p>SMI</p></td>
+<td><p>SIX</p></td>
+<td><p>.SW</p></td>
+<td><p>21</p></td>
+</tr>
+</tbody>
+</table>
+<section id="extraccion-precisa-de-componentes-bursatiles">
+<h3>Extracción precisa de componentes bursátiles<a class="headerlink" href="#extraccion-precisa-de-componentes-bursatiles" title="Link to this heading"></a></h3>
+<p>La función extract_rows_precise toma como entrada un HTML y un conjunto de bolsas aceptadas (accept_exchanges) y extrae de forma precisa una lista de empresas válidas listadas en esas bolsas. Para ello, analiza el HTML con BeautifulSoup, busca descripciones asociadas a acciones (en etiquetas <sup>), navega por el DOM para encontrar enlaces con información del símbolo y la bolsa, filtra entradas no deseadas como índices o ETFs, y devuelve una lista sin duplicados con tuplas que contienen el exchange, el símbolo y el nombre de la empresa. Esta función es útil para extraer componentes limpios y verificados de un índice bursátil desde una fuente web como TradingView. Ha esta funcion le agregaremos los tickers sacado  de la funicion</p>
+</section>
+</section>
+<section id="solicitud-de">
+<h2>solicitud de<a class="headerlink" href="#solicitud-de" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Derechos de autor 2025, Julia Escudero, Marco Mendieta, Marco Pacora, Piero Rios, Juan Carlos Romero.</p>
+  </div>
+
+  Compilado con <a href="https://www.sphinx-doc.org/">Sphinx</a> usando un
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">tema</a>
+    proporcionado por <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
