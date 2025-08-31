@@ -11,5 +11,14 @@ documentation for details.
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
-
-   analisis_sentimiento
+   ResumenEjecutivo
+   Introduccion
+   MarcoTeorico
+   DescripciónProblema 
+   DatosPreparacion
+   Metodologia 
+   ModeloPredictivo
+   EvaluacionModelo
+   Conclusiones
+   Bibliografia
+   Anexos
