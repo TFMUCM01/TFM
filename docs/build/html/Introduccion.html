@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>&lt;no title&gt; &mdash; TFM: Análisis de Tendencias Económicas en Madrid mediante Modelos Financieros y de Sentimiento</title>
+  <title>Introducción &mdash; TFM: Análisis de Tendencias Económicas en Madrid mediante Modelos Financieros y de Sentimiento</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
@@ -20,8 +20,8 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Índice" href="genindex.html" />
     <link rel="search" title="Búsqueda" href="search.html" />
-    <link rel="next" title="&lt;no title&gt;" href="MarcoTeorico.html" />
-    <link rel="prev" title="&lt;no title&gt;" href="ResumenEjecutivo.html" /> 
+    <link rel="next" title="Modelos Teóricos" href="MarcoTeorico.html" />
+    <link rel="prev" title="Resumen Ejecutivo" href="ResumenEjecutivo.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -44,8 +44,18 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="ResumenEjecutivo.html">Resumen Ejecutivo</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Introducción</a></li>
+<li class="toctree-l1"><a class="reference internal" href="MarcoTeorico.html">Modelos Teóricos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="DescripcionProblema.html">Descripción Problema</a></li>
 <li class="toctree-l1"><a class="reference internal" href="DatosPreparacion.html">Datos y Preparación</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Metodologia.html">Metodología</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ModeloPredictivo.html">Modelo Predictivo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="EvaluacionModelo.html">Evaluación de los Modelos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Conclusiones.html">Conclusiones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Bibliografia.html">Bibliografía</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Anexos.html">Anexos</a></li>
 </ul>
 
         </div>
@@ -62,7 +72,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">&lt;no title&gt;</li>
+      <li class="breadcrumb-item active">Introducción</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/Introduccion.md.txt" rel="nofollow"> Ver código fuente de la página</a>
       </li>
@@ -72,44 +82,16 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <p><strong>Justificación del tema</strong><br />
-Es fundamental desarrollar modelos que permitan a las microempresas proyectarse y crecer hasta alcanzar el nivel de grandes empresas dentro de su sector. Muchas microempresas enfrentan dificultades para evaluar su potencial real de crecimiento y tomar decisiones estratégicas acertadas. Este estudio busca crear herramientas basadas en datos financieros y de mercado que guíen a las microempresas en su proceso de expansión, facilitando su acceso a inversiones y mejorando su competitividad, contribuyendo así al fortalecimiento del tejido empresarial en Madrid.</p>
-<p><strong>Objetivos del trabajo (general y específicos)</strong></p>
-<p><strong>Objetivo general</strong></p>
-<ul class="simple">
-<li><p>Desarrollar modelos analíticos que permitan a las microempresas del sector <strong>[nombre del sector]</strong> en Madrid identificar si presentan una <strong>tendencia de crecimiento</strong>.</p></li>
-</ul>
-<p><strong>Objetivos específicos</strong></p>
-<ul class="simple">
-<li><p>Recolectar y preparar datos financieros y de mercado relevantes del sector <strong>[nombre del sector]</strong> en Madrid para el análisis.</p></li>
-<li><p>Seleccionar y justificar los algoritmos de <em>machine learning</em> más adecuados para modelar el crecimiento empresarial.</p></li>
-<li><p>Evaluar el desempeño de los modelos utilizando métricas como <strong>ROC-AUC</strong>, <strong>accuracy</strong> y <strong>recall</strong> para asegurar su efectividad.</p></li>
-<li><p>Implementar un sistema de actualización en tiempo real mediante <strong>APIs</strong> que permita monitorear la evolución empresarial de las microempresas.</p></li>
-<li><p>Desarrollar <strong>dashboards</strong> interactivos para que las microempresas puedan visualizar sus proyecciones y tomar decisiones informadas.</p></li>
-<li><p>Generar recomendaciones estratégicas basadas en los resultados del modelo para apoyar el crecimiento sostenible de las microempresas.</p></li>
-</ul>
-<p><strong>Preguntas de investigación</strong></p>
-<ul class="simple">
-<li><p>¿Qué datos financieros y de mercado se deben usar para crepython -m sphinx -b html docs/source docs/build/htmlpython -m pip install -U sphinx myst-parser sphinx-rtd-themear un modelo de <em>machine learning</em> efectivo?</p></li>
-<li><p>¿Cuál industria es la más relevante para este análisis en Madrid?</p></li>
-<li><p>¿Cómo mantener una base de datos en <em>streaming</em> para actualizar información financiera en tiempo real?</p></li>
-<li><p>¿Qué algoritmos de <em>machine learning</em> son los más adecuados para modelar el crecimiento de microempresas y por qué?</p></li>
-<li><p>¿Qué niveles de <strong>accuracy</strong> y <strong>recall</strong> debe alcanzar el modelo para ser confiable?</p></li>
-<li><p>¿Cómo implementar un sistema con <strong>APIs</strong> que actualice en tiempo real la evolución de las microempresas?</p></li>
-<li><p>¿De qué forma los <strong>dashboards</strong> interactivos pueden ayudar a las microempresas a entender sus proyecciones y tomar mejores decisiones?</p></li>
-<li><p>¿Cómo desarrollar una plataforma online que apoye a los emprendedores en tiempo real?</p></li>
-<li><p>¿Qué recomendaciones estratégicas pueden generarse a partir de los modelos para impulsar un crecimiento sostenible?</p></li>
-</ul>
-<p><strong>Metodologías</strong><br />
-Resumir de la metodología</p>
-<p><strong>Agradecimientos</strong></p>
+  <section id="introduccion">
+<h1>Introducción<a class="headerlink" href="#introduccion" title="Link to this heading"></a></h1>
+</section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Pie de página">
-        <a href="ResumenEjecutivo.html" class="btn btn-neutral float-left" title="&lt;no title&gt;" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Anterior</a>
-        <a href="MarcoTeorico.html" class="btn btn-neutral float-right" title="&lt;no title&gt;" accesskey="n" rel="next">Siguiente <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="ResumenEjecutivo.html" class="btn btn-neutral float-left" title="Resumen Ejecutivo" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Anterior</a>
+        <a href="MarcoTeorico.html" class="btn btn-neutral float-right" title="Modelos Teóricos" accesskey="n" rel="next">Siguiente <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

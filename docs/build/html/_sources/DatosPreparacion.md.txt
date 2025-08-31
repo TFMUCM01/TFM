@@ -118,7 +118,7 @@ En el analisis financieron primeramente se necesita los tickers en los que vamos
 
 La función extract_rows_precise toma como entrada un HTML y un conjunto de bolsas aceptadas (accept_exchanges) y extrae de forma precisa una lista de empresas válidas listadas en esas bolsas. Para ello, analiza el HTML con BeautifulSoup, busca descripciones asociadas a acciones (en etiquetas <sup>), navega por el DOM para encontrar enlaces con información del símbolo y la bolsa, filtra entradas no deseadas como índices o ETFs, y devuelve una lista sin duplicados con tuplas que contienen el exchange, el símbolo y el nombre de la empresa. Esta función es útil para extraer componentes limpios y verificados de un índice bursátil desde una fuente web como TradingView. Ha esta funcion le agregaremos los tickers sacado  de la funicion 
 
-```{literalinclude} ../../tickers_global.py
+```{literalinclude} ../../Yahoo_prueba/tickers_global.py
 :language: python
 :linenos:
 :start-after: --8<-- [start:extract_rows_precise]
