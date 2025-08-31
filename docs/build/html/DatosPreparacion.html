@@ -47,11 +47,15 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="ResumenEjecutivo.html">Resumen Ejecutivo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Introduccion.html">Introducción</a></li>
-<li class="toctree-l1"><a class="reference internal" href="MarcoTeorico.html">Modelos Teóricos</a></li>
 <li class="toctree-l1"><a class="reference internal" href="DescripcionProblema.html">Descripción Problema</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Datos y Preparación</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#titulares-de-noticieros">Titulares de noticieros</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#descarga-de-titulos-de-noticias">Descarga de titulos de noticias</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#modulos-y-dependencias">Módulos y dependencias</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#flujo-general">Flujo general</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#preparacion-del-procesamiento-por-medio">Preparación del procesamiento por medio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#extraccion-de-titulares">Extracción de titulares</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#carga-en-snowflake">Carga en Snowflake</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#precios-por-tickers">Precios por tickers</a><ul>
@@ -131,7 +135,10 @@
 <li><p><strong>DistilRoberta-financial-sentiment</strong>, especializado en noticias financieras en inglés.</p></li>
 </ul>
 <p>Estos modelos generan una probabilidad asociada a cada noticia, lo que permite clasificarla como <strong>positiva</strong>, <strong>negativa</strong> o <strong>neutral</strong>. Aunque el detalle de la aplicación de los modelos se desarrolla en una sección posterior, en este apartado se describe el procedimiento de descarga de titulares desde las API’s y la construcción del <em>data lake</em> en <strong>Snowflake</strong>.</p>
-<p><strong>Módulos y dependencias</strong></p>
+</section>
+<hr class="docutils" />
+<section id="modulos-y-dependencias">
+<h3>Módulos y dependencias<a class="headerlink" href="#modulos-y-dependencias" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p><strong><code class="docutils literal notranslate"><span class="pre">config.py</span></code></strong></p>
 <ul>
@@ -154,15 +161,21 @@
 </ul>
 </li>
 </ul>
-<p><strong>Flujo general</strong></p>
+</section>
+<hr class="docutils" />
+<section id="flujo-general">
+<h3>Flujo general<a class="headerlink" href="#flujo-general" title="Link to this heading"></a></h3>
 <ol class="arabic simple">
 <li><p>Para cada noticiero en <code class="docutils literal notranslate"><span class="pre">config.py</span></code>, se obtiene la última fecha almacenada.</p></li>
 <li><p>Se recorren los días pendientes hasta el día anterior al actual.</p></li>
 <li><p>Para cada fecha: se resuelve el snapshot, se extraen titulares y se enriquecen con metadatos.</p></li>
 <li><p>Se suben los nuevos registros a Snowflake.</p></li>
 </ol>
-<p><strong>Preparación del procesamiento por medio</strong>
-En primer lugar, es necesario verificar la última fecha de carga en <strong>Snowflake</strong>, tomando como referencia el período comprendido desde <strong>enero de 2024 hasta el día inmediatamente anterior</strong>. De esta manera se garantiza la continuidad del proceso y se evitan posibles duplicidades. Este enfoque asegura la disponibilidad de comentarios recientes, lo que permite realizar un análisis actualizado y contribuye a mejorar la capacidad de predicción sobre la evolución del valor de las acciones.</p>
+</section>
+<hr class="docutils" />
+<section id="preparacion-del-procesamiento-por-medio">
+<h3>Preparación del procesamiento por medio<a class="headerlink" href="#preparacion-del-procesamiento-por-medio" title="Link to this heading"></a></h3>
+<p>En primer lugar, es necesario verificar la última fecha de carga en <strong>Snowflake</strong>, tomando como referencia el período comprendido desde <strong>enero de 2024 hasta el día inmediatamente anterior</strong>. De esta manera se garantiza la continuidad del proceso y se evitan posibles duplicidades. Este enfoque asegura la disponibilidad de comentarios recientes, lo que permite realizar un análisis actualizado y contribuye a mejorar la capacidad de predicción sobre la evolución del valor de las acciones.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="k">def</span><span class="w"> </span><span class="nf">obtener_ultima_fecha_en_snowflake</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">tabla</span><span class="p">):</span>
 <span class="linenos"> 2</span>    <span class="n">ctx</span> <span class="o">=</span> <span class="n">snowflake</span><span class="o">.</span><span class="n">connector</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
 <span class="linenos"> 3</span>        <span class="n">user</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">],</span>
@@ -189,6 +202,7 @@ En primer lugar, es necesario verificar la última fecha de carga en <strong>Sno
 <span class="linenos">24</span>        <span class="n">ctx</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 </pre></div>
 </div>
+<hr class="docutils" />
 <p>Adicionalmente, es necesario extraer las URL correctas por cada noticiero. Para ello, se ha desarrollado la función <strong><code class="docutils literal notranslate"><span class="pre">obtener_snapshot_url(original_url,</span> <span class="pre">fecha_str)</span></code></strong>, la cual consulta la API de <strong>Wayback Machine</strong> con el objetivo de recuperar la versión archivada más cercana de una página web en una fecha determinada. El procedimiento consiste en construir la URL de la API a partir de la dirección original y la fecha solicitada, realizar una petición <code class="docutils literal notranslate"><span class="pre">GET</span></code> y procesar la respuesta en formato <strong>JSON</strong>.<br />
 Si existe un <em>snapshot</em> disponible, la función devuelve la URL más próxima a la fecha indicada en formato <code class="docutils literal notranslate"><span class="pre">https</span></code>; en caso contrario, retorna <code class="docutils literal notranslate"><span class="pre">None</span></code> mostrando un mensaje informativo.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="k">def</span><span class="w"> </span><span class="nf">obtener_snapshot_url</span><span class="p">(</span><span class="n">original_url</span><span class="p">,</span> <span class="n">fecha_str</span><span class="p">):</span>
@@ -208,7 +222,10 @@ Si existe un <em>snapshot</em> disponible, la función devuelve la URL más pró
 <span class="linenos">15</span>        <span class="k">return</span> <span class="kc">None</span>
 </pre></div>
 </div>
-<p><strong>Extracción de titulares</strong></p>
+</section>
+<hr class="docutils" />
+<section id="extraccion-de-titulares">
+<h3>Extracción de titulares<a class="headerlink" href="#extraccion-de-titulares" title="Link to this heading"></a></h3>
 <p>Una vez verificada la última fecha de carga y obtenidas las URL de las API’s, se procede con la solicitud de la información. Ahora se crea la función está diseñada para obtener los titulares de noticias desde una página web archivada en la Wayback Machine. Para ello, accede al contenido del snapshot, identifica los encabezados relevantes dentro del documento HTML y aplica reglas de filtrado para asegurar que los textos extraídos correspondan efectivamente a titulares. En función del medio, se utilizan criterios específicos de validación, y los resultados se almacenan en una lista estructurada.</p>
 <p>Módulo de descarga en API’s</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="k">def</span><span class="w"> </span><span class="nf">extraer_titulares</span><span class="p">(</span><span class="n">snapshot_url</span><span class="p">,</span> <span class="n">fecha_str</span><span class="p">,</span> <span class="n">fuente</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -248,7 +265,10 @@ Si existe un <em>snapshot</em> disponible, la función devuelve la URL más pró
 <span class="linenos">35</span>    <span class="k">return</span> <span class="n">titulares</span>
 </pre></div>
 </div>
-<p><strong>Carga en Snowflake</strong></p>
+</section>
+<hr class="docutils" />
+<section id="carga-en-snowflake">
+<h3>Carga en Snowflake<a class="headerlink" href="#carga-en-snowflake" title="Link to this heading"></a></h3>
 <p>Por último, se valida si el <strong>DataFrame</strong> contiene información; en caso de estar vacío, no se ejecuta ninguna acción.<br />
 En caso contrario, se transforma la columna de fecha al tipo de dato adecuado (<code class="docutils literal notranslate"><span class="pre">datetime.date</span></code>) y se establece la conexión con <strong>Snowflake</strong> mediante las credenciales configuradas en el entorno.</p>
 <p>Si la tabla de destino no existe, esta se crea con un esquema predefinido que incluye los campos: <strong>fecha</strong>, <strong>titular de la noticia</strong>, <strong>URL del snapshot</strong>, <strong>fuente</strong> e <strong>idioma</strong>. Posteriormente, se realiza una inserción en bloque de todos los registros del DataFrame, lo que permite almacenar de forma eficiente los titulares extraídos de los medios archivados, garantizando su disponibilidad para procesos posteriores de análisis o visualización.</p>
@@ -284,6 +304,7 @@ En caso contrario, se transforma la columna de fecha al tipo de dato adecuado (<
 </table>
 </section>
 </section>
+<hr class="docutils" />
 <section id="precios-por-tickers">
 <h2>Precios por tickers<a class="headerlink" href="#precios-por-tickers" title="Link to this heading"></a></h2>
 <p>En el analisis financieron primeramente se necesita los tickers en los que vamos hacer el analisis, por nuestra parte nos hemos dedicado a solicitar los tickers de <strong>Bolsas de valores europeas</strong> que pas podemos ver abajo en total son 8 con sus diferentes tickers y tambien limitaremos solo a las acciones tienen dentro de su portafolio los indices de estos mercados.</p>

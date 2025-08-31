@@ -29,8 +29,8 @@ Para la orquestación se ha utilizado la herramienta **n8n**, una plataforma de 
 
 Estos modelos generan una probabilidad asociada a cada noticia, lo que permite clasificarla como **positiva**, **negativa** o **neutral**. Aunque el detalle de la aplicación de los modelos se desarrolla en una sección posterior, en este apartado se describe el procedimiento de descarga de titulares desde las API’s y la construcción del *data lake* en **Snowflake**.  
 
-
-**Módulos y dependencias**
+---
+### Módulos y dependencias
 
 - **`config.py`**
   - `NOTICIEROS`: lista de medios (URL, fuente, idioma, tabla destino)
@@ -44,14 +44,16 @@ Estos modelos generan una probabilidad asociada a cada noticia, lo que permite c
   - `obtener_ultima_fecha_en_snowflake(config, tabla)`
   - `subir_a_snowflake(df, config, tabla)`
 
-**Flujo general**
+---
+### Flujo general
 
 1. Para cada noticiero en `config.py`, se obtiene la última fecha almacenada.  
 2. Se recorren los días pendientes hasta el día anterior al actual.  
 3. Para cada fecha: se resuelve el snapshot, se extraen titulares y se enriquecen con metadatos.  
 4. Se suben los nuevos registros a Snowflake.
 
-**Preparación del procesamiento por medio**
+---
+### Preparación del procesamiento por medio
 En primer lugar, es necesario verificar la última fecha de carga en **Snowflake**, tomando como referencia el período comprendido desde **enero de 2024 hasta el día inmediatamente anterior**. De esta manera se garantiza la continuidad del proceso y se evitan posibles duplicidades. Este enfoque asegura la disponibilidad de comentarios recientes, lo que permite realizar un análisis actualizado y contribuye a mejorar la capacidad de predicción sobre la evolución del valor de las acciones.  
 
 ```{literalinclude} ../../scrapping/snowflake_utils.py
@@ -60,6 +62,7 @@ En primer lugar, es necesario verificar la última fecha de carga en **Snowflake
 :start-after: --8<-- [start:obtener_ultima_fecha_en_snowflake]
 :end-before: --8<-- [end:obtener_ultima_fecha_en_snowflake]
 ```
+---
 
 Adicionalmente, es necesario extraer las URL correctas por cada noticiero. Para ello, se ha desarrollado la función **`obtener_snapshot_url(original_url, fecha_str)`**, la cual consulta la API de **Wayback Machine** con el objetivo de recuperar la versión archivada más cercana de una página web en una fecha determinada. El procedimiento consiste en construir la URL de la API a partir de la dirección original y la fecha solicitada, realizar una petición `GET` y procesar la respuesta en formato **JSON**.  
 Si existe un *snapshot* disponible, la función devuelve la URL más próxima a la fecha indicada en formato `https`; en caso contrario, retorna `None` mostrando un mensaje informativo.  
@@ -70,8 +73,9 @@ Si existe un *snapshot* disponible, la función devuelve la URL más próxima a 
 :start-after: --8<-- [start:obtener_snapshot_url]
 :end-before: --8<-- [end:obtener_snapshot_url]
 ```
+---
 
-**Extracción de titulares**
+### Extracción de titulares
 
 Una vez verificada la última fecha de carga y obtenidas las URL de las API’s, se procede con la solicitud de la información. Ahora se crea la función está diseñada para obtener los titulares de noticias desde una página web archivada en la Wayback Machine. Para ello, accede al contenido del snapshot, identifica los encabezados relevantes dentro del documento HTML y aplica reglas de filtrado para asegurar que los textos extraídos correspondan efectivamente a titulares. En función del medio, se utilizan criterios específicos de validación, y los resultados se almacenan en una lista estructurada.
 
@@ -82,8 +86,9 @@ Módulo de descarga en API’s
 :start-after: --8<-- [start:extraer_titulares]
 :end-before: --8<-- [end:extraer_titulares]
 ```
+---
 
-**Carga en Snowflake**
+### Carga en Snowflake
 
 Por último, se valida si el **DataFrame** contiene información; en caso de estar vacío, no se ejecuta ninguna acción.  
 En caso contrario, se transforma la columna de fecha al tipo de dato adecuado (`datetime.date`) y se establece la conexión con **Snowflake** mediante las credenciales configuradas en el entorno.  
@@ -97,7 +102,7 @@ Si la tabla de destino no existe, esta se crea con un esquema predefinido que in
 | 2024-01-16 | Cataluña enfila 2024 con 10.000 empresas fugadas tras el 'procés'       | [Link](https://web.archive.org/web/20240119085343/https://www.abc.es/economia/)                 | ABC    | es     |
 
 
-
+___
 
 ## Precios por tickers
 

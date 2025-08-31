@@ -14,7 +14,6 @@ documentation for details.
 
    ResumenEjecutivo
    Introduccion
-   MarcoTeorico
    DescripcionProblema
    DatosPreparacion
    ModeloPredictivo
