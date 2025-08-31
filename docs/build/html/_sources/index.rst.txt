@@ -17,7 +17,6 @@ documentation for details.
    MarcoTeorico
    DescripcionProblema
    DatosPreparacion
-   Metodologia
    ModeloPredictivo
    EvaluacionModelo
    Conclusiones

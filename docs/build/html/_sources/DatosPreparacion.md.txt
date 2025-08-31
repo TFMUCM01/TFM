@@ -124,14 +124,3 @@ La función extract_rows_precise toma como entrada un HTML y un conjunto de bols
 :start-after: --8<-- [start:extract_rows_precise]
 :end-before: --8<-- [end:extract_rows_precise]
 ```
-## solicitud de 
-
-
-
-
-
-
-
-
-
-
