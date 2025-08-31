@@ -20,8 +20,8 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Índice" href="genindex.html" />
     <link rel="search" title="Búsqueda" href="search.html" />
-    <link rel="next" title="&lt;no title&gt;" href="Metodologia.html" />
-    <link rel="prev" title="&lt;no title&gt;" href="Descripci%C3%B3nProblema.html" /> 
+    <link rel="next" title="Metodología" href="Metodologia.html" />
+    <link rel="prev" title="Descripción Problema" href="DescripcionProblema.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -45,6 +45,10 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="ResumenEjecutivo.html">Resumen Ejecutivo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Introduccion.html">Introducción</a></li>
+<li class="toctree-l1"><a class="reference internal" href="MarcoTeorico.html">Modelos Teóricos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="DescripcionProblema.html">Descripción Problema</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Datos y Preparación</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#titulares-de-noticieros">Titulares de noticieros</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#descarga-de-titulos-de-noticias">Descarga de titulos de noticias</a></li>
@@ -57,6 +61,12 @@
 <li class="toctree-l2"><a class="reference internal" href="#solicitud-de">solicitud de</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="Metodologia.html">Metodología</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ModeloPredictivo.html">Modelo Predictivo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="EvaluacionModelo.html">Evaluación de los Modelos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Conclusiones.html">Conclusiones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Bibliografia.html">Bibliografía</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Anexos.html">Anexos</a></li>
 </ul>
 
         </div>
@@ -342,6 +352,38 @@ En caso contrario, se transforma la columna de fecha al tipo de dato adecuado (<
 <section id="extraccion-precisa-de-componentes-bursatiles">
 <h3>Extracción precisa de componentes bursátiles<a class="headerlink" href="#extraccion-precisa-de-componentes-bursatiles" title="Link to this heading"></a></h3>
 <p>La función extract_rows_precise toma como entrada un HTML y un conjunto de bolsas aceptadas (accept_exchanges) y extrae de forma precisa una lista de empresas válidas listadas en esas bolsas. Para ello, analiza el HTML con BeautifulSoup, busca descripciones asociadas a acciones (en etiquetas <sup>), navega por el DOM para encontrar enlaces con información del símbolo y la bolsa, filtra entradas no deseadas como índices o ETFs, y devuelve una lista sin duplicados con tuplas que contienen el exchange, el símbolo y el nombre de la empresa. Esta función es útil para extraer componentes limpios y verificados de un índice bursátil desde una fuente web como TradingView. Ha esta funcion le agregaremos los tickers sacado  de la funicion</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="k">def</span><span class="w"> </span><span class="nf">extract_rows_precise</span><span class="p">(</span><span class="n">html</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">accept_exchanges</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+<span class="linenos"> 2</span>    <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">html</span><span class="p">,</span> <span class="s2">&quot;lxml&quot;</span><span class="p">)</span>
+<span class="linenos"> 3</span>    <span class="n">desc_nodes</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s2">&quot;sup&quot;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="n">v</span> <span class="ow">and</span> <span class="s2">&quot;tickerDescription-&quot;</span> <span class="ow">in</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">v</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">v</span><span class="o">.</span><span class="n">split</span><span class="p">()))</span>
+<span class="linenos"> 4</span>    <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="linenos"> 5</span>    <span class="k">for</span> <span class="n">sup</span> <span class="ow">in</span> <span class="n">desc_nodes</span><span class="p">:</span>
+<span class="linenos"> 6</span>        <span class="n">name</span> <span class="o">=</span> <span class="n">sup</span><span class="o">.</span><span class="n">get_text</span><span class="p">(</span><span class="n">strip</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="linenos"> 7</span>        <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="p">:</span>
+<span class="linenos"> 8</span>            <span class="k">continue</span>
+<span class="linenos"> 9</span>        <span class="n">row</span> <span class="o">=</span> <span class="n">sup</span>
+<span class="linenos">10</span>        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">):</span>
+<span class="linenos">11</span>            <span class="n">row</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">parent</span>
+<span class="linenos">12</span>            <span class="k">if</span> <span class="n">row</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<span class="linenos">13</span>                <span class="k">break</span>
+<span class="linenos">14</span>            <span class="k">if</span> <span class="n">class_contains</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="s2">&quot;row-&quot;</span><span class="p">):</span>
+<span class="linenos">15</span>                <span class="n">a</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="n">href</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="linenos">16</span>                <span class="k">if</span> <span class="n">a</span><span class="p">:</span>
+<span class="linenos">17</span>                    <span class="n">m</span> <span class="o">=</span> <span class="n">HREF_SYMBOL_RE</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="s2">&quot;href&quot;</span><span class="p">])</span>
+<span class="linenos">18</span>                    <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+<span class="linenos">19</span>                        <span class="n">exch</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+<span class="linenos">20</span>                        <span class="n">sym</span>  <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="linenos">21</span>                        <span class="k">if</span> <span class="n">exch</span> <span class="ow">in</span> <span class="n">accept_exchanges</span><span class="p">:</span>
+<span class="linenos">22</span>                            <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">exch</span><span class="p">,</span> <span class="n">sym</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
+<span class="linenos">23</span>                <span class="k">break</span>
+<span class="linenos">24</span>    <span class="c1"># Limpieza y filtro de índices/ETF</span>
+<span class="linenos">25</span>    <span class="n">out</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="linenos">26</span>    <span class="k">for</span> <span class="n">exch</span><span class="p">,</span> <span class="n">sym</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
+<span class="linenos">27</span>        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">kw</span> <span class="ow">in</span> <span class="n">name</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="k">for</span> <span class="n">kw</span> <span class="ow">in</span> <span class="n">INVALID_KEYWORDS</span><span class="p">):</span>
+<span class="linenos">28</span>            <span class="k">continue</span>
+<span class="linenos">29</span>        <span class="n">out</span><span class="p">[(</span><span class="n">exch</span><span class="p">,</span> <span class="n">sym</span><span class="p">)]</span> <span class="o">=</span> <span class="n">name</span>
+<span class="linenos">30</span>    <span class="k">return</span> <span class="p">[(</span><span class="n">ex</span><span class="p">,</span> <span class="n">sy</span><span class="p">,</span> <span class="n">nm</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="n">ex</span><span class="p">,</span> <span class="n">sy</span><span class="p">),</span> <span class="n">nm</span> <span class="ow">in</span> <span class="n">out</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+</pre></div>
+</div>
 </section>
 </section>
 <section id="solicitud-de">
@@ -353,8 +395,8 @@ En caso contrario, se transforma la columna de fecha al tipo de dato adecuado (<
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Pie de página">
-        <a href="Descripci%C3%B3nProblema.html" class="btn btn-neutral float-left" title="&lt;no title&gt;" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Anterior</a>
-        <a href="Metodologia.html" class="btn btn-neutral float-right" title="&lt;no title&gt;" accesskey="n" rel="next">Siguiente <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="DescripcionProblema.html" class="btn btn-neutral float-left" title="Descripción Problema" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Anterior</a>
+        <a href="Metodologia.html" class="btn btn-neutral float-right" title="Metodología" accesskey="n" rel="next">Siguiente <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
