@@ -15,7 +15,7 @@ Es fundamental desarrollar modelos que permitan a las microempresas proyectarse 
 - Generar recomendaciones estratégicas basadas en los resultados del modelo para apoyar el crecimiento sostenible de las microempresas.
 
 **Preguntas de investigación**  
-- ¿Qué datos financieros y de mercado se deben usar para crear un modelo de *machine learning* efectivo?  
+- ¿Qué datos financieros y de mercado se deben usar para crepython -m sphinx -b html docs/source docs/build/htmlpython -m pip install -U sphinx myst-parser sphinx-rtd-themear un modelo de *machine learning* efectivo?  
 - ¿Cuál industria es la más relevante para este análisis en Madrid?  
 - ¿Cómo mantener una base de datos en *streaming* para actualizar información financiera en tiempo real?  
 - ¿Qué algoritmos de *machine learning* son los más adecuados para modelar el crecimiento de microempresas y por qué?  
