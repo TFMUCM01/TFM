@@ -106,7 +106,7 @@ ___
 
 ## Precios por tickers
 
-En el analisis financieron primeramente se necesita los tickers en los que vamos hacer el analisis, por nuestra parte nos hemos dedicado a solicitar los tickers de **Bolsas de valores europeas** que pas podemos ver abajo en total son 8 con sus diferentes tickers y tambien limitaremos solo a las acciones tienen dentro de su portafolio los indices de estos mercados. 
+En el análisis financiero, en primer lugar se necesitan los tickers sobre los que se realizará el estudio. Para este trabajo se han recopilado los tickers de bolsas de valores europeas, que se muestran a continuación. En total son ocho, cada una con sus respectivos tickers, y el análisis se limitará únicamente a las acciones que forman parte de los índices de dichos mercados.
 
 | País           | Índice     | Exchange Aceptado | Sufijo Yahoo | Número Esperado |
 |----------------|------------|-------------------|---------------|------------------|
