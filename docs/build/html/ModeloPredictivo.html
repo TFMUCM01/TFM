@@ -47,10 +47,25 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="ResumenEjecutivo.html">Resumen Ejecutivo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Introduccion.html">Introducción</a></li>
-<li class="toctree-l1"><a class="reference internal" href="MarcoTeorico.html">Modelos Teóricos</a></li>
 <li class="toctree-l1"><a class="reference internal" href="DescripcionProblema.html">Descripción Problema</a></li>
 <li class="toctree-l1"><a class="reference internal" href="DatosPreparacion.html">Datos y Preparación</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Modelo Predictivo</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Modelo Predictivo</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#modelos-de-analisis-de-sentimiento">Modelos de análisis de sentimiento</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#modelo-en-ingles-mrm8488-distilroberta-finetuned-financial-news-sentiment-analysis">Modelo en inglés: <em>mrm8488/distilroberta-finetuned-financial-news-sentiment-analysis</em></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#modelo-en-espanol-nlptown-bert-base-multilingual-uncased-sentiment">Modelo en español: <em>nlptown/bert-base-multilingual-uncased-sentiment</em></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#modelo-en-espanol-multilingue-nlptown-bert-base-multilingual-uncased-sentiment">Modelo en español (multilingüe): <em>nlptown/bert-base-multilingual-uncased-sentiment</em></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#comparacion-y-justificacion-de-uso">Comparación y justificación de uso</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tabla-comparativa-de-modelos">Tabla comparativa de modelos</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#automatizacion-del-flujo-de-trabajo-con-n8n">Automatización del flujo de trabajo con n8n</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id1"></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#flujo-de-utilizacion-de-los-modelos">Flujo de utilizacion de los modelos</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#literalinclude-scrapping-lo-que-me-de-marco-del-codigo-limpio-va-aqui">```{literalinclude} ../../scrapping/ -LO QUE ME DE MARCO DEL CODIGO LIMPIO VA AQUI-</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="EvaluacionModelo.html">Evaluación de los Modelos</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Conclusiones.html">Conclusiones</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Bibliografia.html">Bibliografía</a></li>
@@ -83,6 +98,95 @@
              
   <section id="modelo-predictivo">
 <h1>Modelo Predictivo<a class="headerlink" href="#modelo-predictivo" title="Link to this heading"></a></h1>
+<section id="modelos-de-analisis-de-sentimiento">
+<h2>Modelos de análisis de sentimiento<a class="headerlink" href="#modelos-de-analisis-de-sentimiento" title="Link to this heading"></a></h2>
+<p>Se ha decidido utilizar dos modelos predictivo en el cual los dos se utilozaron para predecir la probabilidad de que un titular sea <em>negativo, positivo o neutral</em>. los dos modelos son <code class="docutils literal notranslate"><span class="pre">bert-base-multilingual-uncased-sentiment</span></code>[multilingual] y <code class="docutils literal notranslate"><span class="pre">distilroberta-finetuned-financial-news-sentiment-analysis</span></code> [ingléa]. Estos dos modelos fueron seleccionados por su rendimiento en clasificación de sentimientos y por su cobertura en distintos idiomas. Dado que las fuentes analizadas incluyen tanto medios en inglés como en español, se ha considerado necesario emplear modelos específicos para cada idioma con el fin de maximizar la precisión de los resultados.</p>
+<section id="modelo-en-ingles-mrm8488-distilroberta-finetuned-financial-news-sentiment-analysis">
+<h3>Modelo en inglés: <em>mrm8488/distilroberta-finetuned-financial-news-sentiment-analysis</em><a class="headerlink" href="#modelo-en-ingles-mrm8488-distilroberta-finetuned-financial-news-sentiment-analysis" title="Link to this heading"></a></h3>
+<p>Este modelo corresponde a una versión ajustada de <strong>DistilRoBERTa-base</strong>, entrenada específicamente en el conjunto de datos <em>Financial PhraseBank</em>, que contiene 4.840 frases procedentes de noticias financieras en inglés. Dicho corpus fue anotado por entre 5 y 8 expertos, categorizando cada enunciado según su polaridad de sentimiento (positivo, negativo o neutral).</p>
+<p>A nivel arquitectónico, DistilRoBERTa es una versión comprimida de RoBERTa-base que conserva su rendimiento con menor complejidad computacional. Consta de <strong>6 capas, 768 dimensiones y 12 cabezales de atención</strong>, sumando un total aproximado de <strong>82 millones de parámetros</strong> (frente a los 125 millones de RoBERTa-base). Esta reducción permite que el modelo sea, en promedio, <strong>el doble de rápido</strong> en comparación con RoBERTa-base, manteniendo un desempeño competitivo.</p>
+<p>En cuanto a resultados, el modelo alcanzó un <strong>accuracy del 98,23 %</strong> y una pérdida de validación de <strong>0,1116</strong> en el conjunto de evaluación, lo que demuestra un desempeño sobresaliente en la clasificación de sentimiento en el ámbito financiero.</p>
+<p>La principal ventaja de este modelo es su <strong>alta especialización en finanzas</strong>, lo que le permite detectar matices en titulares y frases económicas con gran precisión. No obstante, presenta la limitación de estar restringido exclusivamente al inglés.</p>
+<p>https://huggingface.co/mrm8488/distilroberta-finetuned-financial-news-sentiment-analysis</p>
+</section>
+<section id="modelo-en-espanol-nlptown-bert-base-multilingual-uncased-sentiment">
+<h3>Modelo en español: <em>nlptown/bert-base-multilingual-uncased-sentiment</em><a class="headerlink" href="#modelo-en-espanol-nlptown-bert-base-multilingual-uncased-sentiment" title="Link to this heading"></a></h3>
+<p>Este modelo parte de <strong>BERT multilingüe</strong>, entrenado sobre más de 100 idiomas, entre ellos el español. A diferencia del anterior, no está ajustado a un dominio concreto, sino que ha sido entrenado con datos de reseñas y opiniones generales, clasificando el sentimiento en una escala de 1 a 5. Su versatilidad multilingüe lo convierte en una opción adecuada para el análisis de noticias en español, aunque presenta la limitación de no estar especializado en el ámbito financiero, lo que puede reducir la precisión en este tipo de textos.</p>
+</section>
+<section id="modelo-en-espanol-multilingue-nlptown-bert-base-multilingual-uncased-sentiment">
+<h3>Modelo en español (multilingüe): <em>nlptown/bert-base-multilingual-uncased-sentiment</em><a class="headerlink" href="#modelo-en-espanol-multilingue-nlptown-bert-base-multilingual-uncased-sentiment" title="Link to this heading"></a></h3>
+<p>Este modelo se basa en <strong>BERT multilingüe uncased</strong> y ha sido afinado para realizar análisis de sentimiento en reseñas de productos en seis idiomas: inglés, neerlandés, alemán, francés, español e italiano. La principal característica de este modelo es que clasifica el sentimiento en una escala de <strong>1 a 5 estrellas</strong>, en lugar de limitarse a categorías binarias (positivo/negativo) o ternarias (positivo/neutral/negativo). Esto le otorga mayor capacidad para capturar matices y gradaciones en la opinión expresada en los textos.</p>
+<p>A nivel técnico, el modelo cuenta con aproximadamente <strong>167 millones de parámetros</strong> y conserva la arquitectura original de BERT multilingüe uncased, lo que significa que no diferencia entre mayúsculas y minúsculas durante el procesamiento. Fue entrenado sobre un corpus de más de <strong>600 000 reseñas multilingües</strong>, de las cuales <strong>50 000 corresponden al español</strong>, garantizando un desempeño razonable en este idioma.</p>
+<p>En cuanto a métricas, el modelo presenta un rendimiento en español de alrededor de <strong>58 % de exactitud en la predicción exacta</strong> del número de estrellas, y una precisión de <strong>95 % cuando se permite un margen de ±1 estrella</strong>. Este último dato refleja que, aunque puede fallar en la predicción exacta de la escala, en la gran mayoría de los casos logra capturar correctamente la orientación del sentimiento (positivo, negativo o intermedio).</p>
+<p>La <strong>ventaja principal</strong> de este modelo es su <strong>cobertura multilingüe</strong>, lo que permite procesar textos en diferentes idiomas sin necesidad de entrenar modelos independientes para cada caso. Además, la clasificación en una escala de cinco puntos ofrece un análisis más granular y rico en matices, especialmente útil para contextos con opiniones diversas o polarización moderada.</p>
+<p>Sin embargo, el modelo también presenta <strong>limitaciones importantes</strong>. En primer lugar, no fue diseñado ni ajustado específicamente para el <strong>dominio financiero</strong>, lo que puede reducir su capacidad de interpretar correctamente frases técnicas o jergas económicas. En segundo lugar, la precisión exacta en español se sitúa por debajo de otros idiomas como el inglés o el alemán, aunque esta limitación se mitiga al considerar la métrica <em>off-by-1</em>.</p>
+<p>En el contexto de este trabajo, el modelo ha sido utilizado principalmente como una herramienta complementaria para el análisis de textos en español. Si bien su desempeño no alcanza la especialización del modelo en inglés, su flexibilidad multilingüe y su buena capacidad de aproximación al sentimiento general lo convierten en una opción adecuada para garantizar cobertura en medios hispanohablantes.</p>
+<p>https://huggingface.co/nlptown/bert-base-multilingual-uncased-sentiment</p>
+</section>
+<section id="comparacion-y-justificacion-de-uso">
+<h3>Comparación y justificación de uso<a class="headerlink" href="#comparacion-y-justificacion-de-uso" title="Link to this heading"></a></h3>
+<p>La principal diferencia entre ambos modelos radica en su <strong>especialización</strong>. El modelo en inglés ofrece un mejor desempeño en el contexto financiero gracias a su ajuste en noticias económicas, mientras que el modelo en español, aunque más generalista, permite cubrir de manera efectiva los textos en este idioma. En conjunto, la combinación de ambos modelos garantiza un análisis más robusto y equilibrado de noticias financieras procedentes de distintas fuentes y en diferentes idiomas.</p>
+</section>
+<hr class="docutils" />
+<section id="tabla-comparativa-de-modelos">
+<h3>Tabla comparativa de modelos<a class="headerlink" href="#tabla-comparativa-de-modelos" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Modelo</p></th>
+<th class="head"><p>Idioma(s)</p></th>
+<th class="head"><p>Ventajas</p></th>
+<th class="head"><p>Limitaciones</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><em>mrm8488/distilroberta-finetuned-financial-news-sentiment-analysis</em></p></td>
+<td><p>Inglés</p></td>
+<td><p>Especializado en noticias financieras, mayor precisión en este dominio.</p></td>
+<td><p>Solo aplica a textos en inglés.</p></td>
+</tr>
+<tr class="row-odd"><td><p><em>nlptown/bert-base-multilingual-uncased-sentiment</em></p></td>
+<td><p>Multilingüe (incluye español)</p></td>
+<td><p>Cobertura en más de 100 idiomas, adecuado para análisis en español.</p></td>
+<td><p>No especializado en finanzas, menor precisión contextual.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<hr class="docutils" />
+<section id="automatizacion-del-flujo-de-trabajo-con-n8n">
+<h3>Automatización del flujo de trabajo con n8n<a class="headerlink" href="#automatizacion-del-flujo-de-trabajo-con-n8n" title="Link to this heading"></a></h3>
+<p>En la automatización de la ingesta y el procesamiento de datos se ha empleado <strong>n8n</strong>, una herramienta de <em>workflow automation</em> de código abierto. Su función principal es permitir la integración entre múltiples servicios, APIs y bases de datos mediante la creación de flujos de trabajo visuales que se ejecutan de manera automática en función de determinados eventos o programaciones. A partir del trigger que en nuestro caso de de tiempo (00:00 todos los dias), los nodos se van ejecutando en orden lógico, permitiendo que la información fluya automáticamente entre servicios sin intervención manual.</p>
+<p>En conjunto, n8n se convierte en un componente clave para la <strong>orquestación de datos</strong> en este proyecto, permitiendo que el análisis de sentimiento y financiero se sustente en información</p>
+</section>
+</section>
+<section id="id1">
+<h2><img alt="FlujoN8N" src="_images/FlujoN8N.jpeg" /><a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<section id="flujo-de-utilizacion-de-los-modelos">
+<h3>Flujo de utilizacion de los modelos<a class="headerlink" href="#flujo-de-utilizacion-de-los-modelos" title="Link to this heading"></a></h3>
+<p>Dentro del <em>datalake</em> definido en el módulo de <strong>Datos y Preparación</strong>, se encuentra la tabla unificada denominada <code class="docutils literal notranslate"><span class="pre">TODOS_TITULARES</span></code>. A partir de esta base de datos se extraen los titulares procedentes de los distintos noticieros. Posteriormente, mediante un <strong>árbol de decisión</strong> se determina el idioma de cada titular (inglés o español). Según el resultado, se aplica el modelo de predicción correspondiente, previamente entrenado para el análisis de sentimiento en cada idioma.</p>
+</section>
+<section id="literalinclude-scrapping-lo-que-me-de-marco-del-codigo-limpio-va-aqui">
+<h3>```{literalinclude} ../../scrapping/ -LO QUE ME DE MARCO DEL CODIGO LIMPIO VA AQUI-<a class="headerlink" href="#literalinclude-scrapping-lo-que-me-de-marco-del-codigo-limpio-va-aqui" title="Link to this heading"></a></h3>
+<p>:language: python
+:linenos:
+:start-after: –8&lt;– [start:MODELO DE SENTIMIENTOS]
+:end-before: –8&lt;– [end:MODELO DE SENTIMIENTOS]</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>
+---
+### Generacion de las columnas con tipo de titulos 
+
+Una vez aplicados los modelos de análisis de sentimiento, se generan cuatro variables principales: `SENTIMIENTO_RESULTADO`, `PROBABILIDAD_POSITIVO`, `PROBABILIDAD_NEGATIVA` y `PROBABILIDAD_NEUTRAL`. Estas variables permiten determinar de manera objetiva la clasificación final del texto en función de su polaridad. Posteriormente, los resultados se incorporan a la tabla principal de **Noticias_Analizadas** y se almacenan nuevamente en Snowflake, lo que garantiza su disponibilidad para futuros análisis, tanto de carácter técnico como de integración con otros indicadores financieros.
+
+| FECHA      | TITULAR                                                                 | FUENTE | SENTIMIENTO_RESULTADO | PROBABILIDAD_POSITIVO | PROBABILIDAD_NEUTRAL | PROBABILIDAD_POSITIVO |
+|------------|-------------------------------------------------------------------------|--------|-----------------------|-----------------------|----------------------|-----------------------|
+| 2024-02-27 | Felipe VI pide que los avances tecnológicos protejan la seguridad y los derechos individuales | ABC    | Neutral               | 0.73806867            | 0.1435076594         | 0.73806867            |
+| 2024-01-16 | El Gobierno delega en las autonomías la ampliación del bono joven de alquiler | ABC    | Neutral               | 0.7266298234          | 0.1628957987         | 0.7266298234          |
+| 2024-01-30 | Reynés (Naturgy) elogia a BlackRock por dar estabilidad a las empresas y ve «alineamiento de intereses» | ABC    | Neutral               | 0.4201913178          | 0.3785941601         | 0.4201913178          |
+
+</pre></div>
+</div>
+</section>
+</section>
 </section>
 
 
