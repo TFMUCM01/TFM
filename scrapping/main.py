@@ -1,63 +1,133 @@
-from datetime import datetime, timedelta
-import pandas as pd
-import time
+# config.py
+"""
+Configuración del proyecto de scraping de titulares.
 
-from config import NOTICIEROS, SNOWFLAKE_CONFIG, RETRIES, SLEEP_BETWEEN_DIAS
-from scraper import obtener_snapshot_url_directo, extraer_titulares, log_error
-from snowflake_utils import subir_a_snowflake, obtener_ultima_fecha_en_snowflake
+- Lee credenciales de Snowflake desde variables de entorno (ideal para GitHub Actions).
+- Valida que no falte ninguna variable crítica y falla con mensaje claro.
+- Soporta .env en local (si python-dotenv está instalado).
+- Normaliza SNOWFLAKE_ACCOUNT para evitar pasar dominios completos.
 
-# --8<-- [start:configfechas-noticieros]
-for medio in NOTICIEROS:
-    nombre = medio["nombre"]
-    url = medio["url"]
-    fuente = medio["fuente"]
-    idioma = medio["idioma"]
-    tabla = medio["tabla"]
+Variables de entorno esperadas:
+  SNOWFLAKE_USER
+  SNOWFLAKE_PASSWORD
+  SNOWFLAKE_ACCOUNT        # p. ej. wynifvb-ye01854 (sin .snowflakecomputing.com)
+  SNOWFLAKE_WAREHOUSE
+  SNOWFLAKE_DATABASE
+  SNOWFLAKE_SCHEMA
+"""
 
-    print(f"\nProcesando noticiero: {nombre} ({fuente})")
+from __future__ import annotations
+import os
+import sys
 
-    FECHA_INICIO = obtener_ultima_fecha_en_snowflake(SNOWFLAKE_CONFIG, tabla)
-    FECHA_FIN = datetime.today().date() - timedelta(days=1)
+# ---- Soporte opcional de .env en local (no requerido en GitHub Actions)
+try:
+    from dotenv import load_dotenv  # type: ignore
+    load_dotenv()  # solo carga si existe un .env
+except Exception:
+    # Si no está instalado dotenv, simplemente seguimos.
+    pass
 
-    print(f"Fecha de inicio: {FECHA_INICIO}")
-    print(f"Fecha de fin:    {FECHA_FIN}")
+# ---- Parámetros de ejecución
+SLEEP_BETWEEN_DIAS = 2
+RETRIES = 3
+WAYBACK_TIMEOUT = 30
+SNAPSHOT_TIMEOUT = 30
 
-    fecha = datetime.combine(FECHA_INICIO, datetime.min.time())
-    fecha_fin_dt = datetime.combine(FECHA_FIN, datetime.min.time())
-# --8<-- [end:configfechas-noticieros]
+# ---- Lista de noticieros
+NOTICIEROS = [
+    {
+        "nombre": "BBC",
+        "url": "https://www.bbc.com/news",
+        "fuente": "BBC",
+        "idioma": "en",
+        "tabla": "BBC_TITULARES",
+    },
+    {
+        "nombre": "ABC",
+        "url": "https://www.abc.es/economia/",
+        "fuente": "ABC",
+        "idioma": "es",
+        "tabla": "ABC_TITULARES",
+    },
+    {
+        "nombre": "EL_ECONOMISTA",
+        "url": "https://www.eleconomista.es/economia/",
+        "fuente": "EL ECONOMISTA",
+        "idioma": "es",
+        "tabla": "EL_ECONOMISTA_TITULARES",
+    },
+    {
+        "nombre": "BLOOMBERG",
+        "url": "https://www.bloomberg.com/europe",
+        "fuente": "BLOOMBERG",
+        "idioma": "en",
+        "tabla": "BLOOMBERG_TITULARES",
+    },
+    {
+        "nombre": "EL_PAIS",
+        "url": "https://elpais.com/economia/",
+        "fuente": "EL PAIS",
+        "idioma": "es",
+        "tabla": "EL_PAIS_TITULARES",
+    },
+    {
+        "nombre": "THE_TIMES",
+        "url": "https://www.thetimes.com/",
+        "fuente": "THE TIMES",
+        "idioma": "en",
+        "tabla": "THE_TIMES_TITULARES",   # <- corregido (antes decía TIME_TITULARES)
+    },
+    {
+        "nombre": "EXPANSION",
+        "url": "https://www.expansion.com/",
+        "fuente": "EXPANSION",
+        "idioma": "es",
+        "tabla": "EXPANSION_TITULARES",
+    },
+]
 
-    resultados = []
-# --8<-- [start:extraer-titulares]
-    while fecha <= fecha_fin_dt:
-        fecha_str = fecha.strftime("%Y%m%d")
-        print(f"[{fuente}] Procesando {fecha_str}...")
+# ---- Utilidades de validación y normalización
+def _must_get(env_name: str) -> str:
+    """Obtiene una variable de entorno o lanza error explicando qué falta."""
+    v = os.getenv(env_name)
+    if not v:
+        print(
+            f"[CONFIG] Falta la variable de entorno {env_name}. "
+            f"Define el Secret en GitHub Actions (Settings → Secrets and variables → Actions) "
+            f"o crea un .env en local.",
+            file=sys.stderr,
+        )
+        raise RuntimeError(f"Missing env var: {env_name}")
+    return v
 
-        snapshot_url = obtener_snapshot_url_directo(url, fecha_str)
-        print(f"Snapshot for {fecha_str}: {snapshot_url}")
+def _norm_account(account: str) -> str:
+    """
+    Normaliza el identificador de cuenta de Snowflake:
+    - Quita sufijos como '.snowflakecomputing.com'
+    - Quita protocolos, si los hubiera (https://)
+    - Devuelve en minúsculas
+    """
+    acc = account.strip().lower()
+    # elimina protocolo si lo pusieron
+    if "://" in acc:
+        acc = acc.split("://", 1)[1]
+    # si vino con dominio completo, nos quedamos con la parte previa
+    acc = acc.split("/", 1)[0]  # por si trajera paths
+    acc = acc.replace(".snowflakecomputing.com", "")
+    return acc
 
-        try:
-            titulares = extraer_titulares(snapshot_url, fecha_str, fuente=fuente)
-            for t in titulares:
-                t["fuente"] = fuente
-                t["idioma"] = idioma
-            if titulares:
-                print(f"{len(titulares)} titulares encontrados.")
-            else:
-                print("Snapshot sin titulares.")
-            resultados.extend(titulares)
-        except Exception as e:
-            log_error(f"[{fuente}] Error en {fecha_str}: {e}")
+# ---- Configuración de Snowflake
+SNOWFLAKE_CONFIG = {
+    "user": _must_get("SNOWFLAKE_USER"),
+    "password": _must_get("SNOWFLAKE_PASSWORD"),
+    "account": _norm_account(_must_get("SNOWFLAKE_ACCOUNT")),  # ej: wynifvb-ye01854
+    "warehouse": _must_get("SNOWFLAKE_WAREHOUSE"),
+    "database": _must_get("SNOWFLAKE_DATABASE"),
+    "schema": _must_get("SNOWFLAKE_SCHEMA"),
+}
 
-        time.sleep(SLEEP_BETWEEN_DIAS)
-        fecha += timedelta(days=1)
-# --8<-- [end:extraer-titulares]
-
-# --8<-- [start:subida-snowflake]
-    if resultados:
-        df_nuevo = pd.DataFrame(resultados)
-        df_nuevo.drop_duplicates(subset=["fecha", "titular"], inplace=True)
-        subir_a_snowflake(df_nuevo, SNOWFLAKE_CONFIG, tabla)
-        print(f"Total titulares subidos para {fuente}: {len(df_nuevo)}")
-    else:
-        print(f"No se encontraron titulares nuevos para {fuente}.")
-# --8<-- [end:subida-snowflake]
+# (Opcional) Depuración controlada por env (no imprime password)
+if os.getenv("DEBUG_CONFIG", "").lower() in ("1", "true", "yes"):
+    safe_cfg = {k: ("***" if k == "password" else v) for k, v in SNOWFLAKE_CONFIG.items()}
+    print("[DEBUG] SNOWFLAKE_CONFIG:", safe_cfg)

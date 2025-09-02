@@ -15,6 +15,15 @@ jobs:
   run-script:
     runs-on: ubuntu-latest
 
+    # 🔐 Exporta los secretos como variables de entorno para el job completo
+    env:
+      SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+      SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+      SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}   # ej: wynifvb-ye01854 (sin .snowflakecomputing.com)
+      SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
+      SNOWFLAKE_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE }}
+      SNOWFLAKE_SCHEMA: ${{ secrets.SNOWFLAKE_SCHEMA }}
+
     steps:
       - name: Clonar repositorio
         uses: actions/checkout@v3
@@ -24,7 +33,6 @@ jobs:
         with:
           python-version: '3.10'
 
-      # (Opcional) Cache de pip para acelerar
       - name: Cache pip
         uses: actions/cache@v4
         with:
@@ -38,6 +46,16 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      # ✅ Paso de depuración (opcional): confirma que llegan las vars (sin exponer password)
+      - name: Debug entorno Snowflake (safe)
+        run: |
+          echo "SF_USER=$SNOWFLAKE_USER"
+          echo "SF_ACCOUNT=$SNOWFLAKE_ACCOUNT"
+          echo "SF_WAREHOUSE=$SNOWFLAKE_WAREHOUSE"
+          echo "SF_DATABASE=$SNOWFLAKE_DATABASE"
+          echo "SF_SCHEMA=$SNOWFLAKE_SCHEMA"
+          test -n "$SNOWFLAKE_PASSWORD" && echo "SF_PASSWORD=*** (seteada)" || (echo "SF_PASSWORD=FALTA" && exit 1)
+
       - name: Ejecutar script principal
         run: |
           echo "📅 Ejecutando main.py el $(date -u)"
@@ -47,7 +65,7 @@ jobs:
       - name: Notificar a n8n - scraping finalizado
         if: success()
         env:
-          N8N_URL: ${{ secrets.N8N_URL }}                # ej. https://tu-dominio.tld
+          N8N_URL: ${{ secrets.N8N_URL }}
           N8N_WEBHOOK_SECRET: ${{ secrets.N8N_WEBHOOK_SECRET }}
         run: |
           set -euo pipefail
@@ -70,7 +88,7 @@ jobs:
       - name: Notificar a n8n - actualizar registros
         if: success()
         env:
-          N8N_URL: ${{ secrets.N8N_URL }}                # misma base
+          N8N_URL: ${{ secrets.N8N_URL }}
           N8N_WEBHOOK_SECRET: ${{ secrets.N8N_WEBHOOK_SECRET }}
         run: |
           set -euo pipefail
