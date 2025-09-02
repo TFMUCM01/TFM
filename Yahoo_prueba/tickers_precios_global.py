@@ -24,7 +24,7 @@ SNOWFLAKE_DATABASE  = os.environ["SNOWFLAKE_DATABASE"]         # ej: YAHOO_PRUEB
 SNOWFLAKE_SCHEMA    = os.environ["SNOWFLAKE_SCHEMA"]           # ej: IBEX
 SNOWFLAKE_ROLE      = os.environ.get("SNOWFLAKE_ROLE")         # opcional
 
-TICKERS_TABLE = os.environ.get("TICKERS_TABLE", f"{SNOWFLAKE_DATABASE}.{SNOWFLAKE_SCHEMA}.LISTA_IBEX_35")
+TICKERS_TABLE = os.environ.get("TICKERS_TABLE", f"{SNOWFLAKE_DATABASE}.{SNOWFLAKE_SCHEMA}.LISTA_TICKERS")
 PRICES_TABLE  = os.environ.get("PRICES_TABLE",  f"{SNOWFLAKE_DATABASE}.{SNOWFLAKE_SCHEMA}.TICKERS_INDEX")
 START_DATE    = pd.to_datetime(os.environ.get("START_DATE", "2020-01-01")).date()
 TZ = ZoneInfo("Europe/Madrid")
