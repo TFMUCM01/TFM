@@ -53,7 +53,7 @@ jobs:
           echo "SF_ACCOUNT=$SNOWFLAKE_ACCOUNT"
           echo "SF_WAREHOUSE=$SNOWFLAKE_WAREHOUSE"
           echo "SF_DATABASE=$SNOWFLAKE_DATABASE"
-          echo "SF_SCHEMA=$SNOWFLAKE_SCHEMA1"
+          echo "SF_SCHEMA=$SNOWFLAKE_SCHEMA"
           test -n "$SNOWFLAKE_PASSWORD" && echo "SF_PASSWORD=*** (seteada)" || (echo "SF_PASSWORD=FALTA" && exit 1)
 
       - name: Ejecutar script principal
