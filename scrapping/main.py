@@ -2,8 +2,10 @@
 """
 main.py — Scraper de titulares (Wayback directo) → Snowflake (solo días faltantes)
 
-- Para cada noticiero: arranca en MAX(fecha)+1 (si no hay filas: 2024-01-01) y llega hasta AYER (Europe/Madrid).
-- NO usa la API de Wayback; prueba varias horas del día y valida que el snapshot final sea del MISMO día.
+- Si la tabla no tiene datos: arranca en 2024-01-01.
+- Si tiene datos: arranca en MAX(fecha) + 1 día.
+- Llega hasta AYER (Europe/Madrid).
+- NO usa la API de Wayback; prueba varias horas del día y valida que el snapshot sea del MISMO día.
 - Upsert con MERGE en Snowflake por (fecha, titular) para evitar duplicados.
 
 Requisitos:
@@ -29,6 +31,7 @@ import snowflake.connector
 SLEEP_BETWEEN_DIAS = 2
 WAYBACK_TIMEOUT = 30
 SNAPSHOT_TIMEOUT = 30
+START_DEFAULT = date(2024, 1, 1)  # <-- si no hay información, iniciar desde 01/01/2024
 
 NOTICIEROS = [
     {"nombre": "BBC",           "url": "https://www.bbc.com/news",         "fuente": "BBC",        "idioma": "en", "tabla": "BBC_TITULARES"},
@@ -144,7 +147,9 @@ def sf_connect():
 
 def obtener_ultima_fecha_en_snowflake(tabla: str) -> date:
     """
-    Devuelve MAX(fecha)+1 si hay datos; si no, arranca en 2024-01-01.
+    Devuelve:
+      - MAX(fecha) + 1 día, si hay datos.
+      - START_DEFAULT (2024-01-01), si no hay datos.
     """
     ctx = sf_connect()
     cs = ctx.cursor()
@@ -157,8 +162,8 @@ def obtener_ultima_fecha_en_snowflake(tabla: str) -> date:
             print(f"Última fecha en Snowflake para {tabla}: {ultima}")
             return ultima + timedelta(days=1)
         else:
-            print(f"No hay registros en {tabla}. Iniciando desde 2024-01-01.")
-            return datetime.strptime("20240101", "%Y%m%d").date()
+            print(f"No hay registros en {tabla}. Iniciando desde {START_DEFAULT}.")
+            return START_DEFAULT
     finally:
         cs.close()
         ctx.close()
@@ -193,7 +198,7 @@ def subir_a_snowflake_merge(df: pd.DataFrame, tabla: str) -> None:
         tmp = "TMP_TITULARES"
         cs.execute(f"CREATE OR REPLACE TEMP TABLE {tmp} LIKE {tabla_completa}")
 
-        # Insertamos a la temporal (executemany)
+        # Inserta a temporal
         rows = df[["fecha","titular","url_archivo","fuente","idioma"]].values.tolist()
         insert_sql = f"INSERT INTO {tmp} (fecha, titular, url_archivo, fuente, idioma) VALUES (%s, %s, %s, %s, %s)"
         cs.executemany(insert_sql, rows)
