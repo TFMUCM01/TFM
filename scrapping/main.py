@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-main.py — Scraper de titulares (Wayback directo) → Snowflake
+main.py — Scraper de titulares (Wayback directo) → Snowflake (solo días faltantes)
 
-- Configuración embebida (NOTICIEROS y credenciales por entorno).
-- Ayer en Europe/Madrid (día completo).
-- NO usa la API de Wayback; construye URLs con timestamp y valida que el snapshot sea del MISMO día.
-- Inserta en Snowflake con executemany (sin pyarrow/WRITE_PANDAS).
+- Para cada noticiero: arranca en MAX(fecha)+1 (si no hay filas: 2024-01-01) y llega hasta AYER (Europe/Madrid).
+- NO usa la API de Wayback; prueba varias horas del día y valida que el snapshot final sea del MISMO día.
+- Upsert con MERGE en Snowflake por (fecha, titular) para evitar duplicados.
 
 Requisitos:
   pip install requests beautifulsoup4 lxml pandas snowflake-connector-python
@@ -24,34 +23,30 @@ from bs4 import BeautifulSoup
 import snowflake.connector
 
 # =========================
-# CONFIG (antes en config.py)
+# CONFIG
 # =========================
 
-# Parámetros de ejecución
 SLEEP_BETWEEN_DIAS = 2
-RETRIES = 3
 WAYBACK_TIMEOUT = 30
 SNAPSHOT_TIMEOUT = 30
 
-# Lista de noticieros
 NOTICIEROS = [
     {"nombre": "BBC",           "url": "https://www.bbc.com/news",         "fuente": "BBC",        "idioma": "en", "tabla": "BBC_TITULARES"},
     {"nombre": "ABC",           "url": "https://www.abc.es/economia/",     "fuente": "ABC",        "idioma": "es", "tabla": "ABC_TITULARES"},
-    {"nombre": "EL_ECONOMISTA", "url": "https://www.eleconomista.es/economia/", "fuente": "EL ECONOMISTA","idioma":"es","tabla":"EL_ECONOMISTA_TITULARES"},
+    {"nombre": "EL_ECONOMISTA", "url": "https://www.eleconomista.es/economia/", "fuente": "EL ECONOMISTA", "idioma":"es","tabla":"EL_ECONOMISTA_TITULARES"},
     {"nombre": "BLOOMBERG",     "url": "https://www.bloomberg.com/europe", "fuente": "BLOOMBERG",  "idioma": "en", "tabla": "BLOOMBERG_TITULARES"},
     {"nombre": "EL_PAIS",       "url": "https://elpais.com/economia/",     "fuente": "EL PAIS",    "idioma": "es", "tabla": "EL_PAIS_TITULARES"},
     {"nombre": "THE_TIMES",     "url": "https://www.thetimes.com/",        "fuente": "THE TIMES",  "idioma": "en", "tabla": "THE_TIMES_TITULARES"},
     {"nombre": "EXPANSION",     "url": "https://www.expansion.com/",       "fuente": "EXPANSION",  "idioma": "es", "tabla": "EXPANSION_TITULARES"},
 ]
 
-# Credenciales Snowflake desde entorno (manteniendo SNOWFLAKE_SCHEMA1)
 SNOWFLAKE_CONFIG = {
     'user': os.getenv('SNOWFLAKE_USER'),
     'password': os.getenv('SNOWFLAKE_PASSWORD'),
     'account': os.getenv('SNOWFLAKE_ACCOUNT'),
     'warehouse': os.getenv('SNOWFLAKE_WAREHOUSE'),
     'database': os.getenv('SNOWFLAKE_DATABASE'),
-    'schema': os.getenv('SNOWFLAKE_SCHEMA1'),  # <- tal como lo pediste
+    'schema': os.getenv('SNOWFLAKE_SCHEMA1'),  # <- como pediste
     'role': os.getenv('SNOWFLAKE_ROLE') or None,
 }
 
@@ -61,31 +56,28 @@ def _must(value: Optional[str], name: str) -> str:
         raise RuntimeError(f"Missing env var: {name}")
     return value
 
-# Validación mínima
 for k in ['user','password','account','warehouse','database','schema']:
     SNOWFLAKE_CONFIG[k] = _must(SNOWFLAKE_CONFIG[k], f"SNOWFLAKE_{k.upper()}")
 
 # =========================
-# Helpers de logging y fecha
+# Utilidades
 # =========================
-
-def log_error(mensaje: str) -> None:
-    with open("scraping_log.txt", "a", errors="ignore") as f:
-        f.write(f"{datetime.now()} - {mensaje}\n")
 
 TZ_MADRID = ZoneInfo("Europe/Madrid")
 
 def ayer_madrid() -> date:
     return (datetime.now(TZ_MADRID) - timedelta(days=1)).date()
 
+def log_error(mensaje: str) -> None:
+    with open("scraping_log.txt", "a", errors="ignore") as f:
+        f.write(f"{datetime.now()} - {mensaje}\n")
+
 # =========================
-# Scraper (antes en scraper.py)
+# Wayback directo (sin API)
 # =========================
 
 def _timestamp_candidates_for_day(fecha_str: str) -> List[str]:
-    """
-    Timestamps HHMMSS razonables del MISMO día (de tarde a madrugada).
-    """
+    """Timestamps HHMMSS del MISMO día (de tarde a madrugada)."""
     return [
         "235959", "220000", "210000", "200000",
         "180000", "150000", "120000", "090000",
@@ -93,9 +85,7 @@ def _timestamp_candidates_for_day(fecha_str: str) -> List[str]:
     ]
 
 def _is_same_day_snapshot(final_url: str, fecha_str: str) -> bool:
-    """
-    Verifica que final_url contenga /web/YYYYMMDDhhmmss/ y que YYYYMMDD == fecha_str.
-    """
+    """Comprueba /web/YYYYMMDDhhmmss/ y que YYYYMMDD == fecha_str."""
     try:
         part = final_url.split("/web/")[1].split("/", 1)[0]
         return part[:8] == fecha_str
@@ -104,8 +94,8 @@ def _is_same_day_snapshot(final_url: str, fecha_str: str) -> bool:
 
 def obtener_snapshot_url_directo(original_url: str, fecha_str: str) -> Optional[str]:
     """
-    Sin usar la API de Wayback: prueba varias horas del día y valida
-    que la redirección final sea del MISMO día. Devuelve None si no hay snapshot ese día.
+    Prueba varias horas del día con URLs directas y valida que el snapshot quede en el MISMO día.
+    Devuelve None si ese día no tiene snapshot.
     """
     base_url = original_url.strip("/")
     for hhmmss in _timestamp_candidates_for_day(fecha_str):
@@ -121,33 +111,24 @@ def obtener_snapshot_url_directo(original_url: str, fecha_str: str) -> Optional[
     return None
 
 def extraer_titulares(snapshot_url: str, fecha_str: str, fuente: Optional[str] = None) -> List[Dict]:
-    """
-    Extrae h1/h2/h3 con >3 palabras como titular básico.
-    """
+    """Extrae h1/h2/h3 con >3 palabras."""
     titulares: List[Dict] = []
     try:
         res = requests.get(snapshot_url, timeout=SNAPSHOT_TIMEOUT)
         res.raise_for_status()
         soup = BeautifulSoup(res.content, 'lxml')
-
         encabezados = soup.find_all(['h1', 'h2', 'h3'])
         print(f"[{fuente}] {len(encabezados)} encabezados en {snapshot_url}")
-
         for t in encabezados:
             texto = t.get_text(strip=True)
-            if not texto or len(texto.split()) <= 3:
-                continue
-            titulares.append({
-                "fecha": fecha_str,
-                "titular": texto,
-                "url_archivo": snapshot_url
-            })
+            if texto and len(texto.split()) > 3:
+                titulares.append({"fecha": fecha_str, "titular": texto, "url_archivo": snapshot_url})
     except Exception as e:
         log_error(f"[{fuente or 'GENERAL'}] Error accediendo a snapshot: {e}")
     return titulares
 
 # =========================
-# Snowflake utils (antes en snowflake_utils.py)
+# Snowflake
 # =========================
 
 def sf_connect():
@@ -161,31 +142,31 @@ def sf_connect():
         role=SNOWFLAKE_CONFIG.get('role')
     )
 
-def obtener_ultima_fecha_en_snowflake(config: Dict[str,str], tabla: str) -> date:
+def obtener_ultima_fecha_en_snowflake(tabla: str) -> date:
     """
     Devuelve MAX(fecha)+1 si hay datos; si no, arranca en 2024-01-01.
     """
     ctx = sf_connect()
     cs = ctx.cursor()
     try:
-        tabla_completa = f"{config['database']}.{config['schema']}.{tabla}"
+        tabla_completa = f"{SNOWFLAKE_CONFIG['database']}.{SNOWFLAKE_CONFIG['schema']}.{tabla}"
         cs.execute(f"SELECT MAX(fecha) FROM {tabla_completa}")
         r = cs.fetchone()
         if r and r[0]:
-            ultima = r[0]  # tipo date
+            ultima = r[0]
             print(f"Última fecha en Snowflake para {tabla}: {ultima}")
             return ultima + timedelta(days=1)
         else:
-            print(f"No se encontraron registros en {tabla}. Iniciando desde 2024-01-01.")
+            print(f"No hay registros en {tabla}. Iniciando desde 2024-01-01.")
             return datetime.strptime("20240101", "%Y%m%d").date()
     finally:
         cs.close()
         ctx.close()
 
-def subir_a_snowflake(df: pd.DataFrame, config: Dict[str,str], tabla: str) -> None:
+def subir_a_snowflake_merge(df: pd.DataFrame, tabla: str) -> None:
     """
-    Inserta filas en {tabla}. Evita duplicados en memoria (drop_duplicates).
-    Si necesitas deduplicar en BD, agrega una UNIQUE KEY (fecha,titular) o usa MERGE.
+    MERGE por (fecha, titular) para insertar solo faltantes.
+    Actualiza url_archivo/fuente/idioma si ya existía el titular en ese día.
     """
     if df.empty:
         print(f"No hay datos para subir a {tabla}.")
@@ -197,9 +178,8 @@ def subir_a_snowflake(df: pd.DataFrame, config: Dict[str,str], tabla: str) -> No
     ctx = sf_connect()
     cs = ctx.cursor()
     try:
-        tabla_completa = f"{config['database']}.{config['schema']}.{tabla}"
-
-        # Crear tabla si no existe
+        tabla_completa = f"{SNOWFLAKE_CONFIG['database']}.{SNOWFLAKE_CONFIG['schema']}.{tabla}"
+        # Crea si no existe
         cs.execute(f"""
             CREATE TABLE IF NOT EXISTS {tabla_completa} (
                 fecha DATE,
@@ -209,21 +189,41 @@ def subir_a_snowflake(df: pd.DataFrame, config: Dict[str,str], tabla: str) -> No
                 idioma STRING
             )
         """)
+        # Tabla temporal
+        tmp = "TMP_TITULARES"
+        cs.execute(f"CREATE OR REPLACE TEMP TABLE {tmp} LIKE {tabla_completa}")
 
+        # Insertamos a la temporal (executemany)
         rows = df[["fecha","titular","url_archivo","fuente","idioma"]].values.tolist()
-        insert_sql = f"INSERT INTO {tabla_completa} (fecha, titular, url_archivo, fuente, idioma) VALUES (%s, %s, %s, %s, %s)"
+        insert_sql = f"INSERT INTO {tmp} (fecha, titular, url_archivo, fuente, idioma) VALUES (%s, %s, %s, %s, %s)"
         cs.executemany(insert_sql, rows)
-        print(f"{len(rows)} filas insertadas en {tabla}.")
+
+        # MERGE (upsert)
+        merge_sql = f"""
+            MERGE INTO {tabla_completa} t
+            USING {tmp} s
+              ON t.fecha = s.fecha AND t.titular = s.titular
+            WHEN MATCHED THEN UPDATE SET
+              t.url_archivo = s.url_archivo,
+              t.fuente = s.fuente,
+              t.idioma = s.idioma
+            WHEN NOT MATCHED THEN
+              INSERT (fecha, titular, url_archivo, fuente, idioma)
+              VALUES (s.fecha, s.titular, s.url_archivo, s.fuente, s.idioma)
+        """
+        cs.execute(merge_sql)
+        ctx.commit()
+        print(f"{len(rows)} filas upsert en {tabla}.")
     finally:
         cs.close()
         ctx.close()
 
 # =========================
-# MAIN
+# MAIN: solo días faltantes [MAX(fecha)+1 .. AYER]
 # =========================
 
 if __name__ == "__main__":
-    FECHA_FIN = ayer_madrid()  # Ayer en Madrid
+    FECHA_FIN = ayer_madrid()
     print(f"FECHA_FIN (ayer Madrid): {FECHA_FIN}")
 
     for medio in NOTICIEROS:
@@ -234,23 +234,21 @@ if __name__ == "__main__":
         tabla = medio["tabla"]
 
         print(f"\nProcesando noticiero: {nombre} ({fuente})")
+        FECHA_INICIO = obtener_ultima_fecha_en_snowflake(tabla)
 
-        FECHA_INICIO = obtener_ultima_fecha_en_snowflake(SNOWFLAKE_CONFIG, tabla)
         if FECHA_INICIO > FECHA_FIN:
-            print(f"Nada que hacer para {fuente}: {FECHA_INICIO} > {FECHA_FIN}")
+            print(f"Nada que actualizar para {fuente}: {FECHA_INICIO} > {FECHA_FIN}")
             continue
 
-        print(f"Fecha de inicio: {FECHA_INICIO}")
-        print(f"Fecha de fin:    {FECHA_FIN}")
-
+        print(f"Actualizar: {FECHA_INICIO} → {FECHA_FIN}")
         resultados: List[Dict] = []
+
         fecha = FECHA_INICIO
         while fecha <= FECHA_FIN:
             fecha_str = fecha.strftime("%Y%m%d")
-            print(f"[{fuente}] Procesando {fecha_str}...")
+            print(f"[{fuente}] Día {fecha_str}")
 
             snapshot_url = obtener_snapshot_url_directo(url, fecha_str)
-
             if snapshot_url:
                 try:
                     tits = extraer_titulares(snapshot_url, fecha_str, fuente=fuente)
@@ -258,23 +256,21 @@ if __name__ == "__main__":
                         t["fuente"] = fuente
                         t["idioma"] = idioma
                     if tits:
-                        print(f"{len(tits)} titulares encontrados.")
+                        print(f"  + {len(tits)} titulares")
                         resultados.extend(tits)
                     else:
-                        print("Snapshot sin titulares.")
+                        print("  · sin titulares")
                 except Exception as e:
                     log_error(f"[{fuente}] Error en {fecha_str}: {e}")
             else:
-                print(f"[{fuente}] Sin snapshot válido (mismo día) para {fecha_str}.")
+                print("  · sin snapshot válido (mismo día)")
 
             time.sleep(SLEEP_BETWEEN_DIAS)
             fecha += timedelta(days=1)
 
-        # Subida a Snowflake
         if resultados:
-            df_nuevo = pd.DataFrame(resultados)
-            df_nuevo.drop_duplicates(subset=["fecha", "titular"], inplace=True)
-            subir_a_snowflake(df_nuevo, SNOWFLAKE_CONFIG, tabla)
-            print(f"Total titulares subidos para {fuente}: {len(df_nuevo)}")
+            df_nuevo = pd.DataFrame(resultados).drop_duplicates(subset=["fecha","titular"])
+            subir_a_snowflake_merge(df_nuevo, tabla)
+            print(f"Total subidos/actualizados para {fuente}: {len(df_nuevo)}")
         else:
-            print(f"No se encontraron titulares nuevos para {fuente}.")
+            print(f"No hubo nuevos titulares para {fuente}.")
