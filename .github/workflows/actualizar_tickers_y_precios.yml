@@ -21,9 +21,9 @@ jobs:
       # SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}         # opcional
 
       # Tablas / parámetros (puedes dejarlos así o moverlos a secrets/vars)
-      TICKERS_TABLE: YAHOO_PRUEBA.IBEX.LISTA_TICKERS
-      PRICES_TABLE:  YAHOO_PRUEBA.IBEX.TICKERS_INDEX
-      PROFILE_TABLE: YAHOO_PRUEBA.IBEX.COMPANY_PROFILE
+      TICKERS_TABLE: TFM.YAHOO_FINANCE.LISTA_TICKERS
+      PRICES_TABLE:  TFM.YAHOO_FINANCE.TICKERS_INDEX
+      PROFILE_TABLE: TFM.YAHOO_FINANCE.COMPANY_PROFILE
       START_DATE: '2020-01-01'
 
     steps:
@@ -83,7 +83,7 @@ jobs:
 
       - name: Update index daily OHLC (IBEX/DAX/CAC/MIB/AEX/FTSE/OMXS30/SMI)
         env:
-          INDEX_TABLE: YAHOO_PRUEBA.IBEX.INDEX_DAILY
+          INDEX_TABLE: TFM.YAHOO_FINANCE.INDEX_DAILY
           START_DATE: '2020-01-01'
         run: |
           test -f Yahoo_prueba/indices_diarios.py || (echo "Falta Yahoo_prueba/indices_diarios.py" && exit 1)
@@ -92,7 +92,7 @@ jobs:
       - name: Update annual financial summary (2021..last closed year)
         working-directory: Yahoo_prueba
         env:
-          SUMMARY_TABLE:  YAHOO_PRUEBA.IBEX.FIN_SUMMARY_MAIN
+          SUMMARY_TABLE:  TFM.YAHOO_FINANCE.FIN_SUMMARY_MAIN
           SUMMARY_START_YEAR: '2021'
         run: |
           test -f financieros_resumen_anual.py || (echo "Falta Yahoo_prueba/financieros_resumen_anual.py" && exit 1)
@@ -101,7 +101,7 @@ jobs:
       - name: Update market snapshot (non-historical ratios)
         working-directory: Yahoo_prueba
         env:
-          SNAPSHOT_TABLE: YAHOO_PRUEBA.IBEX.FIN_MARKET_SNAPSHOT
+          SNAPSHOT_TABLE: TFM.YAHOO_FINANCE.FIN_MARKET_SNAPSHOT
           SNAPSHOT_MAX_WORKERS: '8'
           SNAPSHOT_SLEEP: '0.05'
         run: |
@@ -111,7 +111,7 @@ jobs:
       - name: Update ESG snapshot
         working-directory: Yahoo_prueba
         env:
-          ESG_TABLE: YAHOO_PRUEBA.IBEX.FIN_ESG_SNAPSHOT
+          ESG_TABLE: TFM.YAHOO_FINANCE.FIN_ESG_SNAPSHOT
           ESG_MAX_WORKERS: '8'
           ESG_SLEEP: '0.05'
         run: |
@@ -121,7 +121,7 @@ jobs:
       - name: Append market snapshot history (daily)
         working-directory: Yahoo_prueba
         env:
-          SNAPSHOT_HIST_TABLE: YAHOO_PRUEBA.IBEX.FIN_MARKET_SNAPSHOT_HIST
+          SNAPSHOT_HIST_TABLE: TFM.YAHOO_FINANCE.FIN_MARKET_SNAPSHOT_HIST
           SNAPSHOT_MAX_WORKERS: '8'
           SNAPSHOT_SLEEP: '0.05'
         run: |
@@ -131,7 +131,7 @@ jobs:
       - name: Append ESG snapshot history (daily)
         working-directory: Yahoo_prueba
         env:
-          ESG_HIST_TABLE: YAHOO_PRUEBA.IBEX.FIN_ESG_SNAPSHOT_HIST
+          ESG_HIST_TABLE: TFM.YAHOO_FINANCE.FIN_ESG_SNAPSHOT_HIST
           ESG_MAX_WORKERS: '8'
           ESG_SLEEP: '0.05'
         run: |
@@ -152,8 +152,8 @@ jobs:
             --data @- <<'JSON'
           {
             "status": "success",
-            "mensaje": "🚀 Disparando flujo de confirmación YAHOO_PRUEBA.IBEX desde GitHub Actions",
-            "dataset": "YAHOO_PRUEBA.IBEX",
+            "mensaje": "🚀 Disparando flujo de confirmación TFM.YAHOO_FINANCE desde GitHub Actions",
+            "dataset": "TFM.YAHOO_FINANCE",
             "run_id": "${{ github.run_id }}",
             "workflow": "${{ github.workflow }}",
             "repository": "${{ github.repository }}",
