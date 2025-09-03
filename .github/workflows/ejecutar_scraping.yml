@@ -22,7 +22,7 @@ jobs:
       SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}   # ej: wynifvb-ye01854 (sin .snowflakecomputing.com)
       SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
       SNOWFLAKE_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE }}
-      SNOWFLAKE_SCHEMA: ${{ secrets.SNOWFLAKE_SCHEMA }}
+      SNOWFLAKE_SCHEMA1: ${{ secrets.SNOWFLAKE_SCHEMA1 }}
 
     steps:
       - name: Clonar repositorio
@@ -53,7 +53,7 @@ jobs:
           echo "SF_ACCOUNT=$SNOWFLAKE_ACCOUNT"
           echo "SF_WAREHOUSE=$SNOWFLAKE_WAREHOUSE"
           echo "SF_DATABASE=$SNOWFLAKE_DATABASE"
-          echo "SF_SCHEMA=$SNOWFLAKE_SCHEMA"
+          echo "SF_SCHEMA=$SNOWFLAKE_SCHEMA1"
           test -n "$SNOWFLAKE_PASSWORD" && echo "SF_PASSWORD=*** (seteada)" || (echo "SF_PASSWORD=FALTA" && exit 1)
 
       - name: Ejecutar script principal
