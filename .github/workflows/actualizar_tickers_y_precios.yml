@@ -16,8 +16,8 @@ jobs:
       SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
       SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
       SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
-      SNOWFLAKE_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE }}   # p.ej. YAHOO_PRUEBA
-      SNOWFLAKE_SCHEMA: ${{ secrets.SNOWFLAKE_SCHEMA }}       # p.ej. IBEX
+      SNOWFLAKE_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE }}   # p.ej. TFM
+      SNOWFLAKE_SCHEMA: ${{ secrets.SNOWFLAKE_SCHEMA }}       # p.ej. YAHOO_FINANCE
       # SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}         # opcional
 
       # Tablas / parámetros (puedes dejarlos así o moverlos a secrets/vars)
@@ -48,16 +48,19 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install "pandas>=2.0,<2.3" "snowflake-connector-python[pandas]>=3.5.0" pyarrow
-          pip install requests beautifulsoup4 lxml yfinance
+          pip install requests beautifulsoup4 lxml yfinance cloudscraper
 
       - name: Snowflake connection test
         run: |
           python - <<'PY'
           import os, snowflake.connector
+          def _norm_account(acc: str) -> str:
+              acc = acc.strip().split("://")[-1].split("/",1)[0].replace(".snowflakecomputing.com","")
+              return acc
           con = snowflake.connector.connect(
             user=os.environ['SNOWFLAKE_USER'],
             password=os.environ['SNOWFLAKE_PASSWORD'],
-            account=os.environ['SNOWFLAKE_ACCOUNT'],
+            account=_norm_account(os.environ['SNOWFLAKE_ACCOUNT']),
             warehouse=os.environ['SNOWFLAKE_WAREHOUSE'],
             database=os.environ['SNOWFLAKE_DATABASE'],
             schema=os.environ['SNOWFLAKE_SCHEMA'],
@@ -140,9 +143,9 @@ jobs:
 
       # 🔔 Disparar flujo de confirmación en n8n: /webhook/yahoo_finance
       - name: Trigger n8n confirm flow (yahoo_finance)
-        if: success()   # usa 'always()' si quieres dispararlo aunque falle algo
+        if: success()
         env:
-          N8N_URL: ${{ secrets.N8N_URL }}                # ej. https://tu-dominio.tld  (o https://tu-dominio.tld/n8n)
+          N8N_URL: ${{ secrets.N8N_URL }}
           N8N_WEBHOOK_SECRET: ${{ secrets.N8N_WEBHOOK_SECRET }}
         run: |
           set -euo pipefail
