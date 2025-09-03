@@ -6,8 +6,8 @@ main.py — Scraper de titulares (Wayback directo) → Snowflake (solo días fal
 - Si tiene datos: arranca en MAX(fecha) + 1 día.
 - Llega hasta AYER (Europe/Madrid).
 - NO usa la API de Wayback; prueba varias horas del día y valida que el snapshot sea del MISMO día.
-- Upsert con MERGE en Snowflake por (fecha, titular) para evitar duplicados.
-- LOGS detallados por cada paso para depurar en GitHub Actions.
+- Upsert con MERGE en Snowflake por (fecha, titular).
+- LOGS detallados por cada paso.
 
 Requisitos:
   pip install requests beautifulsoup4 lxml pandas snowflake-connector-python
@@ -29,11 +29,11 @@ import snowflake.connector
 # CONFIG
 # =========================
 
-SLEEP_BETWEEN_DIAS = int(os.getenv("SLEEP_BETWEEN_DIAS", "1"))  # un poco más ágil para ver logs
+SLEEP_BETWEEN_DIAS = int(os.getenv("SLEEP_BETWEEN_DIAS", "1"))  # logs más ágiles
 WAYBACK_TIMEOUT = 25
 SNAPSHOT_TIMEOUT = 25
 START_DEFAULT = date(2024, 1, 1)  # si no hay información, iniciar desde 2024-01-01
-VERBOSE = os.getenv("VERBOSE", "1") in ("1", "true", "TRUE", "yes", "YES")
+VERBOSE = os.getenv("VERBOSE", "1").lower() in ("1", "true", "yes")
 
 NOTICIEROS = [
     {"nombre": "BBC",           "url": "https://www.bbc.com/news",         "fuente": "BBC",        "idioma": "en", "tabla": "BBC_TITULARES"},
@@ -45,24 +45,40 @@ NOTICIEROS = [
     {"nombre": "EXPANSION",     "url": "https://www.expansion.com/",       "fuente": "EXPANSION",  "idioma": "es", "tabla": "EXPANSION_TITULARES"},
 ]
 
+def _get_env_any(*names: str) -> Optional[str]:
+    """Devuelve el primer valor no vacío entre múltiples variables de entorno."""
+    for n in names:
+        v = os.getenv(n)
+        if v:
+            return v
+    return None
+
+SNOWFLAKE_SCHEMA_VAL = _get_env_any("SNOWFLAKE_SCHEMA1", "SNOWFLAKE_SCHEMA")
+SNOWFLAKE_SCHEMA_FROM = "SNOWFLAKE_SCHEMA1" if os.getenv("SNOWFLAKE_SCHEMA1") else "SNOWFLAKE_SCHEMA"
+
 SNOWFLAKE_CONFIG = {
     'user': os.getenv('SNOWFLAKE_USER'),
     'password': os.getenv('SNOWFLAKE_PASSWORD'),
     'account': os.getenv('SNOWFLAKE_ACCOUNT'),
     'warehouse': os.getenv('SNOWFLAKE_WAREHOUSE'),
     'database': os.getenv('SNOWFLAKE_DATABASE'),
-    'schema': os.getenv('SNOWFLAKE_SCHEMA1'),  # <- como pediste
+    'schema': SNOWFLAKE_SCHEMA_VAL,  # acepta SCHEMA1 o SCHEMA
     'role': os.getenv('SNOWFLAKE_ROLE') or None,
 }
 
-def _must(value: Optional[str], name: str) -> str:
+def _must(value: Optional[str], name_hint: str) -> str:
     if not value:
-        print(f"[CONFIG] Falta variable de entorno: {name}", file=sys.stderr)
-        raise RuntimeError(f"Missing env var: {name}")
+        print(f"[CONFIG] Falta variable de entorno: {name_hint}", file=sys.stderr)
+        raise RuntimeError(f"Missing env var: {name_hint}")
     return value
 
-for k in ['user','password','account','warehouse','database','schema']:
-    SNOWFLAKE_CONFIG[k] = _must(SNOWFLAKE_CONFIG[k], f"SNOWFLAKE_{k.upper()}")
+# Validación (nota: para schema mostramos que aceptamos SCHEMA1 o SCHEMA)
+SNOWFLAKE_CONFIG['user']      = _must(SNOWFLAKE_CONFIG['user'],      "SNOWFLAKE_USER")
+SNOWFLAKE_CONFIG['password']  = _must(SNOWFLAKE_CONFIG['password'],  "SNOWFLAKE_PASSWORD")
+SNOWFLAKE_CONFIG['account']   = _must(SNOWFLAKE_CONFIG['account'],   "SNOWFLAKE_ACCOUNT")
+SNOWFLAKE_CONFIG['warehouse'] = _must(SNOWFLAKE_CONFIG['warehouse'], "SNOWFLAKE_WAREHOUSE")
+SNOWFLAKE_CONFIG['database']  = _must(SNOWFLAKE_CONFIG['database'],  "SNOWFLAKE_DATABASE")
+SNOWFLAKE_CONFIG['schema']    = _must(SNOWFLAKE_CONFIG['schema'],    "SNOWFLAKE_SCHEMA1 o SNOWFLAKE_SCHEMA")
 
 # =========================
 # Utilidades
@@ -148,7 +164,7 @@ def extraer_titulares(snapshot_url: str, fecha_str: str, fuente: Optional[str] =
 
 def sf_connect():
     log_info(f"[SF] Conectando → user={SNOWFLAKE_CONFIG['user']} account={SNOWFLAKE_CONFIG['account']} "
-             f"db={SNOWFLAKE_CONFIG['database']} schema={SNOWFLAKE_CONFIG['schema']}")
+             f"db={SNOWFLAKE_CONFIG['database']} schema={SNOWFLAKE_CONFIG['schema']} (schema via {SNOWFLAKE_SCHEMA_FROM})")
     return snowflake.connector.connect(
         user=SNOWFLAKE_CONFIG['user'],
         password=SNOWFLAKE_CONFIG['password'],
@@ -268,13 +284,13 @@ def subir_a_snowflake_merge(df: pd.DataFrame, tabla: str) -> Tuple[int, int, int
     return (rc, before, after)
 
 # =========================
-# MAIN: solo días faltantes [MAX(fecha)+1 .. AYER] con LOG detallado
+# MAIN
 # =========================
 
 if __name__ == "__main__":
     FECHA_FIN = ayer_madrid()
     log_info(f"=== INICIO SCRAPER — FECHA_FIN (ayer Madrid): {FECHA_FIN} ===")
-    log_info(f"[DEBUG] ENTORNO Snowflake: account={SNOWFLAKE_CONFIG['account']} db={SNOWFLAKE_CONFIG['database']} schema={SNOWFLAKE_CONFIG['schema']} warehouse={SNOWFLAKE_CONFIG['warehouse']}")
+    log_info(f"[DEBUG] ENTORNO Snowflake: account={SNOWFLAKE_CONFIG['account']} db={SNOWFLAKE_CONFIG['database']} schema={SNOWFLAKE_CONFIG['schema']} (via {SNOWFLAKE_SCHEMA_FROM}) warehouse={SNOWFLAKE_CONFIG['warehouse']}")
 
     resumen = []
 
@@ -304,7 +320,6 @@ if __name__ == "__main__":
             log_info(f"[{fuente}] Día {fecha_str} — buscando snapshot del MISMO día")
             snapshot_url, detail_logs = obtener_snapshot_url_directo(url, fecha_str)
 
-            # imprime detalle de intentos/redirects
             for line in detail_logs:
                 log_info(line)
 
@@ -336,7 +351,7 @@ if __name__ == "__main__":
             log_info(f"[{fuente}] MERGE rowcount={rc} | antes={before} después={after} Δ={delta}")
             resumen.append((fuente, dias_intentados, dias_con_snapshot, total_titulares, delta))
         else:
-            log_info(f"[{fuente}] No hubo nuevos titulares para subir.")
+            log_info(f"[{fuente}] No hubo nuevos titulares para {fuente}.")
             resumen.append((fuente, dias_intentados, dias_con_snapshot, 0, 0))
 
     # Resumen final
