@@ -415,3 +415,6 @@ if __name__ == "__main__":
                 total_rows += len(part)
 
         print("✅ Filas nuevas/actualizadas:", total_rows)
+
+
+##esto solo es para la descarga de los precion por ticket a day -1 

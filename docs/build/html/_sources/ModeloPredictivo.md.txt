@@ -2,7 +2,7 @@
 
 ## Modelos de análisis de sentimiento 
 
-Se ha decidido utilizar dos modelos predictivo en el cual los dos se utilozaron para predecir la probabilidad de que un titular sea *negativo, positivo o neutral*. los dos modelos son `bert-base-multilingual-uncased-sentiment`[multilingual] y `distilroberta-finetuned-financial-news-sentiment-analysis` [ingléa]. Estos dos modelos fueron seleccionados por su rendimiento en clasificación de sentimientos y por su cobertura en distintos idiomas. Dado que las fuentes analizadas incluyen tanto medios en inglés como en español, se ha considerado necesario emplear modelos específicos para cada idioma con el fin de maximizar la precisión de los resultados.  
+Se ha decidido utilizar dos modelos predictivo en el cual los dos se utilozaron para predecir la probabilidad de que un titular sea *negativo, positivo o neutral*. los dos modelos son `bert-base-multilingual-uncased-sentiment`[multilingual] y `distilroberta-finetuned-financial-news-sentiment-analysis` [inglés]. Estos dos modelos fueron seleccionados por su rendimiento en clasificación de sentimientos y por su cobertura en distintos idiomas. Dado que las fuentes analizadas incluyen tanto medios en inglés como en español, se ha considerado necesario emplear modelos específicos para cada idioma con el fin de maximizar la precisión de los resultados.  
 
 ### Modelo en inglés: *mrm8488/distilroberta-finetuned-financial-news-sentiment-analysis*  
 
@@ -14,10 +14,7 @@ En cuanto a resultados, el modelo alcanzó un **accuracy del 98,23 %** y una pé
 
 La principal ventaja de este modelo es su **alta especialización en finanzas**, lo que le permite detectar matices en titulares y frases económicas con gran precisión. No obstante, presenta la limitación de estar restringido exclusivamente al inglés.  
 
-https://huggingface.co/mrm8488/distilroberta-finetuned-financial-news-sentiment-analysis
-
-### Modelo en español: *nlptown/bert-base-multilingual-uncased-sentiment*  
-Este modelo parte de **BERT multilingüe**, entrenado sobre más de 100 idiomas, entre ellos el español. A diferencia del anterior, no está ajustado a un dominio concreto, sino que ha sido entrenado con datos de reseñas y opiniones generales, clasificando el sentimiento en una escala de 1 a 5. Su versatilidad multilingüe lo convierte en una opción adecuada para el análisis de noticias en español, aunque presenta la limitación de no estar especializado en el ámbito financiero, lo que puede reducir la precisión en este tipo de textos.  
+https://huggingface.co/mrm8488/distilroberta-finetuned-financial-news-sentiment-analysis 
 
 ### Modelo en español (multilingüe): *nlptown/bert-base-multilingual-uncased-sentiment*
 
@@ -61,13 +58,7 @@ En conjunto, n8n se convierte en un componente clave para la **orquestación de 
 
 Dentro del *datalake* definido en el módulo de **Datos y Preparación**, se encuentra la tabla unificada denominada `TODOS_TITULARES`. A partir de esta base de datos se extraen los titulares procedentes de los distintos noticieros. Posteriormente, mediante un **árbol de decisión** se determina el idioma de cada titular (inglés o español). Según el resultado, se aplica el modelo de predicción correspondiente, previamente entrenado para el análisis de sentimiento en cada idioma.
 
-
-### ```{literalinclude} ../../scrapping/ -LO QUE ME DE MARCO DEL CODIGO LIMPIO VA AQUI-
-:language: python
-:linenos:
-:start-after: --8<-- [start:MODELO DE SENTIMIENTOS]
-:end-before: --8<-- [end:MODELO DE SENTIMIENTOS]
-```
+CODIFO DE MARCO PERU
 
 ---
 ### Generacion de las columnas con tipo de titulos 
