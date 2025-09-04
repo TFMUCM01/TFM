@@ -1,6 +1,16 @@
 # -*- coding: utf-8 -*-
 """
-main.py — Scraper de titulares (Wayback directo + id_) → Snowflake (solo días faltantes) con LOG DETALLADO
+main.py — Scraper de titulares (Wayback directo + id_) → Snowflake
+- Solo días faltantes: MAX(fecha)+1 .. ayer (Europe/Madrid). Si no hay datos: 2024-01-01.
+- Wayback con 'id_' para HTML crudo (sin banner).
+- Extracción multi-estrategia:
+    1) h1/h2/h3
+    2) Selectores por medio (BBC, ABC, EL_PAIS, BLOOMBERG, THE_TIMES, EXPANSION)
+    3) Red genérica: data-testid/headline/title/role=heading, enlaces con aria-label/title
+- MERGE por (fecha, titular). Logs detallados.
+
+Requisitos:
+  pip install requests beautifulsoup4 lxml pandas snowflake-connector-python
 """
 
 import os
@@ -74,6 +84,7 @@ SNOWFLAKE_CONFIG['schema']    = _must(SNOWFLAKE_CONFIG['schema'],    "SNOWFLAKE_
 
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/124.0 Safari/537.36")
+HDRS = {"User-Agent": UA, "Accept-Language": "en-US,en;q=0.9,es-ES;q=0.8"}
 
 TZ_MADRID = ZoneInfo("Europe/Madrid")
 
@@ -92,17 +103,9 @@ def log_info(msg: str) -> None:
 # =========================
 
 def _timestamp_candidates_for_day(fecha_str: str) -> List[str]:
-    return [
-        "235959", "220000", "210000", "200000",
-        "180000", "150000", "120000", "090000",
-        "060000", "030000", "000000",
-    ]
+    return ["235959", "220000", "210000", "200000", "180000", "150000", "120000", "090000", "060000", "030000", "000000"]
 
 def _to_id_variant(url: str) -> str:
-    """
-    Inserta 'id_' justo después del timestamp si no está presente:
-    /web/YYYYMMDDhhmmss/ → /web/YYYYMMDDhhmmssid_/
-    """
     try:
         pre, post = url.split("/web/", 1)
         ts, rest = post.split("/", 1)
@@ -124,14 +127,12 @@ def _is_same_day_snapshot(final_url: str, fecha_str: str) -> bool:
 def obtener_snapshot_url_directo(original_url: str, fecha_str: str) -> Tuple[Optional[str], List[str]]:
     detail_logs = []
     base_url = original_url.strip("/")
-    headers = {"User-Agent": UA, "Accept-Language": "en-US,en;q=0.9,es-ES;q=0.8"}
-
     for hhmmss in _timestamp_candidates_for_day(fecha_str):
         candidate = f"https://web.archive.org/web/{fecha_str}{hhmmss}/{base_url}/"
         try:
-            resp = requests.get(candidate, timeout=WAYBACK_TIMEOUT, allow_redirects=True, headers=headers)
+            resp = requests.get(candidate, timeout=WAYBACK_TIMEOUT, allow_redirects=True, headers=HDRS)
             final_url = resp.url.replace("http://", "https://")
-            final_id = _to_id_variant(final_url)  # forzamos id_ para extraer HTML crudo
+            final_id = _to_id_variant(final_url)
             detail_logs.append(f"  - Probar {candidate} → {resp.status_code} final={final_url} id_={final_id}")
             if resp.status_code == 200 and _is_same_day_snapshot(final_url, fecha_str):
                 detail_logs.append(f"    ✓ Aceptado (mismo día {fecha_str})")
@@ -145,61 +146,161 @@ def obtener_snapshot_url_directo(original_url: str, fecha_str: str) -> Tuple[Opt
     return None, detail_logs
 
 # =========================
-# Extracción de titulares
+# Extracción multi-estrategia
 # =========================
 
 def _clean_wayback_banner(soup: BeautifulSoup) -> None:
-    # Elimina el banner de Wayback si aparece
     for sel in ("#wm-ipp-base", "#wm-ipp-overlay", "#wm-ipp", ".wb-autocomplete-suggestions"):
-        node = soup.select_one(sel)
-        if node and node.parent:
+        for node in soup.select(sel):
             node.decompose()
+
+def _norm(txt: str) -> str:
+    return " ".join((txt or "").split())
+
+def _take_text(node) -> str:
+    # si el <a> tiene title/aria-label con texto útil
+    if node.name == "a":
+        for attr in ("aria-label", "title"):
+            v = node.get(attr)
+            if v and len(_norm(v).split()) >= 3:
+                return _norm(v)
+    return _norm(node.get_text(" ", strip=True))
+
+def _dedupe_and_filter(titulares: List[str]) -> List[str]:
+    seen = set()
+    out = []
+    for t in titulares:
+        t2 = _norm(t)
+        if len(t2.split()) < 3:
+            continue
+        if t2 in seen:
+            continue
+        seen.add(t2)
+        out.append(t2)
+    return out
+
+def _site_specific_selectors(fuente: str) -> List[str]:
+    f = fuente.upper()
+    # Selectores razonables por medio (no exhaustivos, pero cubren la mayoría de portadas)
+    if f == "BBC":
+        return [
+            '[data-testid="card-headline"]',
+            '[data-testid*=headline]',
+            'a.gs-c-promo-heading__title',
+            'h3 a.gs-c-promo-heading',
+        ]
+    if f == "ABC":
+        return [
+            'h2 a', 'h3 a',
+            '[class*="titular"] a', '[class*="headline"] a',
+            '[class*="title"] a'
+        ]
+    if f == "EL PAIS":
+        return [
+            'h2 a', 'h3 a',
+            '[data-dtm-region*="headline"]', '[class*="headline"]',
+            '[class*="c_t"] a', '[class*="title"] a',
+        ]
+    if f == "BLOOMBERG":
+        return [
+            'h1', 'h2', 'h3',
+            '[class*="headline"]', '[data-testid*="headline"]',
+            'a[aria-label]', 'a[title]'
+        ]
+    if f == "THE TIMES":
+        return [
+            'h1, h2, h3',
+            '[class*="Headline"]', '[data-testid*="headline"]',
+            'a[aria-label]', 'a[title]'
+        ]
+    if f == "EXPANSION":
+        return [
+            'h2 a', 'h3 a',
+            '[class*="titular"] a', '[class*="headline"] a',
+            'a[aria-label]', 'a[title]'
+        ]
+    # EL ECONOMISTA (portadas JSON y módulos), intentamos genéricos
+    if f == "EL ECONOMISTA":
+        return [
+            'h2 a', 'h3 a',
+            '[class*="titular"] a', '[class*="headline"] a',
+            '[class*="title"] a', '[data-testid*="headline"]'
+        ]
+    return []
+
+def _generic_safety_net_selectors() -> List[str]:
+    return [
+        "h1, h2, h3",
+        "[role=heading]",
+        "[data-testid*=headline], [class*=headline]",
+        "[class*=title], [class*=Title], [class*=Heading]",
+        "a[aria-label], a[title]"
+    ]
 
 def extraer_titulares(snapshot_url: str, fecha_str: str, fuente: Optional[str] = None) -> List[Dict]:
     titulares: List[Dict] = []
-    headers = {"User-Agent": UA, "Accept-Language": "en-US,en;q=0.9,es-ES;q=0.8"}
     try:
-        res = requests.get(snapshot_url, timeout=SNAPSHOT_TIMEOUT, headers=headers)
+        res = requests.get(snapshot_url, timeout=SNAPSHOT_TIMEOUT, headers=HDRS)
         res.raise_for_status()
         html = res.content
-        html_len = len(html)
-        soup = BeautifulSoup(html, 'lxml')
-
+        soup = BeautifulSoup(html, "lxml")
         _clean_wayback_banner(soup)
 
-        # Robots / mensajes bloqueados
-        body_text = soup.get_text(" ", strip=True)[:500].lower()
+        # robots
+        body_text = soup.get_text(" ", strip=True)[:600].lower()
         if "blocked by robots" in body_text or "unavailable due to robots" in body_text:
             if VERBOSE:
                 log_info(f"[{fuente}] Snapshot bloqueado por robots: {snapshot_url}")
             return []
 
-        nodes = soup.select("h1, h2, h3")
+        all_texts: List[str] = []
+
+        # 1) h1/h2/h3 directo
+        h_nodes = soup.select("h1, h2, h3")
+        h_texts = [_take_text(n) for n in h_nodes]
+        h_texts = _dedupe_and_filter(h_texts)
         if VERBOSE:
-            log_info(f"[{fuente}] HTML {html_len} bytes — h1/h2/h3={len(nodes)} en {snapshot_url}")
+            log_info(f"[{fuente}] h1/h2/h3 encontrados: {len(h_texts)}")
 
-        seen = set()
-        for node in nodes:
-            texto = node.get_text(" ", strip=True)
-            texto_norm = " ".join(texto.split())
-            if len(texto_norm.split()) < 3:
-                continue
-            if texto_norm in seen:
-                continue
-            seen.add(texto_norm)
-            titulares.append({
-                "fecha": fecha_str,
-                "titular": texto_norm,
-                "url_archivo": snapshot_url
-            })
+        all_texts.extend(h_texts)
 
-        # Muestra de ejemplos para debug
-        if VERBOSE and titulares:
-            muestras = [t["titular"] for t in titulares[:3]]
-            log_info(f"[{fuente}] Ejemplos: " + " | ".join(muestras))
+        # 2) site-specific si poco o nada
+        if len(all_texts) < 10 and fuente:
+            ssels = _site_specific_selectors(fuente)
+            for sel in ssels:
+                nodes = soup.select(sel)
+                if not nodes:
+                    continue
+                tsel = _dedupe_and_filter([_take_text(n) for n in nodes])
+                if tsel:
+                    if VERBOSE:
+                        log_info(f"[{fuente}] +{len(tsel)} por selector '{sel}'")
+                    all_texts.extend(tsel)
+
+        # 3) safety net genérica
+        if len(all_texts) < 10:
+            for sel in _generic_safety_net_selectors():
+                nodes = soup.select(sel)
+                tsel = _dedupe_and_filter([_take_text(n) for n in nodes])
+                if tsel:
+                    if VERBOSE:
+                        log_info(f"[{fuente}] +{len(tsel)} por genérico '{sel}'")
+                    all_texts.extend(tsel)
+
+        # dedupe final
+        final_texts = _dedupe_and_filter(all_texts)
+
+        if VERBOSE:
+            log_info(f"[{fuente}] TOTAL titulares detectados: {len(final_texts)} en {snapshot_url}")
+            if final_texts:
+                log_info(f"[{fuente}] Ejemplos: " + " | ".join(final_texts[:3]))
+
+        for texto in final_texts:
+            titulares.append({"fecha": fecha_str, "titular": texto, "url_archivo": snapshot_url})
 
     except Exception as e:
-        log_error(f"[{fuente or 'GENERAL'}] Error accediendo a snapshot: {e}")
+        log_error(f"[{fuente or 'GENERAL'}] Error extrayendo titulares: {e}")
+
     return titulares
 
 # =========================
@@ -384,10 +485,8 @@ if __name__ == "__main__":
             log_info(f"[{fuente}] No hubo nuevos titulares para {fuente}.")
             resumen.append((fuente, dias_intentados, dias_con_snapshot, 0, 0))
 
-    # Resumen final
     log_info("\n=== RESUMEN ===")
     log_info("Fuente | Días intentados | Días con snapshot | Titulares extraídos | Δ filas en tabla")
     for fuente, di, ds, tot, delta in resumen:
         log_info(f"{fuente:10} | {di:14} | {ds:17} | {tot:18} | {delta:14}")
-
     log_info("=== FIN SCRAPER ===")
