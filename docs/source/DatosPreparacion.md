@@ -18,8 +18,6 @@ Ejemplo de base da datos de titulares:
 
 ![Noticia times](../../Imagenes/thetimes.png)
 
-### Descarga de titulos de noticias
-
 Se ha creado un **orquestador** con el objetivo de coordinar el proceso de *scraping* por cada medio de comunicación y la posterior carga de los datos en **Snowflake**, evitando la ejecución manual de código desde la documentación. Este flujo tiene como finalidad construir una base de datos de noticias relacionadas con las empresas que cotizan en las principales bolsas de valores europeas.  
 
 Para la orquestación se ha utilizado la herramienta **n8n**, una plataforma de automatización en la que se centraliza el código encargado de realizar las solicitudes a las distintas API’s y de aplicar los modelos de análisis de sentimiento. En particular, se han empleado los siguientes modelos:  
@@ -103,6 +101,7 @@ Si la tabla de destino no existe, esta se crea con un esquema predefinido que in
 
 
 ___
+---
 
 ## Precios por tickers
 

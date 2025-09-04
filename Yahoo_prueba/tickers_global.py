@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 # pip install requests pandas snowflake-connector-python beautifulsoup4 lxml yfinance
 
+""" scraping de los nombre de cada bolsa y descarga de precios históricos"""
+
+
+
 import os, re, time
 from typing import List, Dict, Set, Tuple, Iterable
 from datetime import datetime, timedelta, date
@@ -357,3 +361,7 @@ if __name__ == "__main__":
                 total_rows += len(part)
 
         print("✅ Filas nuevas/actualizadas:", total_rows)
+
+
+
+##esto solo es para la descarga de los precion por ticket a day -1 
