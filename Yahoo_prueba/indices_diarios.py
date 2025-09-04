@@ -196,3 +196,7 @@ if __name__ == "__main__":
         print("✅ Índices actualizados.")
     finally:
         conn.close()
+
+
+
+# valida el script tickers precio global para ver si los ticker estan bien
