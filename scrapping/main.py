@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-main.py — Scraper titulares (Wayback 12:00 id_) → Snowflake
+main.py — Scraper titulares (Wayback 12:00 id_ con reintentos) → Snowflake
 - Solo días faltantes: MAX(fecha)+1 .. ayer (Europe/Madrid). Si no hay datos: 2024-01-01.
-- Una sola hora fija: 12:00:00 (mediodía) con variante id_.
+- Snapshot único por día: 12:00:00 (mediodía) con variante id_ (HTML crudo).
+- Sesión HTTP con reintentos/backoff para Archive.org (evita Connection refused).
 - Extracción multi-estrategia (h1/h2/h3 + selectores por medio + red genérica).
 - MERGE por (fecha, titular). Logs detallados con ejemplos.
 
@@ -18,6 +19,9 @@ from datetime import datetime, timedelta, date
 from zoneinfo import ZoneInfo
 
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
+
 import pandas as pd
 from bs4 import BeautifulSoup
 import snowflake.connector
@@ -76,12 +80,30 @@ SNOWFLAKE_CONFIG['database']  = _must(SNOWFLAKE_CONFIG['database'],  "SNOWFLAKE_
 SNOWFLAKE_CONFIG['schema']    = _must(SNOWFLAKE_CONFIG['schema'],    "SNOWFLAKE_SCHEMA1 o SNOWFLAKE_SCHEMA")
 
 # =========================
-# Utilidades
+# Sesión HTTP con reintentos/backoff
 # =========================
 
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/124.0 Safari/537.36")
 HDRS = {"User-Agent": UA, "Accept-Language": "en-US,en;q=0.9,es-ES;q=0.8"}
+
+SESSION = requests.Session()
+retries = Retry(
+    total=6,
+    connect=6,
+    read=6,
+    backoff_factor=1.2,  # 0s,1.2s,2.4s,3.6s,4.8s,6.0s…
+    status_forcelist=[429, 500, 502, 503, 504],
+    allowed_methods=["GET", "HEAD"],
+    raise_on_status=False,
+)
+adapter = HTTPAdapter(max_retries=retries, pool_connections=20, pool_maxsize=20)
+SESSION.mount("https://", adapter)
+SESSION.mount("http://", adapter)
+
+# =========================
+# Utilidades
+# =========================
 
 TZ_MADRID = ZoneInfo("Europe/Madrid")
 
@@ -110,10 +132,9 @@ def obtener_snapshot_url_mediodia(original_url: str, fecha_str: str) -> Tuple[Op
     """
     url = _snapshot_1200_id(original_url, fecha_str)
     try:
-        # GET directo para comprobar que existe y devolver el mismo url (no seguimos redirects)
-        resp = requests.get(url, timeout=WAYBACK_TIMEOUT, headers=HDRS, allow_redirects=False)
+        resp = SESSION.get(url, timeout=WAYBACK_TIMEOUT, headers=HDRS, allow_redirects=False)
         return (url if resp.status_code == 200 else None,
-                "OK" if resp.status_code == 200 else "HTTP != 200",
+                "OK" if resp.status_code == 200 else f"HTTP {resp.status_code}",
                 resp.status_code)
     except Exception as e:
         log_error(f"[WB-1200] Error {url}: {e}")
@@ -215,7 +236,7 @@ def _generic_safety_net_selectors() -> List[str]:
 def extraer_titulares(snapshot_url: str, fecha_str: str, fuente: Optional[str] = None) -> List[Dict]:
     titulares: List[Dict] = []
     try:
-        res = requests.get(snapshot_url, timeout=SNAPSHOT_TIMEOUT, headers=HDRS, allow_redirects=False)
+        res = SESSION.get(snapshot_url, timeout=SNAPSHOT_TIMEOUT, headers=HDRS, allow_redirects=False)
         status = res.status_code
         if status != 200:
             if VERBOSE:
