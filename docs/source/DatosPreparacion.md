@@ -118,13 +118,51 @@ En el análisis financiero, en primer lugar se necesitan los tickers sobre los q
 | Suecia         | OMXS30     | OMXSTO            | .ST           | 30               |
 | Suiza          | SMI        | SIX               | .SW           | 21               |
 
-### Extracción precisa de componentes bursátiles
+### Scraping de índices europeos en TradingView
 
-La función extract_rows_precise toma como entrada un HTML y un conjunto de bolsas aceptadas (accept_exchanges) y extrae de forma precisa una lista de empresas válidas listadas en esas bolsas. Para ello, analiza el HTML con BeautifulSoup, busca descripciones asociadas a acciones (en etiquetas <sup>), navega por el DOM para encontrar enlaces con información del símbolo y la bolsa, filtra entradas no deseadas como índices o ETFs, y devuelve una lista sin duplicados con tuplas que contienen el exchange, el símbolo y el nombre de la empresa. Esta función es útil para extraer componentes limpios y verificados de un índice bursátil desde una fuente web como TradingView. Ha esta funcion le agregaremos los tickers sacado  de la funicion 
+Primeramente necesitamos extraer los tickers mas importantes de las boldas de cada pais y para esto hemos utilizado el API de TradingView que es utilizadas para el analisis financiero esto creando una funcion que llamanos `scrape_country` esta actua como orquestadora de las funciones `fetch_html` que lo que hace es extraer los html de TradingView y los recupera para luego extraer con `extract_rows_precise` los solicita para tenerlos los tickers validos de europa dentro de los diferentes indices con BeautifulSoup que localiza los nombres y tickers de las compañías, filtra los resultados según el mercado de interés, elimina duplicados y descarta instrumentos financieros no relevantes como ETFs o futuros. Finalmente, scrape_country orquesta ambos procesos para cada índice creando un DataFrame estandarizado con el ticker en formato Yahoo Finance, el nombre limpio de la empresa, el país y el símbolo local, lo que proporciona una base de datos estructurada y lista para su posterior almacenamiento y análisis en Snowflake.
 
 ```{literalinclude} ../../Yahoo_prueba/tickers_global.py
 :language: python
 :linenos:
-:start-after: --8<-- [start:extract_rows_precise]
-:end-before: --8<-- [end:extract_rows_precise]
+:start-after: --8<-- [start:scrape_country]
+:end-before: --8<-- [start:scrape_country]
+```
+
+DataFrame de stickers:
+
+| NOMBRE_EMPRESA                                       | PAIS   | INDEX  | TICKER |
+|------------------------------------------------------|--------|--------|--------|
+| ACS, ACTIVIDADES DE CONSTRUCCION Y SERVICIOS, S.A.   | España | IBEX35 | ACS    |
+| ACERINOX, S.A.                                       | España | IBEX35 | ACX    |
+| AENA, S.M.E., S.A.                                   | España | IBEX35 | AENA   |
+
+### Descarga de precios por empresa diaria
+
+Una vez obtenida la lista de tickers, es necesario solicitar a Yahoo Finance la información histórica de cada uno de ellos mediante la función download_batch. Esta función descarga los precios diarios de apertura, cierre, máximo y mínimo, junto con el volumen de acciones negociadas, asociando cada registro con su fecha correspondiente. Posteriormente, los datos se normalizan en un formato estandarizado que permite integrarlos sin inconsistencias en el flujo de almacenamiento y análisis.
+
+```{literalinclude} ../../Yahoo_prueba/tickers_global.py
+:language: python
+:linenos:
+:start-after: --8<-- [start:download_batch]
+:end-before: --8<-- [end:download_batch]
+```
+
+DataFrame de Precios por accion 
+
+| TICKER | CLOSE       | HIGH        | LOW         | OPEN        | VOLUME   | FECHA     |
+|--------|-------------|-------------|-------------|-------------|----------|-----------|
+| INGA.AS | 6.59100008 | 6.656000137 | 6.429999828 | 6.5         | 17736691 | 10/23/20  |
+| GLE.PA  | 23.84499931| 24.03000069 | 23.65500069 | 23.87000084 | 2111582  | 10/28/24  |
+| LAND.L  | 686.2000122| 697.2000122 | 686.2000122 | 690.5999756 | 1574957  | 06/17/21  |
+
+### Carga de los DataFrame de precios por tickers
+
+Por último, se verifica la fecha de la última carga de precios y tickers almacenados en el DataLake. A partir de esa referencia, se descargan únicamente los datos faltantes hasta el día anterior, garantizando que la base se mantenga actualizada de forma diaria. Este procedimiento asegura la consistencia temporal del histórico y proporciona una fuente confiable y siempre vigente para los futuros análisis de machine learning.
+
+```{literalinclude} ../../Yahoo_prueba/tickers_global.py
+:language: python
+:linenos:
+:start-after: --8<-- [start:merge_with_temp]
+:end-before: --8<-- [end:merge_with_temp]
 ```
