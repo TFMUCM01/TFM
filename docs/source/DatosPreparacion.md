@@ -86,7 +86,7 @@ Módulo de descarga en API’s
 ```
 ---
 
-### Carga en Snowflake
+### Carga del DataFrame de titulares de noticieros en el DataLake
 
 Por último, se valida si el **DataFrame** contiene información; en caso de estar vacío, no se ejecuta ninguna acción.  
 En caso contrario, se transforma la columna de fecha al tipo de dato adecuado (`datetime.date`) y se establece la conexión con **Snowflake** mediante las credenciales configuradas en el entorno.  
@@ -101,7 +101,6 @@ Si la tabla de destino no existe, esta se crea con un esquema predefinido que in
 
 
 ___
----
 
 ## Precios por tickers
 
@@ -122,14 +121,14 @@ En el análisis financiero, en primer lugar se necesitan los tickers sobre los q
 
 Primeramente necesitamos extraer los tickers mas importantes de las boldas de cada pais y para esto hemos utilizado el API de TradingView que es utilizadas para el analisis financiero esto creando una funcion que llamanos `scrape_country` esta actua como orquestadora de las funciones `fetch_html` que lo que hace es extraer los html de TradingView y los recupera para luego extraer con `extract_rows_precise` los solicita para tenerlos los tickers validos de europa dentro de los diferentes indices con BeautifulSoup que localiza los nombres y tickers de las compañías, filtra los resultados según el mercado de interés, elimina duplicados y descarta instrumentos financieros no relevantes como ETFs o futuros. Finalmente, scrape_country orquesta ambos procesos para cada índice creando un DataFrame estandarizado con el ticker en formato Yahoo Finance, el nombre limpio de la empresa, el país y el símbolo local, lo que proporciona una base de datos estructurada y lista para su posterior almacenamiento y análisis en Snowflake.
 
-```{literalinclude} ../../Yahoo_prueba/tickers_global.py
+```{literalinclude} ../../Yahoo_prueba/tickers_precios_global.py
 :language: python
 :linenos:
 :start-after: --8<-- [start:scrape_country]
-:end-before: --8<-- [start:scrape_country]
+:end-before: --8<-- [end:scrape_country]
 ```
 
-DataFrame de stickers:
+Ejemplos de DataFrame de stickers:
 
 | NOMBRE_EMPRESA                                       | PAIS   | INDEX  | TICKER |
 |------------------------------------------------------|--------|--------|--------|
@@ -141,14 +140,14 @@ DataFrame de stickers:
 
 Una vez obtenida la lista de tickers, es necesario solicitar a Yahoo Finance la información histórica de cada uno de ellos mediante la función download_batch. Esta función descarga los precios diarios de apertura, cierre, máximo y mínimo, junto con el volumen de acciones negociadas, asociando cada registro con su fecha correspondiente. Posteriormente, los datos se normalizan en un formato estandarizado que permite integrarlos sin inconsistencias en el flujo de almacenamiento y análisis.
 
-```{literalinclude} ../../Yahoo_prueba/tickers_global.py
+```{literalinclude} ../../Yahoo_prueba/tickers_precios_global.py
 :language: python
 :linenos:
 :start-after: --8<-- [start:download_batch]
 :end-before: --8<-- [end:download_batch]
 ```
 
-DataFrame de Precios por accion 
+Ejemplos de DataFrame de Precios por accion 
 
 | TICKER | CLOSE       | HIGH        | LOW         | OPEN        | VOLUME   | FECHA     |
 |--------|-------------|-------------|-------------|-------------|----------|-----------|
@@ -156,13 +155,16 @@ DataFrame de Precios por accion
 | GLE.PA  | 23.84499931| 24.03000069 | 23.65500069 | 23.87000084 | 2111582  | 10/28/24  |
 | LAND.L  | 686.2000122| 697.2000122 | 686.2000122 | 690.5999756 | 1574957  | 06/17/21  |
 
-### Carga de los DataFrame de precios por tickers
+### Carga de los DataFrame de precios por tickers en el DataLake
 
 Por último, se verifica la fecha de la última carga de precios y tickers almacenados en el DataLake. A partir de esa referencia, se descargan únicamente los datos faltantes hasta el día anterior, garantizando que la base se mantenga actualizada de forma diaria. Este procedimiento asegura la consistencia temporal del histórico y proporciona una fuente confiable y siempre vigente para los futuros análisis de machine learning.
 
-```{literalinclude} ../../Yahoo_prueba/tickers_global.py
+```{literalinclude} ../../Yahoo_prueba/tickers_precios_global.py
 :language: python
 :linenos:
 :start-after: --8<-- [start:merge_with_temp]
 :end-before: --8<-- [end:merge_with_temp]
 ```
+
+## Estados Financieros por tickers
+
