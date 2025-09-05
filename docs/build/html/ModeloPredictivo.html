@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Modelo Predictivo &mdash; TFM: Análisis de Tendencias Económicas en Madrid mediante Modelos Financieros y de Sentimiento</title>
+  <title>Modelos Predictivos &mdash; TFM: Análisis de Tendencias Económicas en Madrid mediante Modelos Financieros y de Sentimiento</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
@@ -49,7 +49,7 @@
 <li class="toctree-l1"><a class="reference internal" href="Introduccion.html">Introducción</a></li>
 <li class="toctree-l1"><a class="reference internal" href="DescripcionProblema.html">Descripción Problema</a></li>
 <li class="toctree-l1"><a class="reference internal" href="DatosPreparacion.html">Datos y Preparación</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Modelo Predictivo</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Modelos Predictivos</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#modelos-de-analisis-de-sentimiento">Modelos de análisis de sentimiento</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#modelo-en-ingles-mrm8488-distilroberta-finetuned-financial-news-sentiment-analysis">Modelo en inglés: <em>mrm8488/distilroberta-finetuned-financial-news-sentiment-analysis</em></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#modelo-en-espanol-multilingue-nlptown-bert-base-multilingual-uncased-sentiment">Modelo en español (multilingüe): <em>nlptown/bert-base-multilingual-uncased-sentiment</em></a></li>
@@ -85,7 +85,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Modelo Predictivo</li>
+      <li class="breadcrumb-item active">Modelos Predictivos</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/ModeloPredictivo.md.txt" rel="nofollow"> Ver código fuente de la página</a>
       </li>
@@ -95,8 +95,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="modelo-predictivo">
-<h1>Modelo Predictivo<a class="headerlink" href="#modelo-predictivo" title="Link to this heading"></a></h1>
+  <section id="modelos-predictivos">
+<h1>Modelos Predictivos<a class="headerlink" href="#modelos-predictivos" title="Link to this heading"></a></h1>
 <section id="modelos-de-analisis-de-sentimiento">
 <h2>Modelos de análisis de sentimiento<a class="headerlink" href="#modelos-de-analisis-de-sentimiento" title="Link to this heading"></a></h2>
 <p>Se ha decidido utilizar dos modelos predictivo en el cual los dos se utilozaron para predecir la probabilidad de que un titular sea <em>negativo, positivo o neutral</em>. los dos modelos son <code class="docutils literal notranslate"><span class="pre">bert-base-multilingual-uncased-sentiment</span></code>[multilingual] y <code class="docutils literal notranslate"><span class="pre">distilroberta-finetuned-financial-news-sentiment-analysis</span></code> [inglés]. Estos dos modelos fueron seleccionados por su rendimiento en clasificación de sentimientos y por su cobertura en distintos idiomas. Dado que las fuentes analizadas incluyen tanto medios en inglés como en español, se ha considerado necesario emplear modelos específicos para cada idioma con el fin de maximizar la precisión de los resultados.</p>

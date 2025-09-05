@@ -88,12 +88,14 @@ INVALID_KEYWORDS = (
 )
 
 # ----------------- Utilidades scraping -----------------
-def fetch_html(url: str, timeout: int = TIMEOUT, max_retries: int = 6) -> str:
-    """
+
+   """
     Descarga HTML de TradingView con evasión básica de 403/429.
     1) intenta con requests.Session (con retries)
     2) si recibe 403/429 repetidos, usa cloudscraper como fallback
     """
+# --8<-- [start:fetch_html]
+def fetch_html(url: str, timeout: int = TIMEOUT, max_retries: int = 6) -> str:
     last_status = None
     # Primer intento: SESSION
     for attempt in range(max_retries):
@@ -142,6 +144,7 @@ def fetch_html(url: str, timeout: int = TIMEOUT, max_retries: int = 6) -> str:
             time.sleep(sleep_s)
 
     raise RuntimeError(f"Failed to fetch {url} after retries")
+# --8<-- [end:fetch_html]
 
 def class_contains(tag, fragment: str) -> bool:
     cls = tag.get("class", [])
@@ -149,6 +152,7 @@ def class_contains(tag, fragment: str) -> bool:
         cls = cls.split()
     return any(fragment in c for c in cls)
 
+# --8<-- [start:extract_rows_precise]
 def extract_rows_precise(html: str, accept_exchanges: Set[str]) -> List[Tuple[str, str, str]]:
     soup = BeautifulSoup(html, "lxml")
     desc_nodes = soup.find_all(
@@ -182,6 +186,7 @@ def extract_rows_precise(html: str, accept_exchanges: Set[str]) -> List[Tuple[st
             continue
         out[(exch, sym)] = name
     return [(ex, sy, nm) for (ex, sy), nm in out.items()]
+#--8<-- [end:extract_rows_precise]
 
 def clean_company_name(s: str, ticker: str) -> str:
     if not s:
@@ -199,6 +204,8 @@ def yahoo_ticker_from_local(local_ticker: str, pais: str) -> str:
         t = t.replace('_', '-')
     return t
 
+
+# --8<-- [start:scrape_country]
 def scrape_country(spec: Dict) -> pd.DataFrame:
     html = fetch_html(spec["components_url"])
     pairs = extract_rows_precise(html, spec["accept_exchanges"])
@@ -222,6 +229,7 @@ def scrape_country(spec: Dict) -> pd.DataFrame:
         })
         time.sleep(0.2)  # respeta un poco más a TV
     return pd.DataFrame(rows, columns=["TICKER_YAHOO", "NOMBRE", "PAIS", "TICKET"])
+# --8<-- [end:scrape_country]
 
 # ----------------- Snowflake helpers -----------------
 def sf_connect():
@@ -300,6 +308,8 @@ def yesterday_madrid():
     return y, y + timedelta(days=1)
 
 # ----------------- Descarga y MERGE de precios -----------------
+
+# --8<-- [start:download_batch]
 def download_batch(tickers: List[str], start_date, end_excl) -> pd.DataFrame:
     if not tickers:
         return pd.DataFrame(columns=["TICKER","CLOSE","HIGH","LOW","OPEN","VOLUME","FECHA"])
@@ -334,7 +344,9 @@ def download_batch(tickers: List[str], start_date, end_excl) -> pd.DataFrame:
         out[col] = pd.to_numeric(out[col], errors="coerce")
     out["VOLUME"] = pd.to_numeric(out["VOLUME"], errors="coerce").astype("Int64")
     return out.dropna(subset=["CLOSE","HIGH","LOW","OPEN"])
+# --8<-- [end:download_batch]
 
+# --8<-- [start:merge_with_temp]
 def merge_with_temp(conn, df: pd.DataFrame):
     """Carga df a TMP_PRICES con write_pandas y luego MERGE → sin límite de expresiones."""
     if df.empty:
@@ -358,6 +370,7 @@ def merge_with_temp(conn, df: pd.DataFrame):
     with conn.cursor() as cur:
         cur.execute(merge_sql)
         conn.commit()
+# --8<-- [end:merge_with_temp]
 
 # ----------------- MAIN -----------------
 if __name__ == "__main__":
@@ -415,6 +428,3 @@ if __name__ == "__main__":
                 total_rows += len(part)
 
         print("✅ Filas nuevas/actualizadas:", total_rows)
-
-
-##esto solo es para la descarga de los precion por ticket a day -1 
