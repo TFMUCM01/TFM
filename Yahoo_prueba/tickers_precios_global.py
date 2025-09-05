@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 # Requisitos:
 #   pip install requests pandas "snowflake-connector-python[pandas]>=3.5.0" pyarrow
-#   pip install beautifulsoup4 lxml yfinance cloudscraper
+#   pip install beautifulsoup4 lxml yfinance
+#   (opcional) pip install cloudscraper
 
 import os, re, time, random
 from typing import List, Dict, Set, Tuple, Iterable
@@ -9,13 +10,19 @@ from datetime import datetime, timedelta, date
 from zoneinfo import ZoneInfo
 
 import requests
-from requests.adapters import HTTPAdapter, Retry
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 import pandas as pd
 from bs4 import BeautifulSoup
 import snowflake.connector
 from snowflake.connector.pandas_tools import write_pandas
 import yfinance as yf
-import cloudscraper
+
+# cloudscraper opcional
+try:
+    import cloudscraper
+except Exception:
+    cloudscraper = None
 
 # =======================
 # Config por variables de entorno (secrets)
@@ -89,11 +96,9 @@ INVALID_KEYWORDS = (
 
 # ----------------- Utilidades scraping -----------------
 
-   """
-    Descarga HTML de TradingView con evasión básica de 403/429.
-    1) intenta con requests.Session (con retries)
-    2) si recibe 403/429 repetidos, usa cloudscraper como fallback
-    """
+# Descarga HTML de TradingView con evasión básica de 403/429.
+# 1) intenta con requests.Session (con retries)
+# 2) si recibe 403/429 repetidos y cloudscraper está disponible, usa cloudscraper como fallback
 # --8<-- [start:fetch_html]
 def fetch_html(url: str, timeout: int = TIMEOUT, max_retries: int = 6) -> str:
     last_status = None
@@ -116,7 +121,10 @@ def fetch_html(url: str, timeout: int = TIMEOUT, max_retries: int = 6) -> str:
             print(f"[fetch_html] Error {type(e).__name__}: {e}. Reintento en {sleep_s:.1f}s...")
             time.sleep(sleep_s)
 
-    # Segundo intento: cloudscraper (mejor contra Cloudflare)
+    # Segundo intento: cloudscraper (si está disponible)
+    if cloudscraper is None:
+        raise RuntimeError(f"Failed to fetch {url} after retries (último status: {last_status}); instala 'cloudscraper' para fallback.")
+
     print(f"[fetch_html] Activando fallback cloudscraper (último status: {last_status})")
     for attempt in range(max_retries):
         try:
@@ -143,7 +151,7 @@ def fetch_html(url: str, timeout: int = TIMEOUT, max_retries: int = 6) -> str:
             print(f"[cloudscraper] Error {type(e).__name__}: {e}. Reintento en {sleep_s:.1f}s...")
             time.sleep(sleep_s)
 
-    raise RuntimeError(f"Failed to fetch {url} after retries")
+    raise RuntimeError(f"Failed to fetch {url} after retries (cloudscraper)")
 # --8<-- [end:fetch_html]
 
 def class_contains(tag, fragment: str) -> bool:
