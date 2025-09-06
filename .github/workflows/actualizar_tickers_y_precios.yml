@@ -16,14 +16,14 @@ jobs:
       SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
       SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
       SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
-      SNOWFLAKE_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE }}   # p.ej. YAHOO_PRUEBA
-      SNOWFLAKE_SCHEMA: ${{ secrets.SNOWFLAKE_SCHEMA }}       # p.ej. IBEX
+      SNOWFLAKE_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE }}   # p.ej. TFM
+      SNOWFLAKE_SCHEMA: ${{ secrets.SNOWFLAKE_SCHEMA }}       # p.ej. YAHOO_FINANCE
       # SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}         # opcional
 
       # Tablas / parámetros (puedes dejarlos así o moverlos a secrets/vars)
-      TICKERS_TABLE: YAHOO_PRUEBA.IBEX.LISTA_IBEX_35
-      PRICES_TABLE:  YAHOO_PRUEBA.IBEX.TICKERS_INDEX
-      PROFILE_TABLE: YAHOO_PRUEBA.IBEX.COMPANY_PROFILE
+      TICKERS_TABLE: TFM.YAHOO_FINANCE.LISTA_TICKERS
+      PRICES_TABLE:  TFM.YAHOO_FINANCE.TICKERS_INDEX
+      PROFILE_TABLE: TFM.YAHOO_FINANCE.COMPANY_PROFILE
       START_DATE: '2020-01-01'
 
     steps:
@@ -48,16 +48,19 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install "pandas>=2.0,<2.3" "snowflake-connector-python[pandas]>=3.5.0" pyarrow
-          pip install requests beautifulsoup4 lxml yfinance
+          pip install requests beautifulsoup4 lxml yfinance cloudscraper
 
       - name: Snowflake connection test
         run: |
           python - <<'PY'
           import os, snowflake.connector
+          def _norm_account(acc: str) -> str:
+              acc = acc.strip().split("://")[-1].split("/",1)[0].replace(".snowflakecomputing.com","")
+              return acc
           con = snowflake.connector.connect(
             user=os.environ['SNOWFLAKE_USER'],
             password=os.environ['SNOWFLAKE_PASSWORD'],
-            account=os.environ['SNOWFLAKE_ACCOUNT'],
+            account=_norm_account(os.environ['SNOWFLAKE_ACCOUNT']),
             warehouse=os.environ['SNOWFLAKE_WAREHOUSE'],
             database=os.environ['SNOWFLAKE_DATABASE'],
             schema=os.environ['SNOWFLAKE_SCHEMA'],
@@ -83,7 +86,7 @@ jobs:
 
       - name: Update index daily OHLC (IBEX/DAX/CAC/MIB/AEX/FTSE/OMXS30/SMI)
         env:
-          INDEX_TABLE: YAHOO_PRUEBA.IBEX.INDEX_DAILY
+          INDEX_TABLE: TFM.YAHOO_FINANCE.INDEX_DAILY
           START_DATE: '2020-01-01'
         run: |
           test -f Yahoo_prueba/indices_diarios.py || (echo "Falta Yahoo_prueba/indices_diarios.py" && exit 1)
@@ -92,7 +95,7 @@ jobs:
       - name: Update annual financial summary (2021..last closed year)
         working-directory: Yahoo_prueba
         env:
-          SUMMARY_TABLE:  YAHOO_PRUEBA.IBEX.FIN_SUMMARY_MAIN
+          SUMMARY_TABLE:  TFM.YAHOO_FINANCE.FIN_SUMMARY_MAIN
           SUMMARY_START_YEAR: '2021'
         run: |
           test -f financieros_resumen_anual.py || (echo "Falta Yahoo_prueba/financieros_resumen_anual.py" && exit 1)
@@ -101,7 +104,7 @@ jobs:
       - name: Update market snapshot (non-historical ratios)
         working-directory: Yahoo_prueba
         env:
-          SNAPSHOT_TABLE: YAHOO_PRUEBA.IBEX.FIN_MARKET_SNAPSHOT
+          SNAPSHOT_TABLE: TFM.YAHOO_FINANCE.FIN_MARKET_SNAPSHOT
           SNAPSHOT_MAX_WORKERS: '8'
           SNAPSHOT_SLEEP: '0.05'
         run: |
@@ -111,7 +114,7 @@ jobs:
       - name: Update ESG snapshot
         working-directory: Yahoo_prueba
         env:
-          ESG_TABLE: YAHOO_PRUEBA.IBEX.FIN_ESG_SNAPSHOT
+          ESG_TABLE: TFM.YAHOO_FINANCE.FIN_ESG_SNAPSHOT
           ESG_MAX_WORKERS: '8'
           ESG_SLEEP: '0.05'
         run: |
@@ -121,7 +124,7 @@ jobs:
       - name: Append market snapshot history (daily)
         working-directory: Yahoo_prueba
         env:
-          SNAPSHOT_HIST_TABLE: YAHOO_PRUEBA.IBEX.FIN_MARKET_SNAPSHOT_HIST
+          SNAPSHOT_HIST_TABLE: TFM.YAHOO_FINANCE.FIN_MARKET_SNAPSHOT_HIST
           SNAPSHOT_MAX_WORKERS: '8'
           SNAPSHOT_SLEEP: '0.05'
         run: |
@@ -131,7 +134,7 @@ jobs:
       - name: Append ESG snapshot history (daily)
         working-directory: Yahoo_prueba
         env:
-          ESG_HIST_TABLE: YAHOO_PRUEBA.IBEX.FIN_ESG_SNAPSHOT_HIST
+          ESG_HIST_TABLE: TFM.YAHOO_FINANCE.FIN_ESG_SNAPSHOT_HIST
           ESG_MAX_WORKERS: '8'
           ESG_SLEEP: '0.05'
         run: |
@@ -140,9 +143,9 @@ jobs:
 
       # 🔔 Disparar flujo de confirmación en n8n: /webhook/yahoo_finance
       - name: Trigger n8n confirm flow (yahoo_finance)
-        if: success()   # usa 'always()' si quieres dispararlo aunque falle algo
+        if: success()
         env:
-          N8N_URL: ${{ secrets.N8N_URL }}                # ej. https://tu-dominio.tld  (o https://tu-dominio.tld/n8n)
+          N8N_URL: ${{ secrets.N8N_URL }}
           N8N_WEBHOOK_SECRET: ${{ secrets.N8N_WEBHOOK_SECRET }}
         run: |
           set -euo pipefail
@@ -152,8 +155,8 @@ jobs:
             --data @- <<'JSON'
           {
             "status": "success",
-            "mensaje": "🚀 Disparando flujo de confirmación YAHOO_PRUEBA.IBEX desde GitHub Actions",
-            "dataset": "YAHOO_PRUEBA.IBEX",
+            "mensaje": "🚀 Disparando flujo de confirmación TFM.YAHOO_FINANCE desde GitHub Actions",
+            "dataset": "TFM.YAHOO_FINANCE",
             "run_id": "${{ github.run_id }}",
             "workflow": "${{ github.workflow }}",
             "repository": "${{ github.repository }}",

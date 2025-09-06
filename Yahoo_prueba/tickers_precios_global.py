@@ -1,54 +1,90 @@
 # -*- coding: utf-8 -*-
-# pip install requests pandas snowflake-connector-python beautifulsoup4 lxml yfinance
+# Requisitos:
+#   pip install requests pandas "snowflake-connector-python[pandas]>=3.5.0" pyarrow
+#   pip install beautifulsoup4 lxml yfinance
+#   (opcional) pip install cloudscraper
 
-import os, re, time
+import os, re, time, random
 from typing import List, Dict, Set, Tuple, Iterable
 from datetime import datetime, timedelta, date
 from zoneinfo import ZoneInfo
 
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 import pandas as pd
 from bs4 import BeautifulSoup
 import snowflake.connector
 from snowflake.connector.pandas_tools import write_pandas
 import yfinance as yf
 
+# cloudscraper opcional
+try:
+    import cloudscraper
+except Exception:
+    cloudscraper = None
+
 # =======================
 # Config por variables de entorno (secrets)
 # =======================
+def _norm_account(acc: str) -> str:
+    acc = acc.strip()
+    acc = acc.split("://")[-1]         # quita protocolo si viene
+    acc = acc.split("/", 1)[0]         # quita path si lo hubiera
+    acc = acc.replace(".snowflakecomputing.com", "")
+    return acc
+
 SNOWFLAKE_USER      = os.environ["SNOWFLAKE_USER"]
 SNOWFLAKE_PASSWORD  = os.environ["SNOWFLAKE_PASSWORD"]
-SNOWFLAKE_ACCOUNT   = os.environ["SNOWFLAKE_ACCOUNT"]          # ej: WYNIFVB-YE01854 (o con región)
+SNOWFLAKE_ACCOUNT   = _norm_account(os.environ["SNOWFLAKE_ACCOUNT"])   # ej: wynifvb-ye01854
 SNOWFLAKE_WAREHOUSE = os.environ["SNOWFLAKE_WAREHOUSE"]
-SNOWFLAKE_DATABASE  = os.environ["SNOWFLAKE_DATABASE"]         # ej: YAHOO_PRUEBA
-SNOWFLAKE_SCHEMA    = os.environ["SNOWFLAKE_SCHEMA"]           # ej: IBEX
-SNOWFLAKE_ROLE      = os.environ.get("SNOWFLAKE_ROLE")         # opcional
+SNOWFLAKE_DATABASE  = os.environ["SNOWFLAKE_DATABASE"]                 # ej: TFM o YAHOO_PRUEBA
+SNOWFLAKE_SCHEMA    = os.environ["SNOWFLAKE_SCHEMA"]                   # ej: YAHOO_FINANCE o IBEX
+SNOWFLAKE_ROLE      = os.environ.get("SNOWFLAKE_ROLE")                 # opcional
 
-TICKERS_TABLE = os.environ.get("TICKERS_TABLE", f"{SNOWFLAKE_DATABASE}.{SNOWFLAKE_SCHEMA}.LISTA_IBEX_35")
+TICKERS_TABLE = os.environ.get("TICKERS_TABLE", f"{SNOWFLAKE_DATABASE}.{SNOWFLAKE_SCHEMA}.LISTA_TICKERS")
 PRICES_TABLE  = os.environ.get("PRICES_TABLE",  f"{SNOWFLAKE_DATABASE}.{SNOWFLAKE_SCHEMA}.TICKERS_INDEX")
 START_DATE    = pd.to_datetime(os.environ.get("START_DATE", "2020-01-01")).date()
 TZ = ZoneInfo("Europe/Madrid")
 
-# ============ ÍNDICES (conteo exacto) ============
+# ============ ÍNDICES (conteo esperado) ============
 INDEX_SPECS = [
-    dict(pais="España",        index="IBEX 35",  components_url="https://www.tradingview.com/symbols/BME-IBC/components/",       accept_exchanges={"BME"},     yahoo_suffix=".MC", expected_count=35),
-    dict(pais="Alemania",      index="DAX 40",   components_url="https://www.tradingview.com/symbols/XETR-DAX/components/",      accept_exchanges={"XETR"},    yahoo_suffix=".DE", expected_count=40),
-    dict(pais="Francia",       index="CAC 40",   components_url="https://www.tradingview.com/symbols/EURONEXT-PX1/components/",  accept_exchanges={"EURONEXT"},yahoo_suffix=".PA", expected_count=39),
-    dict(pais="Italia",        index="FTSE MIB", components_url="https://www.tradingview.com/symbols/INDEX-FTSEMIB/components/", accept_exchanges={"MIL"},     yahoo_suffix=".MI", expected_count=40),
-    dict(pais="Países Bajos",  index="AEX",      components_url="https://www.tradingview.com/symbols/EURONEXT-AEX/components/",  accept_exchanges={"EURONEXT"},yahoo_suffix=".AS", expected_count=25),
-    dict(pais="Reino Unido",   index="FTSE 100", components_url="https://www.tradingview.com/symbols/FTSE-UKX/components/",      accept_exchanges={"LSE"},     yahoo_suffix=".L",  expected_count=100),
-    dict(pais="Suecia",        index="OMXS30",   components_url="https://www.tradingview.com/symbols/NASDAQ-OMXS30/components/", accept_exchanges={"OMXSTO"},  yahoo_suffix=".ST", expected_count=30),
-    dict(pais="Suiza",         index="SMI",      components_url="https://www.tradingview.com/symbols/SIX-SMI/components/",        accept_exchanges={"SIX"},     yahoo_suffix=".SW", expected_count=21),
+    dict(pais="España",        index="IBEX 35",  components_url="https://www.tradingview.com/symbols/BME-IBC/components/",       accept_exchanges={"BME"},      yahoo_suffix=".MC", expected_count=35),
+    dict(pais="Alemania",      index="DAX 40",   components_url="https://www.tradingview.com/symbols/XETR-DAX/components/",      accept_exchanges={"XETR"},     yahoo_suffix=".DE", expected_count=40),
+    dict(pais="Francia",       index="CAC 40",   components_url="https://www.tradingview.com/symbols/EURONEXT-PX1/components/",  accept_exchanges={"EURONEXT"}, yahoo_suffix=".PA", expected_count=40),
+    dict(pais="Italia",        index="FTSE MIB", components_url="https://www.tradingview.com/symbols/INDEX-FTSEMIB/components/", accept_exchanges={"MIL"},      yahoo_suffix=".MI", expected_count=40),
+    dict(pais="Países Bajos",  index="AEX",      components_url="https://www.tradingview.com/symbols/EURONEXT-AEX/components/",  accept_exchanges={"EURONEXT"}, yahoo_suffix=".AS", expected_count=25),
+    dict(pais="Reino Unido",   index="FTSE 100", components_url="https://www.tradingview.com/symbols/FTSE-UKX/components/",      accept_exchanges={"LSE"},      yahoo_suffix=".L",  expected_count=100),
+    dict(pais="Suecia",        index="OMXS30",   components_url="https://www.tradingview.com/symbols/NASDAQ-OMXS30/components/", accept_exchanges={"OMXSTO"},   yahoo_suffix=".ST", expected_count=30),
+    dict(pais="Suiza",         index="SMI",      components_url="https://www.tradingview.com/symbols/SIX-SMI/components/",        accept_exchanges={"SIX"},      yahoo_suffix=".SW", expected_count=21),
 ]
 
-# ============ HTTP ============
+# ============ HTTP robusto ============
+UA_POOL = [
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 13_5) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.4 Safari/605.1.15",
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+]
+
 SESSION = requests.Session()
 SESSION.headers.update({
-    "User-Agent": ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                   "AppleWebKit/537.36 (KHTML, like Gecko) "
-                   "Chrome/124.0 Safari/537.36")
+    "User-Agent": UA_POOL[0],
+    "Accept-Language": "en-US,en;q=0.9,es-ES;q=0.8",
+    "Referer": "https://www.tradingview.com/",
+    "Cache-Control": "no-cache",
 })
 TIMEOUT = 25
+
+retries = Retry(
+    total=5,
+    backoff_factor=0.8,
+    status_forcelist=(403, 429, 500, 502, 503, 504),
+    allowed_methods=["GET"],
+    raise_on_status=False,
+)
+adapter = HTTPAdapter(max_retries=retries)
+SESSION.mount("https://", adapter)
+SESSION.mount("http://", adapter)
 
 HREF_SYMBOL_RE = re.compile(r'/symbols/([A-Z]+)-([A-Z0-9_.-]{1,20})/?$', re.I)
 INVALID_KEYWORDS = (
@@ -59,10 +95,64 @@ INVALID_KEYWORDS = (
 )
 
 # ----------------- Utilidades scraping -----------------
-def fetch_html(url: str) -> str:
-    r = SESSION.get(url, timeout=TIMEOUT)
-    r.raise_for_status()
-    return r.text
+
+# Descarga HTML de TradingView con evasión básica de 403/429.
+# 1) intenta con requests.Session (con retries)
+# 2) si recibe 403/429 repetidos y cloudscraper está disponible, usa cloudscraper como fallback
+# --8<-- [start:fetch_html]
+def fetch_html(url: str, timeout: int = TIMEOUT, max_retries: int = 6) -> str:
+    last_status = None
+    # Primer intento: SESSION
+    for attempt in range(max_retries):
+        try:
+            SESSION.headers["User-Agent"] = random.choice(UA_POOL)
+            r = SESSION.get(url, timeout=timeout)
+            if r.status_code == 200 and r.text:
+                return r.text
+            last_status = r.status_code
+            if r.status_code in (403, 429):
+                sleep_s = (2 ** attempt) + random.uniform(0.2, 1.0)
+                print(f"[fetch_html] {r.status_code} en {url}. Reintento en {sleep_s:.1f}s...")
+                time.sleep(sleep_s)
+                continue
+            r.raise_for_status()
+        except Exception as e:
+            sleep_s = (2 ** attempt) + random.uniform(0.2, 1.0)
+            print(f"[fetch_html] Error {type(e).__name__}: {e}. Reintento en {sleep_s:.1f}s...")
+            time.sleep(sleep_s)
+
+    # Segundo intento: cloudscraper (si está disponible)
+    if cloudscraper is None:
+        raise RuntimeError(f"Failed to fetch {url} after retries (último status: {last_status}); instala 'cloudscraper' para fallback.")
+
+    print(f"[fetch_html] Activando fallback cloudscraper (último status: {last_status})")
+    for attempt in range(max_retries):
+        try:
+            scraper = cloudscraper.create_scraper(
+                browser={"browser": "chrome", "platform": "linux", "mobile": False}
+            )
+            headers = {
+                "User-Agent": random.choice(UA_POOL),
+                "Accept-Language": "en-US,en;q=0.9,es-ES;q=0.8",
+                "Referer": "https://www.tradingview.com/",
+                "Cache-Control": "no-cache",
+            }
+            resp = scraper.get(url, headers=headers, timeout=timeout)
+            if resp.status_code == 200 and resp.text:
+                return resp.text
+            if resp.status_code in (403, 429):
+                sleep_s = (2 ** attempt) + random.uniform(0.2, 1.0)
+                print(f"[cloudscraper] {resp.status_code} en {url}. Reintento en {sleep_s:.1f}s...")
+                time.sleep(sleep_s)
+                continue
+            resp.raise_for_status()
+        except Exception as e:
+            sleep_s = (2 ** attempt) + random.uniform(0.2, 1.0)
+            print(f"[cloudscraper] Error {type(e).__name__}: {e}. Reintento en {sleep_s:.1f}s...")
+            time.sleep(sleep_s)
+
+    raise RuntimeError(f"Failed to fetch {url} after retries (cloudscraper)")
+# --8<-- [end:fetch_html]
 
 def class_contains(tag, fragment: str) -> bool:
     cls = tag.get("class", [])
@@ -70,9 +160,13 @@ def class_contains(tag, fragment: str) -> bool:
         cls = cls.split()
     return any(fragment in c for c in cls)
 
+# --8<-- [start:extract_rows_precise]
 def extract_rows_precise(html: str, accept_exchanges: Set[str]) -> List[Tuple[str, str, str]]:
     soup = BeautifulSoup(html, "lxml")
-    desc_nodes = soup.find_all("sup", class_=lambda v: v and "tickerDescription-" in " ".join(v if isinstance(v, list) else v.split()))
+    desc_nodes = soup.find_all(
+        "sup",
+        class_=lambda v: v and "tickerDescription-" in " ".join(v if isinstance(v, list) else v.split())
+    )
     rows = []
     for sup in desc_nodes:
         name = sup.get_text(strip=True)
@@ -100,9 +194,11 @@ def extract_rows_precise(html: str, accept_exchanges: Set[str]) -> List[Tuple[st
             continue
         out[(exch, sym)] = name
     return [(ex, sy, nm) for (ex, sy), nm in out.items()]
+#--8<-- [end:extract_rows_precise]
 
 def clean_company_name(s: str, ticker: str) -> str:
-    if not s: return ticker
+    if not s:
+        return ticker
     s = re.sub(r"\s*—\s*TradingView.*$", "", s, flags=re.I)
     s = re.sub(r"\(\s*[A-Z]+:[A-Z0-9_.-]{1,20}\s*\)", "", s)
     s = re.sub(r"\s{2,}", " ", s).strip(" -–—|·")
@@ -116,18 +212,32 @@ def yahoo_ticker_from_local(local_ticker: str, pais: str) -> str:
         t = t.replace('_', '-')
     return t
 
+
+# --8<-- [start:scrape_country]
 def scrape_country(spec: Dict) -> pd.DataFrame:
     html = fetch_html(spec["components_url"])
     pairs = extract_rows_precise(html, spec["accept_exchanges"])
-    if len(pairs) != spec["expected_count"]:
-        raise RuntimeError(f"{spec['index']} ({spec['pais']}): se extrajeron {len(pairs)} filas, se esperaban {spec['expected_count']}.")
+    n = len(pairs)
+    exp = spec["expected_count"]
+    if n != exp:
+        # tolera ±2 y avisa (TV puede variar 1–2 componentes)
+        if abs(n - exp) <= 2:
+            print(f"[WARN] {spec['index']} ({spec['pais']}): {n} componentes (esperados {exp}). Continuando...")
+        else:
+            print(f"[ERROR] {spec['index']} ({spec['pais']}): {n} componentes (esperados {exp}). Intento de continuar...")
     rows = []
     for exch, sym, name in pairs:
         base_for_yahoo = yahoo_ticker_from_local(sym, spec["pais"])
         yahoo = f"{base_for_yahoo}{spec['yahoo_suffix']}"
-        rows.append({"TICKER_YAHOO": yahoo, "NOMBRE": clean_company_name(name, sym), "PAIS": spec["pais"], "TICKET": base_for_yahoo})
-        time.sleep(0.03)
+        rows.append({
+            "TICKER_YAHOO": yahoo,
+            "NOMBRE": clean_company_name(name, sym),
+            "PAIS": spec["pais"],
+            "TICKET": base_for_yahoo
+        })
+        time.sleep(0.2)  # respeta un poco más a TV
     return pd.DataFrame(rows, columns=["TICKER_YAHOO", "NOMBRE", "PAIS", "TICKET"])
+# --8<-- [end:scrape_country]
 
 # ----------------- Snowflake helpers -----------------
 def sf_connect():
@@ -159,7 +269,6 @@ def overwrite_tickers(conn, df: pd.DataFrame):
         """)
         cur.execute(f"TRUNCATE TABLE {TICKERS_TABLE}")
     rows = df[["TICKER_YAHOO","NOMBRE","PAIS","TICKET"]].fillna("").copy()
-    # write_pandas maneja el stage interno y COPY INTO sin límite de expresiones
     ok, nchunks, nrows, _ = write_pandas(conn, rows, table_name=TICKERS_TABLE.split('.')[-1], quote_identifiers=False)
     if not ok:
         raise RuntimeError("write_pandas falló al cargar la tabla de tickers.")
@@ -207,6 +316,8 @@ def yesterday_madrid():
     return y, y + timedelta(days=1)
 
 # ----------------- Descarga y MERGE de precios -----------------
+
+# --8<-- [start:download_batch]
 def download_batch(tickers: List[str], start_date, end_excl) -> pd.DataFrame:
     if not tickers:
         return pd.DataFrame(columns=["TICKER","CLOSE","HIGH","LOW","OPEN","VOLUME","FECHA"])
@@ -241,21 +352,19 @@ def download_batch(tickers: List[str], start_date, end_excl) -> pd.DataFrame:
         out[col] = pd.to_numeric(out[col], errors="coerce")
     out["VOLUME"] = pd.to_numeric(out["VOLUME"], errors="coerce").astype("Int64")
     return out.dropna(subset=["CLOSE","HIGH","LOW","OPEN"])
+# --8<-- [end:download_batch]
 
+# --8<-- [start:merge_with_temp]
 def merge_with_temp(conn, df: pd.DataFrame):
     """Carga df a TMP_PRICES con write_pandas y luego MERGE → sin límite de expresiones."""
     if df.empty:
         return
-    # Asegura columnas y tipos
     df2 = df[["TICKER","CLOSE","HIGH","LOW","OPEN","VOLUME","FECHA"]].copy()
-    # Crear/limpiar tabla temporal
     with conn.cursor() as cur:
         cur.execute(f"CREATE OR REPLACE TEMP TABLE TMP_PRICES LIKE {PRICES_TABLE}")
-    # Cargar con write_pandas (usa current database/schema)
     ok, nchunks, nrows, _ = write_pandas(conn, df2, table_name="TMP_PRICES", quote_identifiers=False)
     if not ok:
         raise RuntimeError("write_pandas falló al cargar TMP_PRICES.")
-    # MERGE
     merge_sql = f"""
         MERGE INTO {PRICES_TABLE} t
         USING TMP_PRICES s
@@ -269,6 +378,7 @@ def merge_with_temp(conn, df: pd.DataFrame):
     with conn.cursor() as cur:
         cur.execute(merge_sql)
         conn.commit()
+# --8<-- [end:merge_with_temp]
 
 # ----------------- MAIN -----------------
 if __name__ == "__main__":

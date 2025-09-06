@@ -1,10 +1,23 @@
 from datetime import datetime, timedelta
 import pandas as pd
 import time
+import sys
 
 from config import NOTICIEROS, SNOWFLAKE_CONFIG, RETRIES, SLEEP_BETWEEN_DIAS
 from scraper import obtener_snapshot_url_directo, extraer_titulares, log_error
 from snowflake_utils import subir_a_snowflake, obtener_ultima_fecha_en_snowflake
+
+# Mostrar config básica (sin password) para depuración
+print("=== CONFIG SCRAPER ===")
+print(f"Account:   {SNOWFLAKE_CONFIG.get('account')}")
+print(f"Database:  {SNOWFLAKE_CONFIG.get('database')}")
+print(f"Schema:    {SNOWFLAKE_CONFIG.get('schema')}  (esperado desde SNOWFLAKE_SCHEMA1)")
+print(f"Warehouse: {SNOWFLAKE_CONFIG.get('warehouse')}")
+print("=======================")
+
+if not SNOWFLAKE_CONFIG.get('schema'):
+    print("[ERROR] El schema está vacío. Asegúrate de definir el secret SNOWFLAKE_SCHEMA1.", file=sys.stderr)
+    sys.exit(1)
 
 # --8<-- [start:configfechas-noticieros]
 for medio in NOTICIEROS:
@@ -47,6 +60,7 @@ for medio in NOTICIEROS:
             resultados.extend(titulares)
         except Exception as e:
             log_error(f"[{fuente}] Error en {fecha_str}: {e}")
+            print(f"[{fuente}] Error en {fecha_str}: {e}")
 
         time.sleep(SLEEP_BETWEEN_DIAS)
         fecha += timedelta(days=1)
@@ -56,6 +70,7 @@ for medio in NOTICIEROS:
     if resultados:
         df_nuevo = pd.DataFrame(resultados)
         df_nuevo.drop_duplicates(subset=["fecha", "titular"], inplace=True)
+        print(f"Subiendo {len(df_nuevo)} filas a {SNOWFLAKE_CONFIG['database']}.{SNOWFLAKE_CONFIG['schema']}.{tabla} ...")
         subir_a_snowflake(df_nuevo, SNOWFLAKE_CONFIG, tabla)
         print(f"Total titulares subidos para {fuente}: {len(df_nuevo)}")
     else:
