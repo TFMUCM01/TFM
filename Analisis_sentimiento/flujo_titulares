@@ -1,0 +1,49 @@
+// Flujo de análisis de titulares
+digraph {
+	rankdir=TB splines=ortho
+	A1 [label="Extracción de titulares
+más recientes por idioma y noticiero" shape=box]
+	A1a [label="Verificación de última descarga" shape=box]
+	Adate [label="¿Tiene la fecha
+del día anterior?" shape=diamond]
+	D1 [label="Agregar tabla final al DataLake" shape=box]
+	A2 [label="Creación de tablas con titulares" shape=box]
+	A3 [label="Carga de tablas a la base de datos" shape=box]
+	Acheck [label="¿Titulares
+analizados?" shape=diamond]
+	NMOD [label="No modificar" shape=box]
+	UNION [label="Unir tabla inglés y español" shape=box]
+	A4 [label="¿Idioma?" shape=diamond]
+	B1 [label="Modelo distilroberta-finetuned-financial-news" shape=box]
+	B2 [label="Análisis de titulares en inglés
+Prob Pos/Neg/Neut" shape=box]
+	B2a [label="Flattening análisis JSON → Tabla relacional" shape=box]
+	B3 [label="Agregación de probabilidades
+a tabla de cada noticiero" shape=box]
+	C1 [label="Modelo nlptown/bert-base-multilingual-uncased-sentiment" shape=box]
+	C2 [label="Análisis de titulares en español
+Prob Pos/Neg/Neut" shape=box]
+	C2a [label="Flattening análisis JSON → Tabla relacional" shape=box]
+	C3 [label="Agregación de probabilidades
+a tabla de cada noticiero" shape=box]
+	A1 -> A1a
+	A1a -> Adate
+	Adate -> D1 [label="Sí"]
+	Adate -> A2 [label=No]
+	A2 -> A3
+	A3 -> Acheck
+	Acheck -> NMOD [label="Sí"]
+	NMOD -> UNION
+	Acheck -> A4 [label=No]
+	A4 -> B1 [label="Inglés"]
+	B1 -> B2
+	B2 -> B2a
+	B2a -> B3
+	B3 -> UNION
+	A4 -> C1 [label="Español"]
+	C1 -> C2
+	C2 -> C2a
+	C2a -> C3
+	C3 -> UNION
+	UNION -> D1
+}

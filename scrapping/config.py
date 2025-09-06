@@ -1,31 +1,14 @@
 # config.py
 
 """
-config.py
-==========
-
-Archivo de configuración del proyecto de scraping de titulares.  
-Contiene parámetros globales que controlan el comportamiento del scraping
-y la conexión a Snowflake.
-
-Parámetros de ejecución
-----------------------
-- SLEEP_BETWEEN_DIAS (int): tiempo de espera entre días de scraping (en segundos).
-- RETRIES (int): número de reintentos en caso de fallo de descarga.
-- WAYBACK_TIMEOUT (int): tiempo máximo de espera para obtener un snapshot del Wayback Machine.
-- SNAPSHOT_TIMEOUT (int): tiempo máximo de espera para procesar un snapshot.
-
-Lista de noticieros
-------------------
-NOTICIEROS (list[dict]): cada diccionario representa un medio de comunicación y contiene:
-- nombre (str): nombre del medio.
-- url (str): URL base del medio.
-- fuente (str): identificador único de la fuente.
-- idioma (str): idioma de los titulares.
-- tabla (str): nombre de la tabla destino en Snowflake.
+Archivo de configuración del scraping de titulares.
+Ahora las credenciales de Snowflake se leen de variables de entorno
+(proporcionadas por GitHub Secrets en CI/CD).
 """
 
-# Tiempo entre días de scraping (en segundos)
+import os
+
+# Parámetros de ejecución
 SLEEP_BETWEEN_DIAS = 2
 RETRIES = 3
 WAYBACK_TIMEOUT = 30
@@ -73,7 +56,7 @@ NOTICIEROS = [
         "url": "https://www.thetimes.com/",
         "fuente": "THE TIMES",
         "idioma": "en",
-        "tabla": "TIME_TITULARES"
+        "tabla": "THE_TIMES_TITULARES"
     },
     {
         "nombre": "EXPANSION",
@@ -84,24 +67,12 @@ NOTICIEROS = [
     }
 ]
 
-
-# Snowflake connection details
-"""
-Configuración de Snowflake
---------------------------
-SNOWFLAKE_CONFIG (dict): parámetros de conexión a la base de datos Snowflake:
-- user (str): usuario de la base de datos.
-- password (str): contraseña.
-- account (str): identificador de la cuenta Snowflake.
-- warehouse (str): warehouse a usar.
-- database (str): nombre de la base de datos.
-- schema (str): esquema donde se almacenan los datos.
-"""
+# Configuración de Snowflake desde variables de entorno
 SNOWFLAKE_CONFIG = {
-    'user': 'tfmgrupo4',
-    'password': 'TFMgrupo4ucm01_01#',
-    'account': 'WYNIFVB-YE01854',          # ejemplo: xy12345.eu-central-1
-    'warehouse': 'TFM_WH',
-    'database': 'NOTICIAS_PRUEBA',
-    'schema': 'SCRAPING'
+    'user': os.getenv('SNOWFLAKE_USER'),
+    'password': os.getenv('SNOWFLAKE_PASSWORD'),
+    'account': os.getenv('SNOWFLAKE_ACCOUNT'),
+    'warehouse': os.getenv('SNOWFLAKE_WAREHOUSE'),
+    'database': os.getenv('SNOWFLAKE_DATABASE'),
+    'schema': os.getenv('SNOWFLAKE_SCHEMA1')
 }

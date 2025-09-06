@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Modelo Predictivo &mdash; TFM: Análisis de Tendencias Económicas en Madrid mediante Modelos Financieros y de Sentimiento</title>
+  <title>Modelos Predictivos &mdash; TFM: Análisis de Tendencias Económicas en Madrid mediante Modelos Financieros y de Sentimiento</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
@@ -49,10 +49,9 @@
 <li class="toctree-l1"><a class="reference internal" href="Introduccion.html">Introducción</a></li>
 <li class="toctree-l1"><a class="reference internal" href="DescripcionProblema.html">Descripción Problema</a></li>
 <li class="toctree-l1"><a class="reference internal" href="DatosPreparacion.html">Datos y Preparación</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Modelo Predictivo</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Modelos Predictivos</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#modelos-de-analisis-de-sentimiento">Modelos de análisis de sentimiento</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#modelo-en-ingles-mrm8488-distilroberta-finetuned-financial-news-sentiment-analysis">Modelo en inglés: <em>mrm8488/distilroberta-finetuned-financial-news-sentiment-analysis</em></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#modelo-en-espanol-nlptown-bert-base-multilingual-uncased-sentiment">Modelo en español: <em>nlptown/bert-base-multilingual-uncased-sentiment</em></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#modelo-en-espanol-multilingue-nlptown-bert-base-multilingual-uncased-sentiment">Modelo en español (multilingüe): <em>nlptown/bert-base-multilingual-uncased-sentiment</em></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#comparacion-y-justificacion-de-uso">Comparación y justificación de uso</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#tabla-comparativa-de-modelos">Tabla comparativa de modelos</a></li>
@@ -61,7 +60,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#id1"></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#flujo-de-utilizacion-de-los-modelos">Flujo de utilizacion de los modelos</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#literalinclude-scrapping-lo-que-me-de-marco-del-codigo-limpio-va-aqui">```{literalinclude} ../../scrapping/ -LO QUE ME DE MARCO DEL CODIGO LIMPIO VA AQUI-</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#generacion-de-las-columnas-con-tipo-de-titulos">Generacion de las columnas con tipo de titulos</a></li>
 </ul>
 </li>
 </ul>
@@ -86,7 +85,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Modelo Predictivo</li>
+      <li class="breadcrumb-item active">Modelos Predictivos</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/ModeloPredictivo.md.txt" rel="nofollow"> Ver código fuente de la página</a>
       </li>
@@ -96,11 +95,11 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="modelo-predictivo">
-<h1>Modelo Predictivo<a class="headerlink" href="#modelo-predictivo" title="Link to this heading"></a></h1>
+  <section id="modelos-predictivos">
+<h1>Modelos Predictivos<a class="headerlink" href="#modelos-predictivos" title="Link to this heading"></a></h1>
 <section id="modelos-de-analisis-de-sentimiento">
 <h2>Modelos de análisis de sentimiento<a class="headerlink" href="#modelos-de-analisis-de-sentimiento" title="Link to this heading"></a></h2>
-<p>Se ha decidido utilizar dos modelos predictivo en el cual los dos se utilozaron para predecir la probabilidad de que un titular sea <em>negativo, positivo o neutral</em>. los dos modelos son <code class="docutils literal notranslate"><span class="pre">bert-base-multilingual-uncased-sentiment</span></code>[multilingual] y <code class="docutils literal notranslate"><span class="pre">distilroberta-finetuned-financial-news-sentiment-analysis</span></code> [ingléa]. Estos dos modelos fueron seleccionados por su rendimiento en clasificación de sentimientos y por su cobertura en distintos idiomas. Dado que las fuentes analizadas incluyen tanto medios en inglés como en español, se ha considerado necesario emplear modelos específicos para cada idioma con el fin de maximizar la precisión de los resultados.</p>
+<p>Se ha decidido utilizar dos modelos predictivo en el cual los dos se utilozaron para predecir la probabilidad de que un titular sea <em>negativo, positivo o neutral</em>. los dos modelos son <code class="docutils literal notranslate"><span class="pre">bert-base-multilingual-uncased-sentiment</span></code>[multilingual] y <code class="docutils literal notranslate"><span class="pre">distilroberta-finetuned-financial-news-sentiment-analysis</span></code> [inglés]. Estos dos modelos fueron seleccionados por su rendimiento en clasificación de sentimientos y por su cobertura en distintos idiomas. Dado que las fuentes analizadas incluyen tanto medios en inglés como en español, se ha considerado necesario emplear modelos específicos para cada idioma con el fin de maximizar la precisión de los resultados.</p>
 <section id="modelo-en-ingles-mrm8488-distilroberta-finetuned-financial-news-sentiment-analysis">
 <h3>Modelo en inglés: <em>mrm8488/distilroberta-finetuned-financial-news-sentiment-analysis</em><a class="headerlink" href="#modelo-en-ingles-mrm8488-distilroberta-finetuned-financial-news-sentiment-analysis" title="Link to this heading"></a></h3>
 <p>Este modelo corresponde a una versión ajustada de <strong>DistilRoBERTa-base</strong>, entrenada específicamente en el conjunto de datos <em>Financial PhraseBank</em>, que contiene 4.840 frases procedentes de noticias financieras en inglés. Dicho corpus fue anotado por entre 5 y 8 expertos, categorizando cada enunciado según su polaridad de sentimiento (positivo, negativo o neutral).</p>
@@ -108,10 +107,6 @@
 <p>En cuanto a resultados, el modelo alcanzó un <strong>accuracy del 98,23 %</strong> y una pérdida de validación de <strong>0,1116</strong> en el conjunto de evaluación, lo que demuestra un desempeño sobresaliente en la clasificación de sentimiento en el ámbito financiero.</p>
 <p>La principal ventaja de este modelo es su <strong>alta especialización en finanzas</strong>, lo que le permite detectar matices en titulares y frases económicas con gran precisión. No obstante, presenta la limitación de estar restringido exclusivamente al inglés.</p>
 <p>https://huggingface.co/mrm8488/distilroberta-finetuned-financial-news-sentiment-analysis</p>
-</section>
-<section id="modelo-en-espanol-nlptown-bert-base-multilingual-uncased-sentiment">
-<h3>Modelo en español: <em>nlptown/bert-base-multilingual-uncased-sentiment</em><a class="headerlink" href="#modelo-en-espanol-nlptown-bert-base-multilingual-uncased-sentiment" title="Link to this heading"></a></h3>
-<p>Este modelo parte de <strong>BERT multilingüe</strong>, entrenado sobre más de 100 idiomas, entre ellos el español. A diferencia del anterior, no está ajustado a un dominio concreto, sino que ha sido entrenado con datos de reseñas y opiniones generales, clasificando el sentimiento en una escala de 1 a 5. Su versatilidad multilingüe lo convierte en una opción adecuada para el análisis de noticias en español, aunque presenta la limitación de no estar especializado en el ámbito financiero, lo que puede reducir la precisión en este tipo de textos.</p>
 </section>
 <section id="modelo-en-espanol-multilingue-nlptown-bert-base-multilingual-uncased-sentiment">
 <h3>Modelo en español (multilingüe): <em>nlptown/bert-base-multilingual-uncased-sentiment</em><a class="headerlink" href="#modelo-en-espanol-multilingue-nlptown-bert-base-multilingual-uncased-sentiment" title="Link to this heading"></a></h3>
@@ -164,27 +159,50 @@
 <section id="flujo-de-utilizacion-de-los-modelos">
 <h3>Flujo de utilizacion de los modelos<a class="headerlink" href="#flujo-de-utilizacion-de-los-modelos" title="Link to this heading"></a></h3>
 <p>Dentro del <em>datalake</em> definido en el módulo de <strong>Datos y Preparación</strong>, se encuentra la tabla unificada denominada <code class="docutils literal notranslate"><span class="pre">TODOS_TITULARES</span></code>. A partir de esta base de datos se extraen los titulares procedentes de los distintos noticieros. Posteriormente, mediante un <strong>árbol de decisión</strong> se determina el idioma de cada titular (inglés o español). Según el resultado, se aplica el modelo de predicción correspondiente, previamente entrenado para el análisis de sentimiento en cada idioma.</p>
+<p>CODIFO DE MARCO PERU</p>
 </section>
-<section id="literalinclude-scrapping-lo-que-me-de-marco-del-codigo-limpio-va-aqui">
-<h3>```{literalinclude} ../../scrapping/ -LO QUE ME DE MARCO DEL CODIGO LIMPIO VA AQUI-<a class="headerlink" href="#literalinclude-scrapping-lo-que-me-de-marco-del-codigo-limpio-va-aqui" title="Link to this heading"></a></h3>
-<p>:language: python
-:linenos:
-:start-after: –8&lt;– [start:MODELO DE SENTIMIENTOS]
-:end-before: –8&lt;– [end:MODELO DE SENTIMIENTOS]</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>
----
-### Generacion de las columnas con tipo de titulos 
-
-Una vez aplicados los modelos de análisis de sentimiento, se generan cuatro variables principales: `SENTIMIENTO_RESULTADO`, `PROBABILIDAD_POSITIVO`, `PROBABILIDAD_NEGATIVA` y `PROBABILIDAD_NEUTRAL`. Estas variables permiten determinar de manera objetiva la clasificación final del texto en función de su polaridad. Posteriormente, los resultados se incorporan a la tabla principal de **Noticias_Analizadas** y se almacenan nuevamente en Snowflake, lo que garantiza su disponibilidad para futuros análisis, tanto de carácter técnico como de integración con otros indicadores financieros.
-
-| FECHA      | TITULAR                                                                 | FUENTE | SENTIMIENTO_RESULTADO | PROBABILIDAD_POSITIVO | PROBABILIDAD_NEUTRAL | PROBABILIDAD_POSITIVO |
-|------------|-------------------------------------------------------------------------|--------|-----------------------|-----------------------|----------------------|-----------------------|
-| 2024-02-27 | Felipe VI pide que los avances tecnológicos protejan la seguridad y los derechos individuales | ABC    | Neutral               | 0.73806867            | 0.1435076594         | 0.73806867            |
-| 2024-01-16 | El Gobierno delega en las autonomías la ampliación del bono joven de alquiler | ABC    | Neutral               | 0.7266298234          | 0.1628957987         | 0.7266298234          |
-| 2024-01-30 | Reynés (Naturgy) elogia a BlackRock por dar estabilidad a las empresas y ve «alineamiento de intereses» | ABC    | Neutral               | 0.4201913178          | 0.3785941601         | 0.4201913178          |
-
-</pre></div>
-</div>
+<hr class="docutils" />
+<section id="generacion-de-las-columnas-con-tipo-de-titulos">
+<h3>Generacion de las columnas con tipo de titulos<a class="headerlink" href="#generacion-de-las-columnas-con-tipo-de-titulos" title="Link to this heading"></a></h3>
+<p>Una vez aplicados los modelos de análisis de sentimiento, se generan cuatro variables principales: <code class="docutils literal notranslate"><span class="pre">SENTIMIENTO_RESULTADO</span></code>, <code class="docutils literal notranslate"><span class="pre">PROBABILIDAD_POSITIVO</span></code>, <code class="docutils literal notranslate"><span class="pre">PROBABILIDAD_NEGATIVA</span></code> y <code class="docutils literal notranslate"><span class="pre">PROBABILIDAD_NEUTRAL</span></code>. Estas variables permiten determinar de manera objetiva la clasificación final del texto en función de su polaridad. Posteriormente, los resultados se incorporan a la tabla principal de <strong>Noticias_Analizadas</strong> y se almacenan nuevamente en Snowflake, lo que garantiza su disponibilidad para futuros análisis, tanto de carácter técnico como de integración con otros indicadores financieros.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>FECHA</p></th>
+<th class="head"><p>TITULAR</p></th>
+<th class="head"><p>FUENTE</p></th>
+<th class="head"><p>SENTIMIENTO_RESULTADO</p></th>
+<th class="head"><p>PROBABILIDAD_POSITIVO</p></th>
+<th class="head"><p>PROBABILIDAD_NEUTRAL</p></th>
+<th class="head"><p>PROBABILIDAD_POSITIVO</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>2024-02-27</p></td>
+<td><p>Felipe VI pide que los avances tecnológicos protejan la seguridad y los derechos individuales</p></td>
+<td><p>ABC</p></td>
+<td><p>Neutral</p></td>
+<td><p>0.73806867</p></td>
+<td><p>0.1435076594</p></td>
+<td><p>0.73806867</p></td>
+</tr>
+<tr class="row-odd"><td><p>2024-01-16</p></td>
+<td><p>El Gobierno delega en las autonomías la ampliación del bono joven de alquiler</p></td>
+<td><p>ABC</p></td>
+<td><p>Neutral</p></td>
+<td><p>0.7266298234</p></td>
+<td><p>0.1628957987</p></td>
+<td><p>0.7266298234</p></td>
+</tr>
+<tr class="row-even"><td><p>2024-01-30</p></td>
+<td><p>Reynés (Naturgy) elogia a BlackRock por dar estabilidad a las empresas y ve «alineamiento de intereses»</p></td>
+<td><p>ABC</p></td>
+<td><p>Neutral</p></td>
+<td><p>0.4201913178</p></td>
+<td><p>0.3785941601</p></td>
+<td><p>0.4201913178</p></td>
+</tr>
+</tbody>
+</table>
 </section>
 </section>
 </section>

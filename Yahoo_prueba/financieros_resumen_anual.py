@@ -277,3 +277,7 @@ if __name__ == "__main__":
         print("✅ Financial summary: solo años faltantes agregados.")
     finally:
         conn.close()
+
+
+
+#fundamental anma

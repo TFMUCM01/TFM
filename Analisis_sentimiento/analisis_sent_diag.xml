@@ -1,0 +1,113 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Sentiment Analysis Flow" id="sentiment">
+    <mxGraphModel dx="1000" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Extracción -->
+        <mxCell id="A1" value="Extracción de titulares&#xa;más recientes por idioma y noticiero" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="200" y="40" width="200" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Verificación -->
+        <mxCell id="A1a" value="Verificación de última descarga" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="200" y="140" width="200" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Decisión fecha -->
+        <mxCell id="Adate" value="¿Tiene la fecha&#xa;del día anterior?" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="200" y="240" width="200" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- Sí: directo a DataLake -->
+        <mxCell id="D1" value="Agregar tabla final al DataLake" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="500" y="260" width="200" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- No: creación de tablas -->
+        <mxCell id="A2" value="Creación de tablas con titulares" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="200" y="360" width="200" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Carga BD -->
+        <mxCell id="A3" value="Carga de tablas a la base de datos" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="200" y="460" width="200" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Decisión titulares -->
+        <mxCell id="Acheck" value="¿Titulares analizados?" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="200" y="560" width="200" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- No modificar -->
+        <mxCell id="NMOD" value="No modificar" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="500" y="580" width="200" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Decisión idioma -->
+        <mxCell id="A4" value="¿Idioma?" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="200" y="700" width="200" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- Inglés -->
+        <mxCell id="B1" value="Modelo distilroberta-financial" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="0" y="820" width="200" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="B2" value="Análisis inglés&#xa;Prob Pos/Neg/Neut" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="0" y="900" width="200" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="B3" value="Flattening JSON → Tabla" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="0" y="980" width="200" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="B4" value="Agregación probabilidades" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="0" y="1060" width="200" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Español -->
+        <mxCell id="C1" value="Modelo nlptown/bert-multilingual" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="400" y="820" width="200" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="C2" value="Análisis español&#xa;Prob Pos/Neg/Neut" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="400" y="900" width="200" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="C3" value="Flattening JSON → Tabla" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="400" y="980" width="200" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="C4" value="Agregación probabilidades" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="400" y="1060" width="200" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Unión -->
+        <mxCell id="UNION" value="Unir tabla inglés y español" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="200" y="1180" width="200" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Conexiones -->
+        <mxCell id="edge1" edge="1" source="A1" target="A1a" parent="1"/>
+        <mxCell id="edge2" edge="1" source="A1a" target="Adate" parent="1"/>
+        <mxCell id="edge3" edge="1" source="Adate" target="D1" parent="1"/>
+        <mxCell id="edge4" edge="1" source="Adate" target="A2" parent="1"/>
+        <mxCell id="edge5" edge="1" source="A2" target="A3" parent="1"/>
+        <mxCell id="edge6" edge="1" source="A3" target="Acheck" parent="1"/>
+        <mxCell id="edge7" edge="1" source="Acheck" target="NMOD" parent="1"/>
+        <mxCell id="edge8" edge="1" source="NMOD" target="UNION" parent="1"/>
+        <mxCell id="edge9" edge="1" source="Acheck" target="A4" parent="1"/>
+
+        <mxCell id="edge10" edge="1" source="A4" target="B1" parent="1"/>
+        <mxCell id="edge11" edge="1" source="B1" target="B2" parent="1"/>
+        <mxCell id="edge12" edge="1" source="B2" target="B3" parent="1"/>
+        <mxCell id="edge13" edge="1" source="B3" target="B4" parent="1"/>
+        <mxCell id="edge14" edge="1" source="B4" target="UNION" parent="1"/>
+
+        <mxCell id="edge15" edge="1" source="A4" target="C1" parent="1"/>
+        <mxCell id="edge16" edge="1" source="C1" target="C2" parent="1"/>
+        <mxCell id="edge17" edge="1" source="C2" target="C3" parent="1"/>
+        <mxCell id="edge18" edge="1" source="C3" target="C4" parent="1"/>
+        <mxCell id="edge19" edge="1" source="C4" target="UNION" parent="1"/>
+
+        <mxCell id="edge20" edge="1" source="UNION" target="D1" parent="1"/>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
