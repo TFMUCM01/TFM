@@ -13,12 +13,13 @@ import plotly.express as px
 conn = snowflake.connector.connect(
     user='TFMGRUPO4',
     password='TFMgrupo4ucm01_01#',
-    account='WYNIFVB-YE01854',
+    account='valklxh-zn41709',   # << org-locator de tu URL
     warehouse='COMPUTE_WH',
-    database='YAHOO_PRUEBA',   # <--- ya ajustado
-    schema='IBEX',             # <--- ya ajustado
+    database='TFM',   # <--- CAMBIO
+    schema='YAHOO_FINANCE',      # << Schema de la URL
     role='ACCOUNTADMIN'
 )
+
 
 # ================================
 # Tickers y fechas

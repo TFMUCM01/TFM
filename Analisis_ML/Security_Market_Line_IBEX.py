@@ -26,10 +26,10 @@ tickers = [
 conn = snowflake.connector.connect(
     user='TFMGRUPO4',
     password='TFMgrupo4ucm01_01#',
-    account='WYNIFVB-YE01854',
+    account='valklxh-zn41709',   # <<<<<< usa el account de tu nueva URL
     warehouse='COMPUTE_WH',
-    database='YAHOO_PRUEBA',   # <<<<<<<<<<
-    schema='IBEX',             # <<<<<<<<<<
+    database='TFM',              # <<<<<< Database
+    schema='YAHOO_FINANCE',      # <<<<<< Schema
     role='ACCOUNTADMIN'
 )
 cursor = conn.cursor()
