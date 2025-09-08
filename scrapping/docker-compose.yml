@@ -7,9 +7,12 @@ services:
     restart: unless-stopped
     environment:
       - N8N_HOST=n8n-tunnel.tfm4ucm.org
+      - N8N_PROTOCOL=https                # <-- IMPORTANTE
       - N8N_PORT=5678
-      - WEBHOOK_URL=https://n8n-tunnel.tfm4ucm.org/
+      - WEBHOOK_URL=https://n8n-tunnel.tfm4ucm.org   # <-- sin barra final
+      - N8N_EDITOR_BASE_URL=https://n8n-tunnel.tfm4ucm.org
       - GENERIC_TIMEZONE=Europe/Madrid
+      - TZ=Europe/Madrid
     ports:
       - "5678:5678"
     volumes:
