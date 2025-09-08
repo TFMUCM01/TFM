@@ -1,0 +1,139 @@
+{ "nodes": [ { "parameters": { "updates": [ "message" ], "additionalFields": {} }, "type": "n8n-nodes-base.telegramTrigger", "typeVersion": 1.2, "position": [ -1008, 944 ], "id": "0a59b847-7803-449e-a139-e9b0dd57309a", "name": "Telegram Trigger", "webhookId": "929bf1e9-16db-4a65-8a5d-cf8fc2c61f39", "credentials": { "telegramApi": { "id": "4qd7wezwag6cxR6S", "name": "Telegram account" } } }, { "parameters": { "jsCode": "// Entrada: Telegram Trigger\nconst msg = $json.message ?? {};\nconst txt = (msg.text ?? '').trim();\nconst chatId = msg.chat?.id;\n\nif (!txt) {\n return [{ chatId, reply: \"Envíame una pregunta, p. ej.: 'Cierre medio de SAN en 2024'.\" }];\n}\n\nif (['/start','/help'].includes(txt.toLowerCase())) {\n const help = [\n \"¡Hola! Puedo responder consultas sobre tus tablas en Snowflake.\",\n \"Ejemplos:\",\n \"• Cierre medio de SAN en 2024\",\n \"• Volumen por día de BBVA la última semana\",\n \"\",\n \"Consejos: sé concreto; yo convierto tu texto a SQL SOLO SELECT, con LIMIT automático.\"\n ].join('\\n');\n return [{ chatId, reply: help }];\n}\n\nreturn [{ chatId, userQuery: txt }];\n" }, "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [ -800, 944 ], "id": "ff0daf84-d6e9-474c-8ff4-aa5e19209162", "name": "Normalizar preguntas" }, { "parameters": { "jsCode": "const raw =\n $json.text ??\n $json.response ??\n $json.choices?.[0]?.message?.content ??\n '';\n\nlet sql = String(raw).trim()\n .replace(/^
+(?:sql)?\\s*/i, '')\n  .replace(/
+$/i, '')\n .replace(/;+\\s*$/,'')\n .trim();\n\nif (!sql || sql.includes('__NO-SQL__')) {\n return [{ error: 'No puedo responder con las tablas disponibles. Reformula o revisa el catálogo.' }];\n}\n\nif (!/^select\\b/i.test(sql)) {\n return [{ error: 'Solo se permiten consultas SELECT.', sqlSuggested: sql }];\n}\n\n// Bloquear instrucciones peligrosas\nconst forbidden = /\\b(insert|update|delete|merge|alter|drop|create|copy|call|grant|revoke|truncate|put|get|execute)\\b/i;\nif (forbidden.test(sql)) {\n return [{ error: 'Se detectaron instrucciones no permitidas.', sqlSuggested: sql }];\n}\n\n// Lista blanca de tablas (AJUSTA a tus tablas reales)\nconst allowed = ['INDEX_DAILY'];\nconst mentions = Array.from(sql.matchAll(/\\bfrom\\s+([A-Z0-9_\\.]+)|\\bjoin\\s+([A-Z0-9_\\.]+)/ig))\n .flatMap(m => [m[1], m[2]]).filter(Boolean)\n .map(t => t.split('.').pop().toUpperCase());\n\nif (mentions.some(t => !allowed.includes(t))) {\n return [{ error: 'La consulta referencia tablas no permitidas.', sqlSuggested: sql }];\n}\n\n// Añadir LIMIT si no hay\nif (!/\\blimit\\s+\\d+/i.test(sql)) sql += ' LIMIT 50';\n\nreturn [{ sql }];\n" }, "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [ -240, 944 ], "id": "c6c3df63-4c77-41ed-8515-fa83244d68c8", "name": "Validar y limitar SQL" }, { "parameters": { "operation": "executeQuery", "query": "={{$json.sql}}" }, "type": "n8n-nodes-base.snowflake", "typeVersion": 1, "position": [ -80, 944 ], "id": "a1633cb9-2ce5-4bd1-870f-427f572c3d44", "name": "Snowflake", "credentials": { "snowflake": { "id": "QPzmKgLGa8MqneGt", "name": "Snowflake account 2" } }, "onError": "continueRegularOutput" }, { "parameters": { "modelId": { "__rl": true, "value": "gpt-5", "mode": "list", "cachedResultName": "GPT-5" }, "messages": { "values": [ { "content": "Eres un asistente que genera SQL SOLO SELECT para Snowflake.\nUsa ÚNICAMENTE estas tablas y columnas:\n\nTFM.YAHOO_FINANCE.INDEX_DAILY: [TICKER, NOMBRE, PAIS, TICKET, FECHA, OPEN, HIGH, LOW, CLOSE, VOLUME]\n\nReglas:\n- Devuelve SOLO el SQL, sin explicaciones, sin bloques
+.\n- Nada de DDL/DML ni COPY/PUT/CALL/ALTER/GRANT/TRUNCATE.\n- Utiliza nombres totalmente calificados cuando sea posible.\n- Si no puedes resolverlo con esas tablas/columnas, responde exactamente: __NO-SQL__.\n- Si el usuario no especifica límite temporal y tu consulta devuelve muchas filas, incluye un filtro de fecha razonable (p. ej. últimos 30 días) o lo dejaremos para el post-procesado."
+            },
+            {
+              "content": "={{$json.userQuery}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        -592,
+        944
+      ],
+      "id": "4233b93e-7109-4f37-a320-170afc8c12f5",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "nW60EdvwSY4OIkcZ",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "function esc(s) {\n  return String(s)\n    .replace(/&/g, '&amp;')\n    .replace(/</g, '&lt;')\n    .replace(/>/g, '&gt;');\n}\n\n// 1) Error desde el validador\nif ($json.error) {\n  const msg = `<b>Error:</b> ${esc($json.error)}`\n    + ($json.sqlSuggested ? `<br/><pre>${esc($json.sqlSuggested)}</pre>` : '');\n  return [{ html: msg }];\n}\n\n// 2) ¿Snowflake marcó error? (con Continue On Fail)\nconst incoming = $input.all();\nconst hasFail = incoming.some(i => i.json?.error || i.json?.executionStatus === 'error');\nif (hasFail) {\n  const err = incoming.find(i => i.json?.error)?.json?.error || 'Error al ejecutar la consulta.';\n  return [{ html: `<b>Error:</b> <pre>${esc(err)}</pre>` }];\n}\n\n// 3) Filas OK\nconst rows = incoming.map(i => i.json);\nif (!rows.length) {\n  return [{ html: '<i>Sin resultados</i>' }];\n}\n\nconst headers = Object.keys(rows[0]);\nconst lines = [headers.join('\\t'), ...rows.map(r => headers.map(h => String(r[h] ?? '')).join('\\t'))];\nlet body = `<pre>${esc(lines.join('\\n'))}</pre>`;\n\n// Recupera el SQL del validador\nconst sql = $prevNode['Validar y limitar SQL']?.json?.sql ?? '';\n\n// Evitar romper el límite de 4096 chars de Telegram\nconst MAX = 3500;\nlet html = (sql ? `<b>SQL ejecutado</b>\\n<pre>${esc(sql)}</pre>` : '') + `<b>Resultados</b>\\n${body}`;\nif (html.length > MAX) {\n  html = html.slice(0, MAX) + '\\n… (salida truncada)';\n}\n\nreturn [{ html }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        128,
+        944
+      ],
+      "id": "48c3fb42-2444-4a56-98d0-c80f6fd8ef7e",
+      "name": "Formatear HTML"
+    },
+    {
+      "parameters": {
+        "chatId": "={{$prevNode[\"Normalizar pregunta\"].json.chatId || $json.chatId || $json.message?.chat?.id}}",
+        "text": "={{$json.html || $json.reply}}",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        336,
+        944
+      ],
+      "id": "5084fbb3-8865-435a-b3fe-bb1ded8f748a",
+      "name": "Send a text message",
+      "webhookId": "a7fd8d77-ab40-496d-9a68-c7244bc94ab3",
+      "credentials": {
+        "telegramApi": {
+          "id": "4qd7wezwag6cxR6S",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Normalizar preguntas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalizar preguntas": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validar y limitar SQL": {
+      "main": [
+        [
+          {
+            "node": "Snowflake",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Snowflake": {
+      "main": [
+        [
+          {
+            "node": "Formatear HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Validar y limitar SQL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formatear HTML": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1548720d480bceb6f412ebb28214a049d07e1456c27810fca156b64ae84a5027"
+  }
+}
