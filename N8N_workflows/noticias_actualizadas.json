@@ -1,0 +1,141 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "scraping-finalizado",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -832,
+        -880
+      ],
+      "id": "dd64f387-fe0e-4211-b7c3-b9e44dd487f4",
+      "name": "Webhook Github Actions",
+      "webhookId": "ef479bd6-846f-4573-8591-aa3f2c98299e"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n  { json: { tabla: 'TFM.NOTICIAS.BBC_TITULARES' }},\n  { json: { tabla: 'TFM.NOTICIAS.THE_TIMES_TITULARES' }},\n  { json: { tabla: 'TFM.NOTICIAS.EXPANSION_TITULARES' }},\n  { json: { tabla: 'TFM.NOTICIAS.EL_PAIS_TITULARES' }},\n  { json: { tabla: 'TFM.NOTICIAS.BLOOMBERG_TITULARES' }},\n  { json: { tabla: 'TFM.NOTICIAS.ABC_TITULARES' }}\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -608,
+        -880
+      ],
+      "id": "3e98993f-1f5b-4fbd-ac44-3b20e9be314e",
+      "name": "Selección de Bases de Noticieros"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT '{{$json[\"tabla\"]}}' AS tabla, MAX(FECHA) AS ultima_fecha FROM {{$json[\"tabla\"]}};\n"
+      },
+      "type": "n8n-nodes-base.snowflake",
+      "typeVersion": 1,
+      "position": [
+        -384,
+        -880
+      ],
+      "id": "61c729b8-e028-468c-9be8-a9fa715e9b3a",
+      "name": "Extracción de Informacion (Snowflake)",
+      "credentials": {
+        "snowflake": {
+          "id": "tUpi8fqTBzxZ84Zp",
+          "name": "Snowflake account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "let resumen = '📊 Resumen de titulares cargados:\\n\\n';\n\nfor (const item of $items()) {\n  const tabla = item.json[\"TABLA\"] || \"¿Sin nombre?\";\n  const fecha = item.json[\"ULTIMA_FECHA\"] || \"Sin registros\";\n  resumen += `📰 ${String(tabla).padEnd(22)} → Última fecha: ${fecha}\\n`;\n}\n\nreturn [{ json: { mensaje: resumen } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -160,
+        -880
+      ],
+      "id": "ead5e63f-693c-4e3d-9d6c-2e6156d55153",
+      "name": "Mensaje de confirmación"
+    },
+    {
+      "parameters": {
+        "sendTo": "tfmgrupo4ucm@gmail.com",
+        "subject": "N8N Titulares Status",
+        "emailType": "text",
+        "message": "={{$json[\"mensaje\"]}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        64,
+        -880
+      ],
+      "id": "2f4c057b-51ff-402c-b755-a7a261660f9b",
+      "name": "Envio de Confirmación",
+      "webhookId": "0e0aaa36-ad63-4adf-b8ff-82ed41434afe",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ABChjQvLmrzv7K5r",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook Github Actions": {
+      "main": [
+        [
+          {
+            "node": "Selección de Bases de Noticieros",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Selección de Bases de Noticieros": {
+      "main": [
+        [
+          {
+            "node": "Extracción de Informacion (Snowflake)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extracción de Informacion (Snowflake)": {
+      "main": [
+        [
+          {
+            "node": "Mensaje de confirmación",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mensaje de confirmación": {
+      "main": [
+        [
+          {
+            "node": "Envio de Confirmación",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d629a5505b3cbcb54160b70f2271634ee6b9bfcfe28d543ea1719d3934ac71d5"
+  }
+}

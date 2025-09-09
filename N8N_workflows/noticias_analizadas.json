@@ -1,0 +1,417 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "actualizar-registros",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -832,
+        -432
+      ],
+      "id": "e1f6ce50-8c16-4b6a-96cd-831799ca9a71",
+      "name": "Webhook Github Actions3",
+      "webhookId": "bb922caa-4278-4c48-9d00-ff3c1f94ac3c"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * FROM TFM.NOTICIAS.NOTICIAS_ANALIZADAS\n  WHERE  PROBABILIDAD_POSITIVO IS NULL\n    OR PROBABILIDAD_NEGATIVA IS NULL\n    OR PROBABILIDAD_NEUTRAL  IS NULL\n    OR SENTIMIENTO_RESULTADO IS NULL \n  ORDER BY FECHA DESC LIMIT 5"
+      },
+      "type": "n8n-nodes-base.snowflake",
+      "typeVersion": 1,
+      "position": [
+        -608,
+        -432
+      ],
+      "id": "678ed247-af86-4be1-bd8f-9f9d7e90d1e5",
+      "name": "Selección de Noticias Nuevas1",
+      "credentials": {
+        "snowflake": {
+          "id": "tUpi8fqTBzxZ84Zp",
+          "name": "Snowflake account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "9211faf5-a256-4095-b502-0899afe111f9",
+              "leftValue": "={{ $json.IDIOMA }}",
+              "rightValue": "es",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -384,
+        -432
+      ],
+      "id": "f1e55a36-da8b-4d2e-a0fe-8421b18488f8",
+      "name": "Condicional de idioma1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api-inference.huggingface.co/models/nlptown/bert-base-multilingual-uncased-sentiment",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"inputs\": $json[\"TITULAR\"] } }}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -160,
+        -480
+      ],
+      "id": "f6c3af77-053b-4bf4-8263-4a19f02540c2",
+      "name": "Análisis de Sentimiento (Español)1",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "GpRj6C1pV9fqZNqo",
+          "name": "Header Auth account"
+        },
+        "httpCustomAuth": {
+          "id": "tof77w2ojbWeberB",
+          "name": "Custom Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api-inference.huggingface.co/models/ProsusAI/finbert",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"inputs\": $json[\"TITULAR\"] } }}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -160,
+        -272
+      ],
+      "id": "53b66385-966e-44c0-88de-78a5ec7d98cc",
+      "name": "Análisis de Sentimiento (Inglés)1",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "GpRj6C1pV9fqZNqo",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Convierte predicción 5-estrella en 3 probabilidades + etiqueta\nfunction toArray5(src){ if(Array.isArray(src)) return src; return [src?.[\"0\"],src?.[\"1\"],src?.[\"2\"],src?.[\"3\"],src?.[\"4\"]].filter(Boolean); }\nfunction stars(lbl){ const m=String(lbl||\"\").match(/\\d+/); return m?Number(m[0]):undefined; }\nfunction scoreOf(arr,n){ const hit=arr.find(p=>stars(p?.label)===n); return Number(hit?.score)||0; }\nreturn items.map(it=>{ const root=it.json.body ?? it.json; const preds=toArray5(root);\n  const PROBABILIDAD_NEGATIVA = scoreOf(preds,1)+scoreOf(preds,2);\n  const PROBABILIDAD_NEUTRAL  = scoreOf(preds,3);\n  const PROBABILIDAD_POSITIVO = scoreOf(preds,4)+scoreOf(preds,5);\n  let SENTIMIENTO_RESULTADO = 'NEUTRAL';\n  if (PROBABILIDAD_POSITIVO>PROBABILIDAD_NEGATIVA && PROBABILIDAD_POSITIVO>PROBABILIDAD_NEUTRAL) SENTIMIENTO_RESULTADO='POSITIVO';\n  else if (PROBABILIDAD_NEGATIVA>PROBABILIDAD_POSITIVO && PROBABILIDAD_NEGATIVA>PROBABILIDAD_NEUTRAL) SENTIMIENTO_RESULTADO='NEGATIVO';\n  return {json:{SENTIMIENTO_RESULTADO,PROBABILIDAD_POSITIVO,PROBABILIDAD_NEGATIVA,PROBABILIDAD_NEUTRAL}}; });"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        64,
+        -480
+      ],
+      "id": "f0b93f7e-c391-4ac5-8c9b-fa3d1b0354b5",
+      "name": "Asignación de Resultado del Sentimiento1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Convierte predicción (positive/negative/neutral) a 3 probabilidades + etiqueta\nfunction toArray3(src){ if(Array.isArray(src)) return src; return [src?.[\"0\"],src?.[\"1\"],src?.[\"2\"]].filter(Boolean); }\nfunction normLabel(lbl){ const s=String(lbl||\"\").toLowerCase(); if(s.includes(\"pos\")) return \"positive\"; if(s.includes(\"neg\")) return \"negative\"; if(s.includes(\"neut\")) return \"neutral\"; return s; }\nfunction num(x){ return Number(x)||0; }\nreturn items.map(it=>{ const root=it.json.body ?? it.json; const preds=toArray3(root);\n  const scores={positive:0,negative:0,neutral:0};\n  for(const p of preds){ const k=normLabel(p?.label); if(k in scores) scores[k]=num(p?.score); }\n  const PROBABILIDAD_POSITIVO=scores.positive, PROBABILIDAD_NEGATIVA=scores.negative, PROBABILIDAD_NEUTRAL=scores.neutral;\n  let SENTIMIENTO_RESULTADO='NEUTRAL';\n  if(PROBABILIDAD_POSITIVO>=PROBABILIDAD_NEGATIVA && PROBABILIDAD_POSITIVO>=PROBABILIDAD_NEUTRAL) SENTIMIENTO_RESULTADO='POSITIVO';\n  else if(PROBABILIDAD_NEGATIVA>=PROBABILIDAD_POSITIVO && PROBABILIDAD_NEGATIVA>=PROBABILIDAD_NEUTRAL) SENTIMIENTO_RESULTADO='NEGATIVO';\n  return {json:{SENTIMIENTO_RESULTADO,PROBABILIDAD_POSITIVO,PROBABILIDAD_NEGATIVA,PROBABILIDAD_NEUTRAL}}; });"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        64,
+        -272
+      ],
+      "id": "4beaac4a-0a61-4140-ac16-bab035607568",
+      "name": "Asignación del Resultado de Sentimiento1"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        288,
+        -624
+      ],
+      "id": "b87e0541-21c6-4a38-af35-f7c7f370c1c2",
+      "name": "Anexación a Base Noticias (Español)1",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        288,
+        -368
+      ],
+      "id": "04d58a14-4fb1-4b7a-9344-e40bad4a6b92",
+      "name": "Anexación a Base Noticias (Inglés)1",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        512,
+        -432
+      ],
+      "id": "6d3a3a8f-df32-4b8d-977f-4708d39d796a",
+      "name": "Consolidación de Bases de Noticias1",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "table": "NOTICIAS.NOTICIAS_ANALIZADAS",
+        "updateKey": "ID",
+        "columns": "SENTIMIENTO_RESULTADO, PROBABILIDAD_POSITIVO, PROBABILIDAD_NEGATIVA, PROBABILIDAD_NEUTRAL"
+      },
+      "type": "n8n-nodes-base.snowflake",
+      "typeVersion": 1,
+      "position": [
+        736,
+        -432
+      ],
+      "id": "c6230198-58f3-4ae3-af4b-0e8dc4d086d6",
+      "name": "Actualización de Registros Nuevos1",
+      "credentials": {
+        "snowflake": {
+          "id": "tUpi8fqTBzxZ84Zp",
+          "name": "Snowflake account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Usamos los items actuales (post-update) y recuperamos\n// los originales del nodo \"Consolidación de Bases de Noticias1\"\nconst afterUpdate = $input.all().map(i => i.json);\nconst originals = $items(\"Consolidación de Bases de Noticias1\", 0).map(i => i.json);\n\n// helper para formatear cada fila\nfunction fila(data) {\n  const fecha = String(data.FECHA || '').slice(0,10);\n  const fuente = data.FUENTE || '';\n  const titular = data.TITULAR || '';\n  const s = String(data.SENTIMIENTO_RESULTADO || '').toUpperCase();\n\n  const sentFmt =\n    s === 'NEGATIVO' ? '<strong style=\"color:#b00020\">NEGATIVO</strong>' :\n    s === 'POSITIVO' ? '<strong style=\"color:#00796b\">POSITIVO</strong>' :\n    '<strong>NEUTRAL</strong>';\n\n  return `\n    <tr>\n      <td style=\"border:1px solid #ddd;padding:8px;white-space:nowrap\">${fecha}</td>\n      <td style=\"border:1px solid #ddd;padding:8px\">${fuente}</td>\n      <td style=\"border:1px solid #ddd;padding:8px\">${sentFmt}</td>\n      <td style=\"border:1px solid #ddd;padding:8px\">${titular}</td>\n    </tr>`;\n}\n\n// combinamos por índice: datos originales + campos actualizados\nconst rows = afterUpdate.map((upd, i) => {\n  const base = originals[i] || {};\n  return fila({ ...base, ...upd });\n}).join('\\n');\n\nconst now = new Date();\nconst dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;\nconst count = afterUpdate.length;\n\nconst html = `\n<div style=\"font-family:Arial,Helvetica,sans-serif\">\n  <h2>Resumen de noticias analizadas</h2>\n  <p>Se muestran ${count} de ${count} registros.</p>\n  <table style=\"border-collapse:collapse;width:100%\">\n    <thead>\n      <tr style=\"background:#f5f5f5;text-align:left\">\n        <th style=\"border:1px solid #ddd;padding:8px\">Fecha</th>\n        <th style=\"border:1px solid #ddd;padding:8px\">Fuente</th>\n        <th style=\"border:1px solid #ddd;padding:8px\">Sentimiento</th>\n        <th style=\"border:1px solid #ddd;padding:8px\">Titular</th>\n      </tr>\n    </thead>\n    <tbody>\n      ${rows}\n    </tbody>\n  </table>\n</div>`;\n\nreturn [{\n  json: {\n    subject: `Noticias analizadas (${count}) - ${dateStr}`,\n    html\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        944,
+        -432
+      ],
+      "id": "96f5eb76-14f5-4c56-9481-2b296c2f491a",
+      "name": "Formatear Correo"
+    },
+    {
+      "parameters": {
+        "sendTo": "tfmgrupo4ucm@gmail.com",
+        "subject": "={{ $json.subject }}",
+        "message": "={{ $json.html }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1136,
+        -432
+      ],
+      "id": "cf8c4289-f91e-4761-af59-dfdc8fc1536c",
+      "name": "Envio de Confirmación1",
+      "webhookId": "0e0aaa36-ad63-4adf-b8ff-82ed41434afe",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ABChjQvLmrzv7K5r",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook Github Actions3": {
+      "main": [
+        [
+          {
+            "node": "Selección de Noticias Nuevas1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Selección de Noticias Nuevas1": {
+      "main": [
+        [
+          {
+            "node": "Condicional de idioma1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Condicional de idioma1": {
+      "main": [
+        [
+          {
+            "node": "Análisis de Sentimiento (Español)1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Anexación a Base Noticias (Español)1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Análisis de Sentimiento (Inglés)1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Anexación a Base Noticias (Inglés)1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Análisis de Sentimiento (Español)1": {
+      "main": [
+        [
+          {
+            "node": "Asignación de Resultado del Sentimiento1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Análisis de Sentimiento (Inglés)1": {
+      "main": [
+        [
+          {
+            "node": "Asignación del Resultado de Sentimiento1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Asignación de Resultado del Sentimiento1": {
+      "main": [
+        [
+          {
+            "node": "Anexación a Base Noticias (Español)1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Asignación del Resultado de Sentimiento1": {
+      "main": [
+        [
+          {
+            "node": "Anexación a Base Noticias (Inglés)1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Anexación a Base Noticias (Español)1": {
+      "main": [
+        [
+          {
+            "node": "Consolidación de Bases de Noticias1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anexación a Base Noticias (Inglés)1": {
+      "main": [
+        [
+          {
+            "node": "Consolidación de Bases de Noticias1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Consolidación de Bases de Noticias1": {
+      "main": [
+        [
+          {
+            "node": "Actualización de Registros Nuevos1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Actualización de Registros Nuevos1": {
+      "main": [
+        [
+          {
+            "node": "Formatear Correo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formatear Correo": {
+      "main": [
+        [
+          {
+            "node": "Envio de Confirmación1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d629a5505b3cbcb54160b70f2271634ee6b9bfcfe28d543ea1719d3934ac71d5"
+  }
+}
