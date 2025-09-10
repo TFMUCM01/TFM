@@ -12,7 +12,7 @@
       "type": "n8n-nodes-base.telegramTrigger",
       "typeVersion": 1.2,
       "position": [
-        -816,
+        -832,
         384
       ],
       "webhookId": "665c0194-596f-45ad-9cb4-a34076b16ad7",
@@ -25,32 +25,19 @@
     },
     {
       "parameters": {
-        "jsCode": "// Entrada: Telegram Trigger\nconst msg = $json.message ?? {};\nconst txt = (msg.text ?? '').trim();\nconst chatId = msg.chat?.id;\n\nif (!txt) {\n  return [{ chatId, reply: \"Envíame una pregunta, p. ej.: 'Cierre medio de SAN en 2024'.\" }];\n}\n\nif (['/start','/help'].includes(txt.toLowerCase())) {\n  const help = [\n    \"¡Hola! Puedo responder consultas sobre tus tablas en Snowflake.\",\n    \"Ejemplos:\",\n    \"• Cierre medio de SAN en 2024\",\n    \"• Volumen por día de BBVA la última semana\",\n    \"\",\n    \"Consejos: sé concreto; yo convierto tu texto a SQL SOLO SELECT, con LIMIT automático.\"\n  ].join('\\n');\n  return [{ chatId, reply: help }];\n}\n\nreturn [{ chatId, userQuery: txt }];"
-      },
-      "id": "9c20b656-bc54-4b9d-b9a4-63e03751a536",
-      "name": "Normalizar preguntas",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        -608,
-        384
-      ]
-    },
-    {
-      "parameters": {
         "modelId": {
           "__rl": true,
-          "value": "gpt-4o",
+          "value": "gpt-4o-mini",
           "mode": "list",
-          "cachedResultName": "GPT-4O"
+          "cachedResultName": "GPT-4O-MINI"
         },
         "messages": {
           "values": [
             {
-              "content": "Eres un asistente que genera SQL SOLO SELECT para Snowflake.\n\nTablas y columnas (nombres totalmente calificados):\n- TFM.YAHOO_FINANCE.INDEX_DAILY: [SYMBOL, MARKET, INDEX_NAME,PAIS, FECHA, OPEN, HIGH, LOW, CLOSE]\n\nReglas:\n- Devuelve SOLO el SQL, sin explicaciones y sin bloques ``` .\n- Nada de DDL/DML ni COPY/PUT/CALL/ALTER/GRANT/TRUNCATE.\n- Si el usuario pide “precio”, usa la columna CLOSE.\n- Si el usuario da un NOMBRE de empresa (p. ej. \"Santander\"), filtra con:\n  (NOMBRE ILIKE '%<nombre>%' OR SYMBOL ILIKE '<prefijo>%')\n- “final de AAAA” significa: último día hábil de ese año ⇒ usa\n  FECHA <= 'AAAA-12-31' ORDER BY FECHA DESC LIMIT 1\n- “últimos N” ⇒ ORDER BY FECHA DESC LIMIT N\n- Si puedes resolverlo, devuelve el SQL. Si no, responde exactamente: __NO-SQL__.\n\nEjemplos:\nUSUARIO: precio de santander al final del 2024\nSQL:\nSELECT CLOSE AS precio_cierre, FECHA, SYMBOL\nFROM TFM.YAHOO_FINANCE.INDEX_DAILY\nWHERE (NOMBRE ILIKE '%santander%' OR SYMBOL LIMIT 1;\n\nUSUARIO: últimos 5 cierres de SAN\nSQL:\nSELECT FECHA, CLOSE, SYMBOL\nFROM TFM.YAHOO_FINANCE.INDEX_DAILY\nWHERE SYMBOL ILIKE 'SAN%'\nORDER BY FECHA DESC\nLIMIT 5;\n"
+              "content": "Eres un asistente que genera SQL para Snowflake de las siguiente tablas.\n\nTablas y columnas (nombres totalmente calificados):\n- TFM.YAHOO_FINANCE.TICKERS_INDEX (tabla de acciones de empresas): [TICKER, CLOSE,HIGH,LOW,OPEN,VOLUME,FECHA]\n- TFM.YAHOO_FINANCE.INDEX_DAILY (tabla de mercado de valores totales): [SYMBOL,MARKET,INDEX_NAME,PAIS,FECHA,OPEN.HIGH,LOW,CLOSE]\n- TFM.YAHOO_FINANCE.FIN_SUMMARY_MAIN(tabla de indicadores financieros anules de acciones de empresas): [TICKER,YEAR,ASSETS,LIABILITIES,EQUITY,REVENUE,EXPENSES,NET_INCOME,OPERATING_CF,INVESTING_CF,FINANCING_CF,FREE_CF,NET_MARGIN,ROA,ROE,DEBT_EQUITY]\n- TFM.YAHOO_FINANCE.COMPANY_PROFILE (tabla de informacion de las acciones de empresas): [TICKER,NOMBRE,SECTOR,INDUSTRIA,EMPLEADOS,PAIS,CIUDAD,DIRECCION,WEBSITE,TELEFONO,MONEDA,EXCHANGE,MARKET_CAP,RESUMEN]\n\nReglas:\n- Devuelve SOLO el SQL, sin explicaciones y sin bloques para que snowflake lo ejecute directamente y sin saltos de linea.\n- Si el usuario pide “precio”, usa la columna CLOSE.\n- Si necesitas ahcer un JOIN netre tablas utiliza la columna TICKER para empresas.\n- Si necesitas hacer un JOIN netre empresa y mercado utiliza la columna PAIS.\n- Si el usuario da un NOMBRE de empresa (p. ej. \"Santander\"), filtra con:\n  (NOMBRE ILIKE '%<nombre>%' OR SYMBOL ILIKE '<prefijo>%')\n- “final de AAAA” significa: último día hábil de ese año. Utiliza:\n  FECHA <= 'AAAA-12-31' ORDER BY FECHA DESC LIMIT 1\n- “últimos N” ⇒ ORDER BY FECHA DESC LIMIT N\n- Si puedes resolverlo, devuelve el SQL. Si no, responde exactamente: __NO-SQL__."
             },
             {
-              "content": "={{$json.userQuery}}"
+              "content": "={{ $json.message?.text ?? $json.message?.caption ?? '' }}"
             }
           ]
         },
@@ -61,7 +48,7 @@
       "type": "@n8n/n8n-nodes-langchain.openAi",
       "typeVersion": 1.8,
       "position": [
-        -416,
+        -608,
         384
       ],
       "credentials": {
@@ -73,29 +60,16 @@
     },
     {
       "parameters": {
-        "jsCode": "// 1) Extraer el contenido de OpenAI en múltiples formatos (tu caso: message.content)\nlet raw =\n  $json.sql ??\n  $json.text ??\n  $json.response ??\n  $json.content ??\n  $json.message?.content ??            // <-- TU CASO\n  $json.choices?.[0]?.message?.content ??\n  $json.messages?.[0]?.content ??\n  '';\n\nif (typeof raw !== 'string') raw = String(raw ?? '');\n\n// 2) Limpiar fences y ; finales, y normalizar saltos/tabuladores\nlet sql = raw.trim()\n  .replace(/^```(?:sql)?\\s*/i, '')\n  .replace(/```$/i, '')\n  .replace(/;+$/,'')\n  .trim()\n  .replace(/\\\\r\\\\n/g, '\\n')\n  .replace(/\\\\n/g, '\\n')\n  .replace(/\\\\t/g, '\\t')\n  .trim();\n\n// 3) Validaciones\nif (!sql || sql.includes('__NO-SQL__')) {\n  return [{ json: { error: 'No puedo responder con las tablas disponibles. Reformula o revisa el catálogo.' } }];\n}\nif (!/^select\\b/i.test(sql)) {\n  return [{ json: { error: 'Solo se permiten consultas SELECT.', sqlSuggested: sql } }];\n}\n\nconst forbidden = /\\b(insert|update|delete|merge|alter|drop|create|copy|call|grant|revoke|truncate|put|get|execute)\\b/i;\nif (forbidden.test(sql)) {\n  return [{ json: { error: 'Se detectaron instrucciones no permitidas.', sqlSuggested: sql } }];\n}\nif (/--|\\/\\*/.test(sql)) {\n  return [{ json: { error: 'No se permiten comentarios en la consulta.', sqlSuggested: sql } }];\n}\nif (sql.split(';').length > 1) {\n  return [{ json: { error: 'Solo una sentencia SELECT por consulta.' } }];\n}\n\n// 4) Lista blanca\nconst allowed = ['INDEX_DAILY'];\nconst mentions = Array.from(sql.matchAll(/\\bfrom\\s+([A-Z0-9_\\.\"`]+)|\\bjoin\\s+([A-Z0-9_\\.\"`]+)/ig))\n  .flatMap(m => [m[1], m[2]]).filter(Boolean)\n  .map(t => t.replace(/[\"`]/g,'').split('.').pop().toUpperCase());\n\nif (mentions.some(t => !allowed.includes(t))) {\n  return [{ json: { error: 'La consulta referencia tablas no permitidas.', sqlSuggested: sql } }];\n}\n\n// 5) Añadir LIMIT si falta\nif (!/\\blimit\\s+\\d+/i.test(sql)) sql += ' LIMIT 50';\n\n// 6) Devolver SQL listo\nreturn [{ json: { sql } }];\n"
-      },
-      "id": "0451aed2-150f-4b0b-8bf5-093f3b1fe830",
-      "name": "Validar y limitar SQL",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        -64,
-        384
-      ]
-    },
-    {
-      "parameters": {
         "operation": "executeQuery",
-        "query": "={{ $json.sql && $json.sql.trim().length > 0 ? $json.sql : 'SELECT 1 WHERE 1=0' }}"
+        "query": "{{ $json.message.content }}"
       },
       "id": "63bb7286-f804-4ec5-b61e-9da374504892",
       "name": "Snowflake",
       "type": "n8n-nodes-base.snowflake",
       "typeVersion": 1,
       "position": [
-        320,
-        288
+        16,
+        272
       ],
       "alwaysOutputData": true,
       "credentials": {
@@ -108,21 +82,21 @@
     },
     {
       "parameters": {
-        "jsCode": "function esc(s) {\n  return String(s)\n    .replace(/&/g, '&amp;')\n    .replace(/</g, '&lt;')\n    .replace(/>/g, '&gt;');\n}\n\n// 1) Error desde el validador\nif ($json.error) {\n  const msg = `<b>Error:</b> ${esc($json.error)}`\n    + ($json.sqlSuggested ? `<br/><pre>${esc($json.sqlSuggested)}</pre>` : '');\n  return [{ html: msg }];\n}\n\n// 2) ¿Snowflake marcó error? (con Continue On Fail)\nconst incoming = $input.all();\nconst hasFail = incoming.some(i => i.json?.error || i.json?.executionStatus === 'error');\nif (hasFail) {\n  const err = incoming.find(i => i.json?.error)?.json?.error || 'Error al ejecutar la consulta.';\n  return [{ html: `<b>Error:</b> <pre>${esc(err)}</pre>` }];\n}\n\n// 3) Filas OK\nconst rows = incoming.map(i => i.json);\nif (!rows.length) {\n  return [{ html: '<i>Sin resultados</i>' }];\n}\n\nconst headers = Object.keys(rows[0]);\nconst lines = [headers.join('\\t'), ...rows.map(r => headers.map(h => String(r[h] ?? '')).join('\\t'))];\nlet body = `<pre>${esc(lines.join('\\n'))}</pre>`;\n\n// Recupera el SQL del validador\nconst sql = $prevNode['Validar y limitar SQL']?.json?.sql ?? '';\n\n// Evitar romper el límite de 4096 chars de Telegram\nconst MAX = 3500;\nlet html = (sql ? `<b>SQL ejecutado</b>\\n<pre>${esc(sql)}</pre>` : '') + `<b>Resultados</b>\\n${body}`;\nif (html.length > MAX) {\n  html = html.slice(0, MAX) + '\\n… (salida truncada)';\n}\n\nreturn [{ html }];"
+        "jsCode": "// -------- Config --------\nconst SHOW_SQL = true;      // mostrar el SQL ejecutado arriba del resultado\nconst MAX = 3500;           // límite seguro por mensaje (Telegram ~4096)\n\n// -------- Helpers --------\nfunction esc(s) {\n  return String(s ?? '')\n    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');\n}\nfunction pad(s, w) {\n  s = String(s ?? '');\n  return s.length >= w ? s : s + ' '.repeat(w - s.length);\n}\n\n// 1) Filas de Snowflake (todas las que lleguen)\nconst rows = $input.all().map(i => i.json);\n\n// 2) SQL ejecutado (del nodo OpenAI)\nconst rawSql = $items('Message a model')[0]?.json?.message?.content ?? '';\nconst shownSql = rawSql\n  .replace(/^```(?:sql)?\\s*/i,'').replace(/```$/i,'')  // por si el modelo usa fences\n  .replace(/\\\\r\\\\n/g,'\\n').replace(/\\\\n/g,'\\n').replace(/\\\\t/g,'\\t')\n  .trim();\n\nconst headSql = SHOW_SQL && shownSql ? `<b>SQL ejecutado</b>\\n<pre>${esc(shownSql)}</pre>\\n` : '';\n\n// 3) Sin resultados\nif (!rows.length) {\n  return [{ json: { html: `${headSql}<i>Sin resultados</i>` } }];\n}\n\n// 4) Columnas dinámicas (unión de todas las claves)\nconst cols = [];\nfor (const r of rows) for (const k of Object.keys(r)) if (!cols.includes(k)) cols.push(k);\n\n// 5) Anchos por columna para alinear en <pre>\nconst widths = cols.map(c => Math.max(c.length, ...rows.map(r => String(r[c] ?? '').length)));\n\n// 6) Construir tabla en texto monoespaciado\nconst header = cols.map((c,i) => pad(c, widths[i])).join('  ');\nconst sep    = cols.map((c,i) => '-'.repeat(widths[i])).join('  ');\nconst lines  = [header, sep, ...rows.map(r => cols.map((c,i) => pad(r[c] ?? '', widths[i])).join('  '))];\n\n// 7) Partir en varios mensajes si excede el límite\nconst prefix = `<b>Resultados (${rows.length} filas)</b>\\n`;\n\nlet chunks = [];\nlet buf = '';\nfor (const ln of lines) {\n  const toAdd = ln + '\\n';\n  const reserve = buf === '' ? (headSql.length + prefix.length) : 0;\n  if ((buf.length + toAdd.length + reserve) > MAX) {\n    chunks.push(buf);\n    buf = '';\n  }\n  buf += toAdd;\n}\nif (buf) chunks.push(buf);\n\n// 8) Emitir items: primer chunk incluye SQL\nconst out = chunks.map((block, i) => {\n  const top = (i === 0 ? headSql : '') + prefix;\n  const html = top + `<pre>${esc(block)}</pre>`;\n  return { json: { html } };\n});\n\nreturn out;\n"
       },
       "id": "a92f9a79-8e07-45b6-9997-cd50bfb39629",
       "name": "Formatear HTML",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        512,
-        400
+        208,
+        384
       ]
     },
     {
       "parameters": {
-        "chatId": "={{$prevNode[\"Normalizar preguntas\"].json.chatId || $json.chatId || $json.message?.chat?.id}}",
-        "text": "={{$json.html || $json.reply}}",
+        "chatId": "={{ $items('Telegram Trigger')[0].json.message.chat.id }}",
+        "text": "={{ $json.html }}",
         "additionalFields": {
           "parse_mode": "HTML"
         }
@@ -132,8 +106,8 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        688,
-        400
+        464,
+        384
       ],
       "webhookId": "10105ba4-6226-46a5-a428-31e376ad4ad0",
       "credentials": {
@@ -155,12 +129,11 @@
           "conditions": [
             {
               "id": "bd5fe977-b88b-495a-9d20-2d0d9faf2339",
-              "leftValue": "={{ ($json.sql || '').trim() }}",
-              "rightValue": "",
+              "leftValue": "={{ $json.message.content }}",
+              "rightValue": "__NO-SQL__",
               "operator": {
                 "type": "string",
-                "operation": "notEmpty",
-                "singleValue": true
+                "operation": "notEquals"
               }
             }
           ],
@@ -171,7 +144,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        144,
+        -208,
         384
       ],
       "id": "8d798c58-510b-4713-b04a-e66dcbe89e10",
@@ -183,17 +156,6 @@
       "main": [
         [
           {
-            "node": "Normalizar preguntas",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Normalizar preguntas": {
-      "main": [
-        [
-          {
             "node": "Message a model",
             "type": "main",
             "index": 0
@@ -202,17 +164,6 @@
       ]
     },
     "Message a model": {
-      "main": [
-        [
-          {
-            "node": "Validar y limitar SQL",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Validar y limitar SQL": {
       "main": [
         [
           {
