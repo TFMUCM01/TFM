@@ -59,14 +59,16 @@ prices = df_prices.pivot(index='FECHA', columns='TICKER', values='CLOSE').sort_i
 # ================================
 # Cálculo de rendimientos
 # ================================
+# --8<-- [start:rendimientos]
 rendimientos = (prices - prices.shift(1)) / prices.shift(1)
-
+# --8<-- [end:rendimientos]
 numero_activos = len(rendimientos.columns)
 
 rendimientos_portafolio = []
 riesgo_portafolio = []
 peso_portafolio = []
 
+# --8<-- [start:iteracioncarteras]
 for x in range(50000):
     pesos = np.random.random(numero_activos)
     pesos /= np.sum(pesos)
@@ -75,7 +77,7 @@ for x in range(50000):
     rendimientos_portafolio.append(rendimiento)
     riesgo_portafolio.append(riesgo)
     peso_portafolio.append(pesos)
-
+# --8<-- [end:iteracioncarteras]
 # ================================
 # Matriz de portafolios
 # ================================
