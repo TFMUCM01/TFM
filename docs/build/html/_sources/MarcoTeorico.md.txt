@@ -1,11 +1,12 @@
 # Modelos Teoricos
 
-Para la eleccion de 
-
+(modelo-de-markowitz)=
 ## Modelo de Markowitz
 El **modelo de Markowitz**, también conocido como **teoría moderna de carteras (Modern Portfolio Theory, MPT)**, fue desarrollado por **Harry Markowitz en 1952**.  
 
 Es un modelo matemático de inversión que busca optimizar la asignación de activos en una cartera, equilibrando **riesgo y rentabilidad esperada**.  
+
+![SML](../../Imagenes/capm.jpg)
 
 ### Ideas principales
 - **Diversificación**: no poner “todos los huevos en la misma cesta”. Al combinar activos con diferentes comportamientos, se reduce el riesgo total sin sacrificar necesariamente la rentabilidad.  
@@ -14,9 +15,9 @@ Es un modelo matemático de inversión que busca optimizar la asignación de act
 - **Correlación**: el modelo tiene en cuenta cómo se mueven los activos entre sí. Activos con correlación baja o negativa reducen el riesgo global.  
 - **Frontera eficiente**: es el conjunto de carteras óptimas que ofrecen la **mayor rentabilidad para un nivel de riesgo dado** (o el menor riesgo para una rentabilidad deseada).  
 
-### Fórmulas básicas
+### Fórmulas
 
-#### 1. Rentabilidad esperada de la cartera  
+1. Rentabilidad esperada de la cartera  
 
 La rentabilidad media ponderada de los activos que componen la cartera se define como:
 
@@ -28,9 +29,7 @@ donde:
 - \(w_i\) → peso del activo \(i\) en la cartera  
 - \(E(R_i)\) → rentabilidad esperada del activo \(i\)  
 
----
-
-#### 2. Varianza de la cartera (riesgo)  
+2. Varianza de la cartera (riesgo)  
 
 El riesgo total de la cartera se mide a través de su varianza:
 
@@ -45,7 +44,7 @@ donde:
 ---
 
 
-## Modelo de Valoración de Activos FinancierosSecurity Market Line (SML)
+## Modelo de Valoración de Activos Financieros  
 
 El **Modelo de Valoración de Activos Financieros** (Security Market Line (SML)) es una representación gráfica de la relación entre el riesgo sistemático de un activo y su rentabilidad esperada, según el modelo CAPM. Es un instrumento clave para entender cómo el mercado valora (o debería valorar) la compensación por riesgo que exige un inversor.
 
@@ -66,29 +65,28 @@ Usando esta herramientas debemos tomar en cuenta que:
 - La SML sirve para comparar activos de **distinto riesgo sistemático**, y se aplica tanto a acciones como a carteras.  
 
 3. Supuestos del modelo CAPM / SML:
-
-        Inversores racionales, aversos al riesgo, que maximizan la utilidad esperada.
-        Mercados eficientes (información disponible, sin costes de transacción, etc.).
-        Existencia de un activo libre de riesgo al que todos tienen acceso.
-        Sólo el riesgo sistemático (no diversificable) es recompensado; los riesgos idiosincráticos pueden diversificarse.
+- Inversores racionales, aversos al riesgo, que maximizan la utilidad esperada.
+- Mercados eficientes (información disponible, sin costes de transacción, etc.).
+- Existencia de un activo libre de riesgo al que todos tienen acceso.
+- Sólo el riesgo sistemático (no diversificable) es recompensado; los riesgos idiosincráticos pueden diversificarse.
 
 Distribución normal de retornos (o al menos, que las expectativas y varianzas-covarianzas son suficientes para describir el riesgo esperado).
 
-##  Descripción del gráfico
+### Descripción del gráfico
 - **Eje X:** Riesgo sistemático de un activo, medido por su **beta (β)**.  
 - **Eje Y:** Rentabilidad esperada (**E[R]**) del activo.  
 
 La recta parte de la **tasa libre de riesgo (Rf)** y tiene pendiente igual a la **prima de riesgo de mercado (Rm – Rf)**.  
 
-![FlujoN8N](../../Imagenes/SML_Graph.jpg)
+![SML](../../Imagenes/SML_Graph.jpg)
+
 ---
 
-## Fórmula
+### Fórmula
 
-$$
+```{math}
 E(R_i) = R_f + \beta_i \cdot (R_m - R_f)
-$$
-
+```
 donde:  
 - \(E(R_i)\): rentabilidad esperada del activo *i*.  
 - \(R_f\): tasa libre de riesgo (ej. bonos del Estado).  
