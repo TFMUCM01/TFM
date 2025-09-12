@@ -1,16 +1,14 @@
 # Descripción Problema
 
-## Definición del problema a resolver
+En el análisis de los mercados bursátiles, tradicionalmente se distinguen dos enfoques principales: el análisis fundamental y el análisis técnico. El análisis fundamental se apoya en datos financieros como beneficios, pérdidas, márgenes operativos o estructuras de capital para evaluar la solidez y el rendimiento de una empresa. Este enfoque resulta especialmente útil para inversiones a mediano y largo plazo, dado que permite valorar el potencial intrínseco de una compañía. No obstante, presenta limitaciones, ya que puede verse afectado por la manipulación de cifras contables, la opacidad en la presentación de los estados financieros o, incluso, por factores externos como las decisiones de política monetaria (ej. cambios en los tipos de interés).
 
-En el análisis financiero de los mercados bursátiles, existen dos enfoques principales: el análisis fundamental y el técnico. El análisis fundamental se basa en datos financieros concretos como ganancias, pérdidas y márgenes operativos para evaluar la salud y el rendimiento de una empresa. Este enfoque es ideal para inversiones a mediano y largo plazo, aunque no es infalible, ya que puede verse afectado por la manipulación de cifras o decisiones macroeconómicas como los tipos de interés.
+El análisis técnico, en contraste, prescinde de los fundamentos contables y se centra exclusivamente en el estudio del comportamiento histórico de los precios y volúmenes de negociación. Se basa en la identificación de patrones recurrentes y en el uso de herramientas gráficas —como los gráficos de velas, soportes, resistencias o indicadores chartistas— para anticipar movimientos futuros del mercado. Aunque este enfoque es especialmente útil en horizontes de corto plazo y en la toma de decisiones rápidas basadas en tendencias, también enfrenta limitaciones, dado que depende en gran medida de la validez de los patrones pasados en contextos futuros inciertos.
 
-Por otro lado, el análisis técnico se enfoca en el comportamiento del precio, sin considerar los datos financieros tradicionales. Utiliza herramientas gráficas como los gráficos de velas y patrones chartistas para anticipar movimientos futuros del mercado, siendo más útil para el corto plazo o decisiones basadas en tendencias.
+Sin embargo, en la actualidad los mercados financieros han demostrado que los precios no dependen únicamente de estas dos dimensiones tradicionales. La percepción y comportamiento de los inversores juegan un papel cada vez más decisivo, influenciados por la información que circula en medios de comunicación, redes sociales y foros especializados. Estos flujos de información generan cambios en el sentimiento del mercado, que en ocasiones logran anticipar movimientos alcistas o bajistas incluso antes de que se reflejen en los datos financieros o en los gráficos de precios.
 
-Sin embargo, en los mercados actuales, los precios de las acciones no dependen exclusivamente de estos factores tradicionales. También están influenciados por el comportamiento y percepción de los inversores, moldeados por la información que circula en medios, redes sociales y foros. Estos flujos de información generan cambios en el sentimiento del mercado, que pueden anticipar movimientos alcistas o bajistas.
+Ante esta realidad, surge la necesidad de incorporar un tercer enfoque: el análisis de sentimiento, basado en técnicas de Natural Language Processing (NLP) y análisis de texto. Esta aproximación permite cuantificar percepciones colectivas y medir su impacto potencial en los mercados, complementando así los enfoques fundamental y técnico. El valor añadido de esta integración radica en su capacidad para identificar correlaciones entre lo que se dice sobre una empresa, sector o temática financiera y el comportamiento posterior de los precios en bolsa.
 
-Ante esta realidad, surge una necesidad creciente de incorporar técnicas de procesamiento del lenguaje natural (NLP) y análisis de texto, que permitan cuantificar estas percepciones y combinarlas con indicadores financieros clásicos. El objetivo es desarrollar modelos predictivos más robustos, capaces de identificar patrones entre lo que se dice sobre sectores, empresas o temas financieros, y el comportamiento posterior de sus precios en bolsa.
-
-Este enfoque integral busca mejorar la capacidad de predicción en los mercados bursátiles, integrando análisis fundamental, técnico y de sentimiento.
+Finalmente, el análisis cuantitativo aporta un cuarto pilar que fortalece la capacidad predictiva del modelo. Mediante la aplicación de algoritmos matemáticos, estadísticos y de machine learning, este enfoque permite combinar grandes volúmenes de datos financieros y de noticias, detectando patrones complejos que resultan invisibles a través de métodos tradicionales. De esta forma, la integración de los análisis fundamental, técnico, de sentimiento y cuantitativo constituye un enfoque integral, que no solo mejora la precisión de las predicciones en los mercados bursátiles, sino que también amplía las herramientas disponibles para la toma de decisiones estratégicas en inversión.
 
 ---
 
@@ -41,52 +39,53 @@ En este contexto, el análisis de sentimiento se ha convertido en una herramient
 ## Hipótesis del estudio
 
 - **Hipótesis nula (H₀):**  
-  El sentimiento expresado en los titulares de prensa **NO** tiene un efecto significativo en la variación de los precios de las acciones sobre el mercado bursátil europeo.
+  Un dashboard interactivo y un asistente financiero automatizado, alimentados con datos de TradingView y Yahoo Finance, **no mejoran** el análisis del mercado europeo ni la toma de decisiones de inversión.
 
 - **Hipótesis alternativa (H₁):**  
-  El sentimiento expresado en la prensa **sí tiene** un efecto significativo en la variación de los precios de las acciones sobre el mercado bursátil europeo.
+  Un dashboard interactivo y un asistente financiero automatizado, alimentados con datos de TradingView y Yahoo Finance, facilitan el análisis del mercado europeo y mejoran la toma de decisiones de inversión.
 
 ---
 
 ## Alcance del proyecto (temporal, geográfico, sectorial)
 
-Este proyecto tiene como objetivo analizar el impacto del sentimiento expresado en titulares de la prensa económica europea sobre la evolución del mercado bursátil, con un enfoque específico en España como caso de estudio. Se busca determinar si el análisis de contenido textual relacionado con noticias financieras permite predecir con mayor precisión el comportamiento de los precios de las acciones, principalmente del índice IBEX 35.
+El presente proyecto tiene un alcance temporal definido entre enero de 2020 y septiembre de 2025, periodo caracterizado por acontecimientos económicos de gran relevancia como la pandemia de COVID-19, la recuperación posterior, los episodios inflacionarios y la guerra en Ucrania, todos ellos con fuerte impacto en los mercados financieros.
+
+En el ámbito geográfico, el estudio se centra en el mercado de valores europeo, tomando como referencia los principales índices bursátiles de países como España (IBEX 35), Alemania (DAX 40), Francia (CAC 40), Italia (FTSE MIB), Países Bajos (AEX), Reino Unido (FTSE 100), Suecia (OMXS30) y Suiza (SMI).
+
+Desde una perspectiva sectorial, el proyecto se focaliza en la información financiera de empresas cotizadas pertenecientes a dichos índices, complementada con métricas de sostenibilidad (ESG) y análisis de noticias económicas. Además, la investigación aborda los cuatro pilares fundamentales del análisis financiero: análisis de sentimiento, análisis técnico, análisis fundamental y análisis cuantitativo, lo que permite una visión integral de los mercados.
+
+No se incluyen en el alcance productos financieros de renta fija, ETFs u otros instrumentos mixtos y empaquetados, debido a las limitaciones de tiempo y disponibilidad de datos, aunque se reconocen como líneas de extensión futura.
 
 **Delimitación temporal:**  
-El análisis se desarrollará utilizando datos comprendidos entre enero de 2020 y agosto de 2025, un periodo caracterizado por eventos económicos de gran impacto (como la pandemia de COVID-19, la recuperación post-crisis, la inflación y la guerra en Ucrania), que generaron abundante información periodística y fuertes fluctuaciones en los mercados.
 
-**Delimitación geográfica:**  
-La investigación se centrará en titulares de la prensa económica del ámbito europeo, con prioridad en medios españoles y fuentes oficiales como el Instituto Nacional de Estadística (INE), la Comisión Nacional del Mercado de Valores (CNMV), el Banco de España y plataformas informativas como *El Economista*, *Expansión*, *Reuters*, *Bloomberg EU*, entre otros.
+El análisis se desarrollará sobre el periodo comprendido entre enero de 2020 y septiembre de 2025, un intervalo marcado por acontecimientos económicos de gran relevancia —como la pandemia de COVID-19, la posterior recuperación económica, los repuntes inflacionarios y la guerra en Ucrania— que generaron abundante información periodística y fuertes fluctuaciones en los mercados financieros. No obstante, este marco temporal también presenta limitaciones en cuanto a la disponibilidad de datos: mientras que la información financiera puede recopilarse de manera consistente desde el inicio del periodo, en el caso de las noticias únicamente se dispone de registros desde enero de 2024 hasta la actualidad, lo que impide contar con un histórico más amplio. Estas restricciones condicionan el alcance del análisis, pero al mismo tiempo permiten centrar el estudio en un horizonte temporal reciente y relevante, asegurando la pertinencia de los resultados en relación con las dinámicas económicas actuales.
 
-**Delimitación técnica:**  
-No se contemplan limitaciones técnicas relevantes, ya que se utilizarán herramientas y lenguajes de programación de acceso abierto. Se aplicarán técnicas de procesamiento de lenguaje natural (NLP), análisis de sentimiento y modelado predictivo, en conjunto con datos históricos bursátiles, para construir modelos que permitan identificar patrones y relaciones significativas entre la percepción del mercado y el comportamiento real de los activos.
+**Delimitación tecnicos:**  
+El proyecto presenta diversas limitaciones derivadas tanto de restricciones técnicas como de recursos. En primer lugar, no ha sido posible descargar toda la información financiera disponible, dado que carecen de una estructura estandarizada para todos los tickers, lo que dificulta la homogeneización de datos. Asimismo, el consumo de tokens para la ejecución de modelos de inferencia estuvo condicionado por el uso de una versión gratuita, limitación que con mayores recursos econimicos podría suplirse. En el plano de infraestructura, se realizaron dos migraciones del DataLake debido a la imposibilidad de mantener de forma continua un servicio de almacenamiento en la nube de pago como Snowflake. A nivel operativo, se implementó cloudflared como túnel de acceso para la integración de GitHub Actions con n8n en entorno local, lo que si bien resolvió la conectividad, añade complejidad al flujo de trabajo. Otro aspecto a considerar es el tiempo de ejecución, que restringe la velocidad y eficiencia de descarga de datos a gran escala. Finalmente, los plazos disponibles limitaron la expansión del proyecto, impidiendo la incorporación de otros productos financieros relevantes como renta fija, ETFs, instrumentos mixtos o empaquetados. 
 
 ---
 
 ## ¿Cómo lo haremos?
 
-- **Comparación de estado de resultados financieros de pymes**  
+- **Comparación de estado de resultados financieros**  
   - *Fuentes:*  
-    - Yahoo Finance  
-    - Finance Database  
-
-- **Análisis de proyección de deuda e inversión, modelado de datos**  
-  - *Fuentes:*  
-    - Finance Toolkits  
-
-- **Análisis de percepción del mercado: text mining y scrapping**  
-  - *Fuentes (scrapping):*  
-    - Data GOB – España  
+    - Yahoo Finance 
+    - TradingView 
 
 - **Noticias (text mining + scrapping):**  
-  - Cinco Días  
-  - Expansión  
-  - El Economista  
-  - Wayback  
+  - ABC
+  - BBC 
+  - El Pais
+  - Expansion 
+  - The times
+  - Bloomberg 
+  - El economista
 
 - **Escalabilidad del producto: productivizar el modelo**  
   - *Herramientas:*  
-    - Azure / Google Cloud  
-    - PyPortfolioOpt  
-    - mplfinance  
-    - Quant-Finance-Resources  
+    - SnowFlake 
+    - N8N
+    - Cloudflared
+    - Tableu
+    - Python 
+    - Git / GitHub

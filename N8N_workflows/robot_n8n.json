@@ -1,0 +1,294 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "id": "4e75487a-9b2f-4f7e-a310-513a35c05ac0",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -832,
+        384
+      ],
+      "webhookId": "665c0194-596f-45ad-9cb4-a34076b16ad7",
+      "credentials": {
+        "telegramApi": {
+          "id": "V8K7TQJIMzv5IHkg",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "{{ $json.message.content }}"
+      },
+      "id": "63bb7286-f804-4ec5-b61e-9da374504892",
+      "name": "Snowflake",
+      "type": "n8n-nodes-base.snowflake",
+      "typeVersion": 1,
+      "position": [
+        16,
+        272
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "snowflake": {
+          "id": "XmoC8FIefMMahYGi",
+          "name": "Snowflake account 2"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ========= Config =========\nconst SHOW_SQL = true;        // Mostrar el SQL ejecutado arriba de la tabla\nconst SHOW_ANALYSIS = true;   // Incluir el análisis del nodo \"Analizar resultados\" si existe\nconst MAX = 3500;             // Límite seguro por mensaje (Telegram ~4096)\n\n// ========= Helpers =========\nfunction esc(s) {\n  return String(s ?? '')\n    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');\n}\nfunction pad(s, w) {\n  s = String(s ?? '');\n  return s.length >= w ? s : s + ' '.repeat(w - s.length);\n}\n\n// ========= 1) Filas de Snowflake =========\n// OJO: leemos SIEMPRE del nodo \"Snowflake\", aunque la entrada inmediata sea otra\nconst snowItems = $items('Snowflake') || [];\nconst rows = snowItems.length ? snowItems.map(i => i.json) : $input.all().map(i => i.json);\n\n// ========= 2) SQL ejecutado (desde \"Recibir solicitud\") =========\nconst rawSqlFromModel =\n  $items('Recibir solicitud')[0]?.json?.message?.content ??\n  $json?.message?.content ?? '';\nconst shownSql = String(rawSqlFromModel)\n  .replace(/^```(?:sql)?\\s*/i,'')   // quitar fences\n  .replace(/```$/i,'')\n  .replace(/\\\\r\\\\n/g,'\\n').replace(/\\\\n/g,'\\n').replace(/\\\\t/g,'\\t')\n  .replace(/;+$/,'')                // quitar ; final opcional\n  .trim();\n\n// ========= 3) Análisis (desde \"Analizar resultados\") =========\nconst analysisTextRaw = $items('Analizar resultados')[0]?.json?.message?.content ?? '';\nconst analysisText = String(analysisTextRaw).trim();\n\n// Troceador genérico para bloques grandes\nfunction chunkTextAsHtmlBlocks(text, header = '') {\n  if (!text) return [];\n  const lines = String(text).split('\\n');\n  const blocks = [];\n  let buf = '';\n  let head = header; // solo en el primer chunk\n\n  for (const ln of lines) {\n    const toAdd = ln + '\\n';\n    const reserve = head.length; // espacio reservado para header\n    if ((buf.length + toAdd.length + reserve) > MAX) {\n      blocks.push(head + `<pre>${esc(buf)}</pre>`);\n      buf = '';\n      head = ''; // encabezado solo en el primer chunk\n    }\n    buf += toAdd;\n  }\n  if (buf) blocks.push((head || '') + `<pre>${esc(buf)}</pre>`);\n  return blocks;\n}\n\n// ========= 4) Construir salida (uno o varios items) =========\nconst out = [];\n\n// 4a) Análisis primero (si existe)\nif (SHOW_ANALYSIS && analysisText) {\n  const analysisHeader = `<b>Análisis</b>\\n`;\n  const analysisBlocks = chunkTextAsHtmlBlocks(analysisText, analysisHeader);\n  for (const html of analysisBlocks) out.push({ json: { html } });\n}\n\n// 4b) Sin resultados → mensaje corto\nif (!rows.length) {\n  const headSql = SHOW_SQL && shownSql ? `<b>SQL ejecutado</b>\\n<pre>${esc(shownSql)}</pre>\\n` : '';\n  out.push({ json: { html: `${headSql}<i>Sin resultados</i>` } });\n  return out;\n}\n\n// 4c) Tabla completa con TODAS las columnas\nconst cols = [];\nfor (const r of rows) for (const k of Object.keys(r)) if (!cols.includes(k)) cols.push(k);\n\nconst widths = cols.map(c => Math.max(c.length, ...rows.map(r => String(r[c] ?? '').length)));\nconst header = cols.map((c,i) => pad(c, widths[i])).join('  ');\nconst sep    = cols.map((c,i) => '-'.repeat(widths[i])).join('  ');\nconst lines  = [header, sep, ...rows.map(r => cols.map((c,i) => pad(r[c] ?? '', widths[i])).join('  '))];\n\n// 4d) Trocear por tamaño si hace falta\nconst headSql = SHOW_SQL && shownSql ? `<b>SQL ejecutado</b>\\n<pre>${esc(shownSql)}</pre>\\n` : '';\nconst prefix  = `<b>Resultados (${rows.length} filas)</b>\\n`;\n\nlet chunks = [];\nlet buf = '';\nfor (const ln of lines) {\n  const toAdd = ln + '\\n';\n  const reserve = buf === '' ? (headSql.length + prefix.length) : prefix.length;\n  if ((buf.length + toAdd.length + reserve) > MAX) {\n    chunks.push(buf);\n    buf = '';\n  }\n  buf += toAdd;\n}\nif (buf) chunks.push(buf);\n\n// 4e) Emitir items: primer chunk incluye SQL; todos incluyen el título\nfor (let i = 0; i < chunks.length; i++) {\n  const top = (i === 0 ? headSql : '') + prefix;\n  const html = top + `<pre>${esc(chunks[i])}</pre>`;\n  out.push({ json: { html } });\n}\n\nreturn out;\n"
+      },
+      "id": "a92f9a79-8e07-45b6-9997-cd50bfb39629",
+      "name": "Formatear HTML",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        848,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $items('Telegram Trigger')[0].json.message.chat.id }}",
+        "text": "={{ $json.html }}",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "de1b11ac-6d34-4bb9-b535-3f6b11965022",
+      "name": "Send a text message",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1104,
+        400
+      ],
+      "webhookId": "10105ba4-6226-46a5-a428-31e376ad4ad0",
+      "credentials": {
+        "telegramApi": {
+          "id": "V8K7TQJIMzv5IHkg",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "bd5fe977-b88b-495a-9d20-2d0d9faf2339",
+              "leftValue": "={{ $json.message.content }}",
+              "rightValue": "__NO-SQL__",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -208,
+        384
+      ],
+      "id": "8d798c58-510b-4713-b04a-e66dcbe89e10",
+      "name": "¿Tiene SQL?"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Lee TODAS las filas que vienen de Snowflake\nconst rows = $input.all().map(i => i.json);\nconst total = rows.length;\n\n// Un pequeño perfil de las columnas para no mandar demasiados tokens\nconst cols = [...new Set(rows.flatMap(r => Object.keys(r)))];\n\nfunction isNumeric(v) {\n  const n = Number(String(v).replace(',', '.'));\n  return Number.isFinite(n);\n}\n\n// Stats numéricas por columna\nconst numericStats = {};\nfor (const c of cols) {\n  const vals = rows.map(r => r[c]).filter(v => v !== null && v !== undefined && v !== '' && isNumeric(v))\n                   .map(v => Number(String(v).replace(',', '.'))).sort((a,b)=>a-b);\n  if (!vals.length) continue;\n  const sum = vals.reduce((a,b)=>a+b,0);\n  numericStats[c] = {\n    count: vals.length,\n    min: vals[0],\n    p50: vals[Math.floor(vals.length*0.5)],\n    p90: vals[Math.floor(vals.length*0.9)],\n    max: vals[vals.length-1],\n    avg: sum/vals.length,\n  };\n}\n\n// Rango de fechas para columnas que parezcan fecha\nconst dateRanges = {};\nfor (const c of cols) {\n  const vals = rows.map(r => r[c]).filter(Boolean)\n    .map(v => new Date(v)).filter(d => !isNaN(d.getTime()))\n    .sort((a,b)=>a-b);\n  if (!vals.length) continue;\n  dateRanges[c] = {\n    min: vals[0].toISOString().slice(0,10),\n    max: vals[vals.length-1].toISOString().slice(0,10),\n  };\n}\n\n// Muestra de filas para contexto (limita para no gastar tokens)\nconst SAMPLE_SIZE = 50;\nconst sample = rows.slice(0, SAMPLE_SIZE);\n\nconst profile = {\n  rowCount: total,\n  columns: cols,\n  numericStats,\n  dateRanges,\n  sampleCount: sample.length,\n};\n\n// Texto para el LLM\nconst analysis_prompt = [\n  \"Analiza estos resultados de Snowflake.\",\n  \"Perfil (JSON):\",\n  JSON.stringify(profile, null, 2),\n  \"Muestra de filas (JSON):\",\n  JSON.stringify(sample, null, 2),\n  \"\",\n  \"Requisitos:\",\n  \"- Responde en español.\",\n  \"- Da 5-8 conclusiones en viñetas: tendencias, outliers, rangos temporales y señales relevantes.\",\n  \"- No inventes valores; si no hay suficiente información, dilo.\",\n  \"- Si procede, sugiere 1-2 consultas SQL (SOLO SELECT) para profundizar, en bloque claro que empiece con 'SQL:'.\"\n].join(\"\\n\");\n\nreturn [{ json: { analysis_prompt } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        272
+      ],
+      "id": "b9a03180-f2af-4fac-a1d2-e33fbff8176b",
+      "name": "Preparar análisis"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "Eres un analista financiero. Explicas hallazgos con claridad y sin inventar datos.\nSi los resultados que tienes son categoricos como noticias y sentimiento, da una opinión sencilla de qué sectores podrian ser afectados\nSi sugieres SQL, debe ser SOLO SELECT.",
+              "role": "system"
+            },
+            {
+              "content": "={{ $json.analysis_prompt }}\n"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        432,
+        272
+      ],
+      "id": "746ad5d8-94ab-4047-9385-c469d497ff01",
+      "name": "Analizar resultados",
+      "credentials": {
+        "openAiApi": {
+          "id": "qp6pI2efrXja70z2",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "Eres un asistente que genera SQL para Snowflake de las siguiente tablas.\n\nTablas y columnas (nombres totalmente calificados):\n- TFM.YAHOO_FINANCE.TICKERS_INDEX (tabla de acciones de empresas): [TICKER, CLOSE,HIGH,LOW,OPEN,VOLUME,FECHA]\n- TFM.YAHOO_FINANCE.INDEX_DAILY (tabla de mercado de valores totales): [SYMBOL,MARKET,INDEX_NAME,PAIS,FECHA,OPEN.HIGH,LOW,CLOSE]\n- TFM.YAHOO_FINANCE.FIN_SUMMARY_MAIN(tabla de indicadores financieros anules de acciones de empresas): [TICKER,YEAR,ASSETS,LIABILITIES,EQUITY,REVENUE,EXPENSES,NET_INCOME,OPERATING_CF,INVESTING_CF,FINANCING_CF,FREE_CF,NET_MARGIN,ROA,ROE,DEBT_EQUITY]\n- TFM.YAHOO_FINANCE.COMPANY_PROFILE (tabla de informacion de las acciones de empresas): [TICKER,NOMBRE,SECTOR,INDUSTRIA,EMPLEADOS,PAIS,CIUDAD,DIRECCION,WEBSITE,TELEFONO,MONEDA,EXCHANGE,MARKET_CAP,RESUMEN]\n- TFM.NOTICIAS.NOTICIAS_ANALIZADAS (tabla de noticias con analisis de sentimiento): [FECHA,TITULAR,URL_ARCHIVO,FUENTE,IDIOMA,SENTIMIENTO _RESULTADO,PROBABILIDAD_NEGATIVA,PROBABILIDAD_NEUTRAL,PROBABILIDAD_POSITIVO]\n\nReglas:\n- Devuelve SOLO el SQL, sin explicaciones y sin bloques para que snowflake lo ejecute directamente y sin saltos de linea.\n- Puedes usar metricas si es que lo pide el mensaje para variaciones, promedios, desviaciones, etc.\n- Si el usuario pide “precio”, usa la columna CLOSE.\n- Si necesitas ahcer un JOIN entre tablas utiliza la columna TICKER para empresas.\n- Si necesitas hacer un JOIN entre empresa y mercado utiliza la columna PAIS.\n- Si el usuario da un NOMBRE de empresa (p. ej. \"Santander\"), filtra con:\n  (NOMBRE ILIKE '%<nombre>%' OR SYMBOL ILIKE '<prefijo>%')\n- “final de AAAA” significa: último día hábil de ese año. Utiliza:\n  FECHA <= 'AAAA-12-31' ORDER BY FECHA DESC LIMIT 1\n- “últimos N” ⇒ ORDER BY FECHA DESC LIMIT N.\n- Si te dicen el nombre es con la columna \"Nombre\" de la tabla \"Company profile\".\n- Si te dicen ticker es con la columna \"TICKER\".\n- Si te dicen noticias de idioma español es la tabla \"NOTICIAS_ANALIZADAS\" la column a\"IDIOMA\" si es \"en\" es inglés y si es \"es\" es español.\n- Si te dicen otro idioma de noticias da como resultado: __NO-SQL__.\n- Si puedes resolverlo, devuelve el SQL. Si no, responde exactamente: __NO-SQL__."
+            },
+            {
+              "content": "={{ $json.message?.text ?? $json.message?.caption ?? '' }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d2529264-1b37-4c90-a154-0617176bba95",
+      "name": "Recibir solicitud",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        -608,
+        384
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "qp6pI2efrXja70z2",
+          "name": "OpenAi account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Recibir solicitud",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Snowflake": {
+      "main": [
+        [
+          {
+            "node": "Preparar análisis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formatear HTML": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Tiene SQL?": {
+      "main": [
+        [
+          {
+            "node": "Snowflake",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Formatear HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar análisis": {
+      "main": [
+        [
+          {
+            "node": "Analizar resultados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analizar resultados": {
+      "main": [
+        [
+          {
+            "node": "Formatear HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recibir solicitud": {
+      "main": [
+        [
+          {
+            "node": "¿Tiene SQL?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d629a5505b3cbcb54160b70f2271634ee6b9bfcfe28d543ea1719d3934ac71d5"
+  }
+}
