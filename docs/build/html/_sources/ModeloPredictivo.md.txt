@@ -74,3 +74,35 @@ Una vez aplicados los modelos de análisis de sentimiento, se generan cuatro var
 
 ## Analisis de Frontera de eficiencia
 
+Para la selección de nuestra cartera emplearemos el modelo de media-varianza de Markowitz, considerado la base de la Teoría Moderna de Carteras. Este enfoque es ampliamente utilizado en finanzas porque permite encontrar la combinación óptima de activos equilibrando riesgo y rendimiento esperado.
+El procedimiento consiste en simular 50.000 carteras aleatorias con diferentes ponderaciones de activos. Posteriormente, se identifican aquellas que cumplen con dos criterios clave:
+- Cartera de mínima varianza: la que presenta el menor nivel de riesgo posible.
+- Cartera con ratio de Sharpe máximo: la que ofrece la mejor relación entre rendimiento y riesgo ajustado por la tasa libre de riesgo.
+[Ir a análisis de cartera](MarcoTeorico.md#modelo-de-markowitz)
+
+El primer aspecto a considerar es que los resultados de nuestro modelo se generan siempre con datos actualizados hasta el día anterior en todas las bases de datos. Dichos resultados se almacenan en un datalake implementado en Snowflake, el cual se encuentra en constante actualización. Por ello, la primera fase de nuestro análisis consiste en establecer la conexión con Snowflake y asegurar la correcta creación, configuración y mantenimiento del datalake.
+
+Una vez completada esta etapa, el modelo se vincula con las acciones seleccionadas por el usuario en función de su análisis fundamental —[AQUÍ INCLUIR EL NOMBRE DE LA SECCIÓN DE ANÁLISIS FUNDAMENTAL]—. Para cada activo elegido, se verifican las tendencias históricas y se realizan diferentes simulaciones con variaciones en los porcentajes de asignación.
+
+De este modo, el modelo permite seleccionar la combinación más eficiente considerando no solo los criterios de diversificación cuantitativa, sino también el análisis fundamental, el análisis descriptivo de los datos históricos y el análisis de sentimiento obtenido a partir de noticias sectoriales e industriales.
+
+
+El cálculo de los rendimientos de los activos es una etapa fundamental previa a cualquier análisis de carteras. A partir de los precios históricos, se obtienen las variaciones porcentuales que reflejan cómo evoluciona el valor de cada activo en el tiempo.
+
+```{literalinclude} ../../Analisis_ML/Frontera_Eficiencia.py
+:language: python
+:linenos:
+:start-after: --8<-- [start:rendimientos]
+:end-before: --8<-- [start:rendimientos]
+```
+
+Una vez obtenidos los datos necesarios para el análisis principal, procedemos a la simulación de 50.000 portafolios aleatorios. Este proceso nos permite explorar un amplio rango de combinaciones posibles entre los activos y, de este modo, identificar aquellas carteras que ofrecen el mejor equilibrio entre riesgo y rendimiento esperado.
+
+```{literalinclude} ../../Analisis_ML/Frontera_Eficiencia.py
+:language: python
+:linenos:
+:start-after: # --8<-- [start:iteracioncarteras]
+:end-before: # --8<-- [start:iteracioncarteras]
+```
+
+Luego 
