@@ -1,0 +1,141 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "/*\n  YAHOO_PRUEBA.IBEX — consultas de confirmación:\n  - LISTA_IBEX_35, COMPANY_PROFILE → conteo por PAIS\n  - FIN_ESG_SNAPSHOT, FIN_MARKET_SNAPSHOT → conteo total de registros\n  - FIN_SUMMARY_MAIN → contar registros del último YEAR\n  - HIST/INDEX_DAILY/TICKERS_INDEX → MAX(columna fecha correcta)\n*/\n\nconst DB_SCHEMA = 'TFM.YAHOO_FINANCE';\n\n// 1) Conteo por país\nconst tablasCountPais = ['LISTA_TICKERS', 'COMPANY_PROFILE'];\n\n// 2) Conteo total (no tienen FECHA)\nconst tablasCountTotal = ['FIN_ESG_SNAPSHOT', 'FIN_MARKET_SNAPSHOT'];\n\n/*\n  3) Tablas con columna de fecha:\n     (según tu captura: HIST usan SNAPSHOT_DATE; INDEX_DAILY y TICKERS_INDEX usan FECHA)\n     Si alguna difiere en tu esquema real, ajusta el nombre de columna aquí.\n*/\nconst fechaPorTabla = {\n  FIN_ESG_SNAPSHOT_HIST: 'SNAPSHOT_DATE',\n  FIN_MARKET_SNAPSHOT_HIST: 'SNAPSHOT_DATE',\n  INDEX_DAILY: 'FECHA',   // si fuera 'DATE', cámbialo aquí\n  TICKERS_INDEX: 'FECHA'\n};\n\nconst items = [];\n\n// (1) Conteo por país\nfor (const t of tablasCountPais) {\n  items.push({\n    json: {\n      tabla: t,\n      sql:\n`SELECT '${t}' AS TABLA, PAIS, COUNT(*) AS TOTAL\n FROM ${DB_SCHEMA}.${t}\n GROUP BY PAIS\n ORDER BY TOTAL DESC;`\n    }\n  });\n}\n\n// (2) Conteo total\nfor (const t of tablasCountTotal) {\n  items.push({\n    json: {\n      tabla: t,\n      sql:\n`SELECT '${t}' AS TABLA, COUNT(*) AS TOTAL_REGISTROS\n FROM ${DB_SCHEMA}.${t};`\n    }\n  });\n}\n\n// (3) MAX(fecha) con el nombre correcto por tabla\nfor (const [t, col] of Object.entries(fechaPorTabla)) {\n  items.push({\n    json: {\n      tabla: t,\n      sql:\n`SELECT '${t}' AS TABLA, MAX(${col}) AS ULTIMA_FECHA\n FROM ${DB_SCHEMA}.${t};`\n    }\n  });\n}\n\n// (4) FIN_SUMMARY_MAIN → conteo del último YEAR\nitems.push({\n  json: {\n    tabla: 'FIN_SUMMARY_MAIN',\n    sql:\n`WITH mx AS (\n  SELECT MAX(YEAR) AS ULTIMO_ANIO\n  FROM ${DB_SCHEMA}.FIN_SUMMARY_MAIN\n)\nSELECT 'FIN_SUMMARY_MAIN' AS TABLA,\n       (SELECT ULTIMO_ANIO FROM mx) AS ULTIMO_ANIO,\n       COUNT(*) AS REGISTROS_ULTIMO_ANIO\nFROM ${DB_SCHEMA}.FIN_SUMMARY_MAIN f\nWHERE f.YEAR = (SELECT ULTIMO_ANIO FROM mx);`\n  }\n});\n\nreturn items;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -576,
+        64
+      ],
+      "name": "Construir consultas",
+      "id": "76ced0cd-8c54-4673-9f2e-01842b9cffca"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "={{$json[\"sql\"]}}"
+      },
+      "type": "n8n-nodes-base.snowflake",
+      "typeVersion": 1,
+      "position": [
+        -352,
+        64
+      ],
+      "name": "Ejecutar en Snowflake",
+      "id": "b0a61b4c-c02f-4ef4-9221-514744e23cfc",
+      "credentials": {
+        "snowflake": {
+          "id": "XmoC8FIefMMahYGi",
+          "name": "Snowflake account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "/*\n  Arma el mensaje final según las columnas presentes:\n  - ULTIMA_FECHA → línea simple con última fecha\n  - PAIS / TOTAL → listado por país\n  - TOTAL_REGISTROS → línea con total de registros\n  - ULTIMO_ANIO / REGISTROS_ULTIMO_ANIO → línea con año y conteo\n*/\n\nconst items = $items();\nconst grupos = {};\n\nfor (const it of items) {\n  const row = it.json;\n  const tabla = row.TABLA || row.tabla || '¿SIN_TABLA?';\n  if (!grupos[tabla]) grupos[tabla] = [];\n  grupos[tabla].push(row);\n}\n\nconst ordenTablas = [\n  'LISTA_IBEX_35',\n  'COMPANY_PROFILE',\n  'FIN_ESG_SNAPSHOT',\n  'FIN_MARKET_SNAPSHOT',\n  'FIN_ESG_SNAPSHOT_HIST',\n  'FIN_MARKET_SNAPSHOT_HIST',\n  'FIN_SUMMARY_MAIN',\n  'INDEX_DAILY',\n  'TICKERS_INDEX'\n];\n\nlet msg = '📬 Resumen actualización Snowflake — YAHOO_PRUEBA.IBEX\\n\\n';\n\nfor (const t of ordenTablas) {\n  const filas = grupos[t];\n  if (!filas || filas.length === 0) {\n    msg += `• ${t}: sin datos\\n`;\n    continue;\n  }\n  const f0 = filas[0];\n\n  if (Object.prototype.hasOwnProperty.call(f0, 'ULTIMA_FECHA')) {\n    const fecha = f0.ULTIMA_FECHA ?? 'Sin registros';\n    msg += `• ${t} → última FECHA: ${fecha}\\n`;\n\n  } else if (Object.prototype.hasOwnProperty.call(f0, 'PAIS')) {\n    msg += `• ${t} (registros por PAIS):\\n`;\n    for (const r of filas) {\n      const pais = r.PAIS ?? 'Desconocido';\n      const total = r.TOTAL ?? 0;\n      msg += `   - ${pais}: ${total}\\n`;\n    }\n\n  } else if (Object.prototype.hasOwnProperty.call(f0, 'TOTAL_REGISTROS')) {\n    const total = f0.TOTAL_REGISTROS ?? 0;\n    msg += `• ${t} → total de registros: ${total}\\n`;\n\n  } else if (Object.prototype.hasOwnProperty.call(f0, 'ULTIMO_ANIO') &&\n             Object.prototype.hasOwnProperty.call(f0, 'REGISTROS_ULTIMO_ANIO')) {\n    const anio = f0.ULTIMO_ANIO ?? '¿?';\n    const cnt  = f0.REGISTROS_ULTIMO_ANIO ?? 0;\n    msg += `• ${t} → último YEAR: ${anio} — registros: ${cnt}\\n`;\n\n  } else {\n    // Fallback por si cambia el esquema\n    msg += `• ${t}: ${filas.length} fila(s)\\n`;\n  }\n}\n\nreturn [{ json: { mensaje: msg } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -128,
+        64
+      ],
+      "name": "Armar mensaje",
+      "id": "0025727e-2203-442a-865f-290f846a97f3"
+    },
+    {
+      "parameters": {
+        "sendTo": "tfmgrupo4ucm@gmail.com",
+        "subject": "Confirmación de actualización - Yahoo Finance",
+        "emailType": "text",
+        "message": "={{$json[\"mensaje\"]}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        80,
+        64
+      ],
+      "name": "Enviar correo",
+      "id": "a028a311-a97c-46ae-9c6b-9cfb75b9c56f",
+      "webhookId": "124bd465-c384-450c-8ee7-59c3b608bcd6",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ABChjQvLmrzv7K5r",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "yahoo_finance",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -800,
+        64
+      ],
+      "name": "Webhook Github Actions2",
+      "id": "5d19b8f3-4f0c-4431-87b0-ecc0d336e4b3",
+      "webhookId": "a680f44b-6c41-4c0e-9abb-5ba420037002"
+    }
+  ],
+  "connections": {
+    "Construir consultas": {
+      "main": [
+        [
+          {
+            "node": "Ejecutar en Snowflake",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ejecutar en Snowflake": {
+      "main": [
+        [
+          {
+            "node": "Armar mensaje",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Armar mensaje": {
+      "main": [
+        [
+          {
+            "node": "Enviar correo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook Github Actions2": {
+      "main": [
+        [
+          {
+            "node": "Construir consultas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d629a5505b3cbcb54160b70f2271634ee6b9bfcfe28d543ea1719d3934ac71d5"
+  }
+}
