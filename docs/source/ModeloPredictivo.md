@@ -92,9 +92,9 @@ El cálculo de los rendimientos de los activos es una etapa fundamental previa a
 ```{literalinclude} ../../Analisis_ML/Frontera_Eficiencia.py
 :language: python
 :linenos:
-:start-after: --8<-- [start:rendimientos]
-:end-before: --8<-- [start:rendimientos]
-```
+:start-after: # --8<-- [start:rendimientos]
+:end-before: # --8<-- [end:rendimientos]
+
 
 Una vez obtenidos los datos necesarios para el análisis principal, procedemos a la simulación de 50.000 portafolios aleatorios. Este proceso nos permite explorar un amplio rango de combinaciones posibles entre los activos y, de este modo, identificar aquellas carteras que ofrecen el mejor equilibrio entre riesgo y rendimiento esperado.
 
@@ -102,7 +102,7 @@ Una vez obtenidos los datos necesarios para el análisis principal, procedemos a
 :language: python
 :linenos:
 :start-after: # --8<-- [start:iteracioncarteras]
-:end-before: # --8<-- [start:iteracioncarteras]
+:end-before: # --8<-- [end:iteracioncarteras]
 ```
 
 Luego 

@@ -96,5 +96,3 @@ donde:
 - \(R_m\): rentabilidad esperada del mercado.  
 - \((R_m - R_f)\): prima de riesgo del mercado.  
 
----
-
