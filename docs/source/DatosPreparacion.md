@@ -119,7 +119,7 @@ En el análisis financiero, en primer lugar se necesitan los tickers sobre los q
 
 ### Scraping de índices europeos en TradingView
 
-Primeramente necesitamos extraer los tickers mas importantes de las boldas de cada pais y para esto hemos utilizado el API de TradingView que es utilizadas para el analisis financiero esto creando una funcion que llamanos `scrape_country` esta actua como orquestadora de las funciones `fetch_html` que lo que hace es extraer los html de TradingView y los recupera para luego extraer con `extract_rows_precise` los solicita para tenerlos los tickers validos de europa dentro de los diferentes indices con BeautifulSoup que localiza los nombres y tickers de las compañías, filtra los resultados según el mercado de interés, elimina duplicados y descarta instrumentos financieros no relevantes como ETFs o futuros. Finalmente, scrape_country orquesta ambos procesos para cada índice creando un DataFrame estandarizado con el ticker en formato Yahoo Finance, el nombre limpio de la empresa, el país y el símbolo local, lo que proporciona una base de datos estructurada y lista para su posterior almacenamiento y análisis en Snowflake.
+En una primera etapa resulta necesario extraer los tickers representativos de las principales bolsas europeas. Para ello se emplea la API de TradingView, ampliamente utilizada en el ámbito del análisis financiero, implementando la función scrape_country como componente orquestador del proceso. Esta función integra, por un lado, `fetch_html`, encargada de recuperar el código HTML de las páginas de TradingView, y por otro, `extract_rows_precise`, que a través de la librería BeautifulSoup identifica los nombres y tickers de las compañías, filtra los resultados según el mercado de interés, elimina duplicados y descarta instrumentos no relevantes como ETFs o futuros. Finalmente, scrape_country consolida ambos procedimientos para cada índice bursátil, generando un DataFrame estandarizado con el ticker en formato Yahoo Finance, el nombre depurado de la empresa, el país y el símbolo local, lo que permite conformar una base de datos estructurada y preparada para su posterior almacenamiento en Snowflake y para los análisis financieros avanzados.
 
 ```{literalinclude} ../../Yahoo_prueba/tickers_precios_global.py
 :language: python
@@ -138,7 +138,7 @@ Ejemplos de DataFrame de stickers:
 
 ### Descarga de precios por empresa diaria
 
-Una vez obtenida la lista de tickers, es necesario solicitar a Yahoo Finance la información histórica de cada uno de ellos mediante la función download_batch. Esta función descarga los precios diarios de apertura, cierre, máximo y mínimo, junto con el volumen de acciones negociadas, asociando cada registro con su fecha correspondiente. Posteriormente, los datos se normalizan en un formato estandarizado que permite integrarlos sin inconsistencias en el flujo de almacenamiento y análisis.
+Una vez obtenida la lista de tickers, se procede a la consulta de la información histórica en Yahoo Finance mediante la función `download_batch`. Dicha función permite recopilar de forma automatizada los precios diarios de apertura, cierre, máximo y mínimo, además del volumen de acciones negociadas, vinculando cada registro con su fecha correspondiente. Posteriormente, los datos son transformados y estandarizados en un formato homogéneo, lo que garantiza su integración sin inconsistencias dentro del flujo de almacenamiento en el DataLake y asegura la disponibilidad de un conjunto de información fiable para el análisis y la modelización posteriores.
 
 ```{literalinclude} ../../Yahoo_prueba/tickers_precios_global.py
 :language: python
@@ -157,7 +157,7 @@ Ejemplos de DataFrame de Precios por accion
 
 ### Carga de los DataFrame de precios por tickers en el DataLake
 
-Por último, se verifica la fecha de la última carga de precios y tickers almacenados en el DataLake. A partir de esa referencia, se descargan únicamente los datos faltantes hasta el día anterior, garantizando que la base se mantenga actualizada de forma diaria. Este procedimiento asegura la consistencia temporal del histórico y proporciona una fuente confiable y siempre vigente para los futuros análisis de machine learning.
+Finalmente, se lleva a cabo un proceso de verificación de la última fecha de actualización registrada en el DataLake, tanto para los precios como para los tickers disponibles. A partir de dicha referencia temporal, se descargan únicamente los datos faltantes hasta el día inmediatamente anterior, con el fin de mantener una ingesta incremental que garantice la actualización diaria del repositorio. Este enfoque asegura la coherencia y completitud del histórico financiero, a la vez que proporciona una base de datos confiable, estructurada y permanentemente actualizada para los posteriores análisis y modelado mediante técnicas de machine learning.
 
 ```{literalinclude} ../../Yahoo_prueba/tickers_precios_global.py
 :language: python
