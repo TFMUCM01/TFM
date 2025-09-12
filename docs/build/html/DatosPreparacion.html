@@ -21,7 +21,7 @@
     <link rel="index" title="Índice" href="genindex.html" />
     <link rel="search" title="Búsqueda" href="search.html" />
     <link rel="next" title="Modelos Predictivos" href="ModeloPredictivo.html" />
-    <link rel="prev" title="Descripción Problema" href="DescripcionProblema.html" /> 
+    <link rel="prev" title="Modelos Teoricos" href="MarcoTeorico.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -48,6 +48,7 @@
 <li class="toctree-l1"><a class="reference internal" href="ResumenEjecutivo.html">Resumen Ejecutivo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Introduccion.html">Introducción</a></li>
 <li class="toctree-l1"><a class="reference internal" href="DescripcionProblema.html">Descripción Problema</a></li>
+<li class="toctree-l1"><a class="reference internal" href="MarcoTeorico.html">Modelos Teoricos</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Datos y Preparación</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#titulares-de-noticieros">Titulares de noticieros</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#modulos-y-dependencias">Módulos y dependencias</a></li>
@@ -63,6 +64,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#carga-de-los-dataframe-de-precios-por-tickers-en-el-datalake">Carga de los DataFrame de precios por tickers en el DataLake</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#estados-financieros-por-tickers">Estados Financieros por tickers</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="ModeloPredictivo.html">Modelos Predictivos</a></li>
@@ -368,7 +370,32 @@ En caso contrario, se transforma la columna de fecha al tipo de dato adecuado (<
 </table>
 <section id="scraping-de-indices-europeos-en-tradingview">
 <h3>Scraping de índices europeos en TradingView<a class="headerlink" href="#scraping-de-indices-europeos-en-tradingview" title="Link to this heading"></a></h3>
-<p>Primeramente necesitamos extraer los tickers mas importantes de las boldas de cada pais y para esto hemos utilizado el API de TradingView que es utilizadas para el analisis financiero esto creando una funcion que llamanos <code class="docutils literal notranslate"><span class="pre">scrape_country</span></code> esta actua como orquestadora de las funciones <code class="docutils literal notranslate"><span class="pre">fetch_html</span></code> que lo que hace es extraer los html de TradingView y los recupera para luego extraer con <code class="docutils literal notranslate"><span class="pre">extract_rows_precise</span></code> los solicita para tenerlos los tickers validos de europa dentro de los diferentes indices con BeautifulSoup que localiza los nombres y tickers de las compañías, filtra los resultados según el mercado de interés, elimina duplicados y descarta instrumentos financieros no relevantes como ETFs o futuros. Finalmente, scrape_country orquesta ambos procesos para cada índice creando un DataFrame estandarizado con el ticker en formato Yahoo Finance, el nombre limpio de la empresa, el país y el símbolo local, lo que proporciona una base de datos estructurada y lista para su posterior almacenamiento y análisis en Snowflake.</p>
+<p>En una primera etapa resulta necesario extraer los tickers representativos de las principales bolsas europeas. Para ello se emplea la API de TradingView, ampliamente utilizada en el ámbito del análisis financiero, implementando la función scrape_country como componente orquestador del proceso. Esta función integra, por un lado, <code class="docutils literal notranslate"><span class="pre">fetch_html</span></code>, encargada de recuperar el código HTML de las páginas de TradingView, y por otro, <code class="docutils literal notranslate"><span class="pre">extract_rows_precise</span></code>, que a través de la librería BeautifulSoup identifica los nombres y tickers de las compañías, filtra los resultados según el mercado de interés, elimina duplicados y descarta instrumentos no relevantes como ETFs o futuros. Finalmente, scrape_country consolida ambos procedimientos para cada índice bursátil, generando un DataFrame estandarizado con el ticker en formato Yahoo Finance, el nombre depurado de la empresa, el país y el símbolo local, lo que permite conformar una base de datos estructurada y preparada para su posterior almacenamiento en Snowflake y para los análisis financieros avanzados.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="k">def</span><span class="w"> </span><span class="nf">scrape_country</span><span class="p">(</span><span class="n">spec</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="linenos"> 2</span>    <span class="n">html</span> <span class="o">=</span> <span class="n">fetch_html</span><span class="p">(</span><span class="n">spec</span><span class="p">[</span><span class="s2">&quot;components_url&quot;</span><span class="p">])</span>
+<span class="linenos"> 3</span>    <span class="n">pairs</span> <span class="o">=</span> <span class="n">extract_rows_precise</span><span class="p">(</span><span class="n">html</span><span class="p">,</span> <span class="n">spec</span><span class="p">[</span><span class="s2">&quot;accept_exchanges&quot;</span><span class="p">])</span>
+<span class="linenos"> 4</span>    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">pairs</span><span class="p">)</span>
+<span class="linenos"> 5</span>    <span class="n">exp</span> <span class="o">=</span> <span class="n">spec</span><span class="p">[</span><span class="s2">&quot;expected_count&quot;</span><span class="p">]</span>
+<span class="linenos"> 6</span>    <span class="k">if</span> <span class="n">n</span> <span class="o">!=</span> <span class="n">exp</span><span class="p">:</span>
+<span class="linenos"> 7</span>        <span class="c1"># tolera ±2 y avisa (TV puede variar 1–2 componentes)</span>
+<span class="linenos"> 8</span>        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="n">exp</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">:</span>
+<span class="linenos"> 9</span>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[WARN] </span><span class="si">{</span><span class="n">spec</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">spec</span><span class="p">[</span><span class="s1">&#39;pais&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">): </span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2"> componentes (esperados </span><span class="si">{</span><span class="n">exp</span><span class="si">}</span><span class="s2">). Continuando...&quot;</span><span class="p">)</span>
+<span class="linenos">10</span>        <span class="k">else</span><span class="p">:</span>
+<span class="linenos">11</span>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[ERROR] </span><span class="si">{</span><span class="n">spec</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">spec</span><span class="p">[</span><span class="s1">&#39;pais&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">): </span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2"> componentes (esperados </span><span class="si">{</span><span class="n">exp</span><span class="si">}</span><span class="s2">). Intento de continuar...&quot;</span><span class="p">)</span>
+<span class="linenos">12</span>    <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="linenos">13</span>    <span class="k">for</span> <span class="n">exch</span><span class="p">,</span> <span class="n">sym</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">:</span>
+<span class="linenos">14</span>        <span class="n">base_for_yahoo</span> <span class="o">=</span> <span class="n">yahoo_ticker_from_local</span><span class="p">(</span><span class="n">sym</span><span class="p">,</span> <span class="n">spec</span><span class="p">[</span><span class="s2">&quot;pais&quot;</span><span class="p">])</span>
+<span class="linenos">15</span>        <span class="n">yahoo</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_for_yahoo</span><span class="si">}{</span><span class="n">spec</span><span class="p">[</span><span class="s1">&#39;yahoo_suffix&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="linenos">16</span>        <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+<span class="linenos">17</span>            <span class="s2">&quot;TICKER_YAHOO&quot;</span><span class="p">:</span> <span class="n">yahoo</span><span class="p">,</span>
+<span class="linenos">18</span>            <span class="s2">&quot;NOMBRE&quot;</span><span class="p">:</span> <span class="n">clean_company_name</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">sym</span><span class="p">),</span>
+<span class="linenos">19</span>            <span class="s2">&quot;PAIS&quot;</span><span class="p">:</span> <span class="n">spec</span><span class="p">[</span><span class="s2">&quot;pais&quot;</span><span class="p">],</span>
+<span class="linenos">20</span>            <span class="s2">&quot;TICKET&quot;</span><span class="p">:</span> <span class="n">base_for_yahoo</span>
+<span class="linenos">21</span>        <span class="p">})</span>
+<span class="linenos">22</span>        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.2</span><span class="p">)</span>  <span class="c1"># respeta un poco más a TV</span>
+<span class="linenos">23</span>    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;TICKER_YAHOO&quot;</span><span class="p">,</span> <span class="s2">&quot;NOMBRE&quot;</span><span class="p">,</span> <span class="s2">&quot;PAIS&quot;</span><span class="p">,</span> <span class="s2">&quot;TICKET&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
 <p>Ejemplos de DataFrame de stickers:</p>
 <table class="docutils align-default">
 <thead>
@@ -399,7 +426,7 @@ En caso contrario, se transforma la columna de fecha al tipo de dato adecuado (<
 </section>
 <section id="descarga-de-precios-por-empresa-diaria">
 <h3>Descarga de precios por empresa diaria<a class="headerlink" href="#descarga-de-precios-por-empresa-diaria" title="Link to this heading"></a></h3>
-<p>Una vez obtenida la lista de tickers, es necesario solicitar a Yahoo Finance la información histórica de cada uno de ellos mediante la función download_batch. Esta función descarga los precios diarios de apertura, cierre, máximo y mínimo, junto con el volumen de acciones negociadas, asociando cada registro con su fecha correspondiente. Posteriormente, los datos se normalizan en un formato estandarizado que permite integrarlos sin inconsistencias en el flujo de almacenamiento y análisis.</p>
+<p>Una vez obtenida la lista de tickers, se procede a la consulta de la información histórica en Yahoo Finance mediante la función <code class="docutils literal notranslate"><span class="pre">download_batch</span></code>. Dicha función permite recopilar de forma automatizada los precios diarios de apertura, cierre, máximo y mínimo, además del volumen de acciones negociadas, vinculando cada registro con su fecha correspondiente. Posteriormente, los datos son transformados y estandarizados en un formato homogéneo, lo que garantiza su integración sin inconsistencias dentro del flujo de almacenamiento en el DataLake y asegura la disponibilidad de un conjunto de información fiable para el análisis y la modelización posteriores.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="k">def</span><span class="w"> </span><span class="nf">download_batch</span><span class="p">(</span><span class="n">tickers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">start_date</span><span class="p">,</span> <span class="n">end_excl</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="linenos"> 2</span>    <span class="k">if</span> <span class="ow">not</span> <span class="n">tickers</span><span class="p">:</span>
 <span class="linenos"> 3</span>        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;TICKER&quot;</span><span class="p">,</span><span class="s2">&quot;CLOSE&quot;</span><span class="p">,</span><span class="s2">&quot;HIGH&quot;</span><span class="p">,</span><span class="s2">&quot;LOW&quot;</span><span class="p">,</span><span class="s2">&quot;OPEN&quot;</span><span class="p">,</span><span class="s2">&quot;VOLUME&quot;</span><span class="p">,</span><span class="s2">&quot;FECHA&quot;</span><span class="p">])</span>
@@ -478,7 +505,7 @@ En caso contrario, se transforma la columna de fecha al tipo de dato adecuado (<
 </section>
 <section id="carga-de-los-dataframe-de-precios-por-tickers-en-el-datalake">
 <h3>Carga de los DataFrame de precios por tickers en el DataLake<a class="headerlink" href="#carga-de-los-dataframe-de-precios-por-tickers-en-el-datalake" title="Link to this heading"></a></h3>
-<p>Por último, se verifica la fecha de la última carga de precios y tickers almacenados en el DataLake. A partir de esa referencia, se descargan únicamente los datos faltantes hasta el día anterior, garantizando que la base se mantenga actualizada de forma diaria. Este procedimiento asegura la consistencia temporal del histórico y proporciona una fuente confiable y siempre vigente para los futuros análisis de machine learning.</p>
+<p>Finalmente, se lleva a cabo un proceso de verificación de la última fecha de actualización registrada en el DataLake, tanto para los precios como para los tickers disponibles. A partir de dicha referencia temporal, se descargan únicamente los datos faltantes hasta el día inmediatamente anterior, con el fin de mantener una ingesta incremental que garantice la actualización diaria del repositorio. Este enfoque asegura la coherencia y completitud del histórico financiero, a la vez que proporciona una base de datos confiable, estructurada y permanentemente actualizada para los posteriores análisis y modelado mediante técnicas de machine learning.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="k">def</span><span class="w"> </span><span class="nf">merge_with_temp</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
 <span class="linenos"> 2</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;Carga df a TMP_PRICES con write_pandas y luego MERGE → sin límite de expresiones.&quot;&quot;&quot;</span>
 <span class="linenos"> 3</span>    <span class="k">if</span> <span class="n">df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
@@ -506,13 +533,16 @@ En caso contrario, se transforma la columna de fecha al tipo de dato adecuado (<
 </div>
 </section>
 </section>
+<section id="estados-financieros-por-tickers">
+<h2>Estados Financieros por tickers<a class="headerlink" href="#estados-financieros-por-tickers" title="Link to this heading"></a></h2>
+</section>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Pie de página">
-        <a href="DescripcionProblema.html" class="btn btn-neutral float-left" title="Descripción Problema" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Anterior</a>
+        <a href="MarcoTeorico.html" class="btn btn-neutral float-left" title="Modelos Teoricos" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Anterior</a>
         <a href="ModeloPredictivo.html" class="btn btn-neutral float-right" title="Modelos Predictivos" accesskey="n" rel="next">Siguiente <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
