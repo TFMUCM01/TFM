@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Modelos Teóricos &mdash; TFM: Análisis de Tendencias Económicas en Madrid mediante Modelos Financieros y de Sentimiento</title>
+  <title>Modelos Teoricos &mdash; TFM: Análisis de Tendencias Económicas en Madrid mediante Modelos Financieros y de Sentimiento</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
@@ -17,11 +17,12 @@
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="_static/translations.js?v=f85f4cfb"></script>
+      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Índice" href="genindex.html" />
     <link rel="search" title="Búsqueda" href="search.html" />
-    <link rel="next" title="Descripción Problema" href="DescripcionProblema.html" />
-    <link rel="prev" title="Introducción" href="Introduccion.html" /> 
+    <link rel="next" title="Datos y Preparación" href="DatosPreparacion.html" />
+    <link rel="prev" title="Descripción Problema" href="DescripcionProblema.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -47,18 +48,19 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="ResumenEjecutivo.html">Resumen Ejecutivo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Introduccion.html">Introducción</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Modelos Teóricos</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#contexto-actual-de-las-pymes-en-espana-2024-2025">Contexto actual de las pymes en España (2024-2025)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#principales-desafios-para-las-pymes-espanolas">Principales desafíos para las pymes españolas</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#oportunidades">Oportunidades</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#lecciones-de-la-pandemia">Lecciones de la pandemia</a></li>
-</ul>
-</li>
-</ul>
-</li>
 <li class="toctree-l1"><a class="reference internal" href="DescripcionProblema.html">Descripción Problema</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Modelos Teoricos</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#modelo-de-markowitz">Modelo de Markowitz</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ideas-principales">Ideas principales</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#formulas-basicas">Fórmulas básicas</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#rentabilidad-esperada-de-la-cartera">1. Rentabilidad esperada de la cartera</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#varianza-de-la-cartera-riesgo">2. Varianza de la cartera (riesgo)</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="DatosPreparacion.html">Datos y Preparación</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ModeloPredictivo.html">Modelo Predictivo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ModeloPredictivo.html">Modelos Predictivos</a></li>
 <li class="toctree-l1"><a class="reference internal" href="EvaluacionModelo.html">Evaluación de los Modelos</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Conclusiones.html">Conclusiones</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Bibliografia.html">Bibliografía</a></li>
@@ -79,7 +81,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Modelos Teóricos</li>
+      <li class="breadcrumb-item active">Modelos Teoricos</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/MarcoTeorico.md.txt" rel="nofollow"> Ver código fuente de la página</a>
       </li>
@@ -90,49 +92,56 @@
            <div itemprop="articleBody">
              
   <section id="modelos-teoricos">
-<h1>Modelos Teóricos<a class="headerlink" href="#modelos-teoricos" title="Link to this heading"></a></h1>
-<section id="contexto-actual-de-las-pymes-en-espana-2024-2025">
-<h2>Contexto actual de las pymes en España (2024-2025)<a class="headerlink" href="#contexto-actual-de-las-pymes-en-espana-2024-2025" title="Link to this heading"></a></h2>
-<p>Durante los últimos años, las pymes españolas han atravesado un entorno económico desafiante. A pesar de los esfuerzos por la recuperación económica tras la pandemia, muchas empresas han visto erosionada su rentabilidad debido al incremento constante de los costes operativos.</p>
-<p>Según el informe de <strong>CEPYME</strong>, los costes laborales han aumentado un <strong>25,1%</strong> desde 2021, mientras que la rentabilidad bruta ha caído un <strong>11,7%</strong> desde 2019.<br />
-👉 <a class="reference external" href="https://cepyme.es/situacion-de-las-pymes/">Informe CEPYME</a><br />
-👉 <a class="reference external" href="https://www.elespanol.com/invertia/economia/empleo/20250317/callejon-sin-salida-pymes-rentabilidad-cae-costes-disparan/931157099_0.html">El Español - Rentabilidad cae, costes se disparan</a></p>
-<p>Adicionalmente, la <strong>productividad</strong> ha disminuido en un <strong>2,3% interanual</strong> en el segundo trimestre de 2024. Esta situación limita seriamente la competitividad y sostenibilidad financiera de muchas pymes, sobre todo en los sectores más expuestos a cambios regulatorios, inflación y competencia global.</p>
-<p>Una de las barreras tradicionales al crecimiento de las pymes ha sido el <strong>acceso limitado a la financiación</strong>. Sin embargo, en 2024 se ha observado una mejora gracias a la política monetaria más flexible del Banco Central Europeo y a los fondos europeos del <strong>Plan de Recuperación, Transformación y Resiliencia</strong>, que ha destinado más de <strong>16.800 millones de euros</strong> específicamente para apoyar a pymes.</p>
-<p>Aun así, solo el <strong>47,7%</strong> de las pymes recurrió a financiación externa en 2024, lo que revela un margen de mejora en la cultura financiera y el acceso a instrumentos de crecimiento.<br />
-👉 <a class="reference external" href="https://elpais.com/economia/2025-05-06/las-pymes-redujeron-su-actividad-internacional-en-2024-y-advierten-que-la-situacion-empeorara-con-la-guerra-arancelaria-de-trump.html">El País - Reducción de actividad internacional</a><br />
-👉 <a class="reference external" href="https://planderecuperacion.gob.es/noticias/como-se-estan-transformando-las-pymes-con-el-plan-de-recuperacion-prtr">Plan de Recuperación - Transformación de pymes</a></p>
-<hr class="docutils" />
-<section id="principales-desafios-para-las-pymes-espanolas">
-<h3>Principales desafíos para las pymes españolas<a class="headerlink" href="#principales-desafios-para-las-pymes-espanolas" title="Link to this heading"></a></h3>
+<h1>Modelos Teoricos<a class="headerlink" href="#modelos-teoricos" title="Link to this heading"></a></h1>
+<section id="modelo-de-markowitz">
+<h2>Modelo de Markowitz<a class="headerlink" href="#modelo-de-markowitz" title="Link to this heading"></a></h2>
+<p>El <strong>modelo de Markowitz</strong>, también conocido como <strong>teoría moderna de carteras (Modern Portfolio Theory, MPT)</strong>, fue desarrollado por <strong>Harry Markowitz en 1952</strong>.</p>
+<p>Es un modelo matemático de inversión que busca optimizar la asignación de activos en una cartera, equilibrando <strong>riesgo y rentabilidad esperada</strong>.</p>
+</section>
+<section id="ideas-principales">
+<h2>Ideas principales<a class="headerlink" href="#ideas-principales" title="Link to this heading"></a></h2>
 <ul class="simple">
-<li><p>Baja rentabilidad estructural.</p></li>
-<li><p>Escasa productividad.</p></li>
-<li><p>Dificultad para atraer y retener talento.</p></li>
-<li><p>Débil cultura digital y financiera.</p></li>
-<li><p>Vulnerabilidad ante cambios regulatorios y macroeconómicos.</p></li>
+<li><p><strong>Diversificación</strong>: no poner “todos los huevos en la misma cesta”. Al combinar activos con diferentes comportamientos, se reduce el riesgo total sin sacrificar necesariamente la rentabilidad.</p></li>
+<li><p><strong>Rentabilidad esperada</strong>: cada activo tiene un rendimiento medio esperado.</p></li>
+<li><p><strong>Riesgo</strong>: se mide con la <strong>varianza o desviación estándar</strong> de los rendimientos.</p></li>
+<li><p><strong>Correlación</strong>: el modelo tiene en cuenta cómo se mueven los activos entre sí. Activos con correlación baja o negativa reducen el riesgo global.</p></li>
+<li><p><strong>Frontera eficiente</strong>: es el conjunto de carteras óptimas que ofrecen la <strong>mayor rentabilidad para un nivel de riesgo dado</strong> (o el menor riesgo para una rentabilidad deseada).</p></li>
+</ul>
+</section>
+<section id="formulas-basicas">
+<h2>Fórmulas básicas<a class="headerlink" href="#formulas-basicas" title="Link to this heading"></a></h2>
+<section id="rentabilidad-esperada-de-la-cartera">
+<h3>1. Rentabilidad esperada de la cartera<a class="headerlink" href="#rentabilidad-esperada-de-la-cartera" title="Link to this heading"></a></h3>
+<p>La rentabilidad media ponderada de los activos que componen la cartera se define como:</p>
+<p>$$
+E(R_p) = \sum_{i=1}^n w_i \cdot E(R_i)
+$$</p>
+<p>donde:</p>
+<ul class="simple">
+<li><p>(w_i) → peso del activo (i) en la cartera</p></li>
+<li><p>(E(R_i)) → rentabilidad esperada del activo (i)</p></li>
 </ul>
 </section>
 <hr class="docutils" />
-<section id="oportunidades">
-<h3>Oportunidades<a class="headerlink" href="#oportunidades" title="Link to this heading"></a></h3>
-<p>Pese a los desafíos, también existen oportunidades:</p>
+<section id="varianza-de-la-cartera-riesgo">
+<h3>2. Varianza de la cartera (riesgo)<a class="headerlink" href="#varianza-de-la-cartera-riesgo" title="Link to this heading"></a></h3>
+<p>El riesgo total de la cartera se mide a través de su varianza:</p>
+<p>$$
+\sigma_p^2 = \sum_{i=1}^n \sum_{j=1}^n w_i w_j \sigma_{ij}
+$$</p>
+<p>donde:</p>
 <ul class="simple">
-<li><p>Acceso creciente a herramientas tecnológicas.</p></li>
-<li><p>Digitalización de procesos.</p></li>
-<li><p>Aprovechamiento de fondos europeos.</p></li>
-<li><p>Creciente conciencia en torno a la sostenibilidad.</p></li>
+<li><p>(\sigma_{ij}) → covarianza entre los activos (i) y (j)</p></li>
+<li><p>Si (i = j), entonces (\sigma_{ii}) corresponde a la varianza del activo (i).</p></li>
 </ul>
-<p>Estos representan caminos posibles para que una pyme evolucione y se convierta en una empresa de mayor escala.</p>
-<p>El <strong>71% de los empresarios en España espera aumentar su facturación en 2025</strong>, lo que refleja un clima de <strong>optimismo moderado</strong>. Esta expectativa se alinea con el crecimiento de la <strong>confianza empresarial</strong>, que ha subido un <strong>0,5%</strong> en el primer trimestre de 2025.</p>
-</section>
 <hr class="docutils" />
-<section id="lecciones-de-la-pandemia">
-<h3>Lecciones de la pandemia<a class="headerlink" href="#lecciones-de-la-pandemia" title="Link to this heading"></a></h3>
-<p>La pandemia expuso debilidades estructurales en las pymes, como la escasa digitalización y la dependencia de sectores vulnerables como el turismo y la hostelería.</p>
-<p>En 2020, el <strong>PIB español se contrajo un 11,3%</strong>, la mayor caída en la Unión Europea, debido al peso de estos sectores en la economía nacional. Además, la falta de inversión en tecnología y la dificultad para adaptarse a nuevas formas de trabajo han limitado la recuperación de la productividad.</p>
-<p>👉 <a class="reference external" href="https://elpais.com/economia/2025-02-17/un-estudio-de-cepyme-alerta-de-que-el-nuevo-salario-minimo-representa-el-70-del-sueldo-medio-en-las-pequenas-empresas.html">El País - Impacto del salario mínimo</a><br />
-👉 <a class="reference external" href="https://revistapymes.es/aumento-de-costes-y-falta-de-financiacion-hunden-la-productividad-de-las-pymes/">Revista Pymes - Aumento de costes</a></p>
+<p><strong>Nota:</strong></p>
+<ul class="simple">
+<li><p>Si lo usas en <strong>Sphinx con MyST</strong>, puedes sustituir los bloques <code class="docutils literal notranslate"><span class="pre">$$</span> <span class="pre">...</span> <span class="pre">$$</span></code> por:</p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[E(R_p) = \sum_{i=1}^n w_i \cdot E(R_i)
+\]</div>
 </section>
 </section>
 </section>
@@ -141,8 +150,8 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Pie de página">
-        <a href="Introduccion.html" class="btn btn-neutral float-left" title="Introducción" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Anterior</a>
-        <a href="DescripcionProblema.html" class="btn btn-neutral float-right" title="Descripción Problema" accesskey="n" rel="next">Siguiente <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="DescripcionProblema.html" class="btn btn-neutral float-left" title="Descripción Problema" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Anterior</a>
+        <a href="DatosPreparacion.html" class="btn btn-neutral float-right" title="Datos y Preparación" accesskey="n" rel="next">Siguiente <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

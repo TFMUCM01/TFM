@@ -71,3 +71,6 @@ Una vez aplicados los modelos de análisis de sentimiento, se generan cuatro var
 | 2024-01-16 | El Gobierno delega en las autonomías la ampliación del bono joven de alquiler | ABC    | Neutral               | 0.7266298234          | 0.1628957987         | 0.7266298234          |
 | 2024-01-30 | Reynés (Naturgy) elogia a BlackRock por dar estabilidad a las empresas y ve «alineamiento de intereses» | ABC    | Neutral               | 0.4201913178          | 0.3785941601         | 0.4201913178          |
 
+
+## Analisis de Frontera de eficiencia
+
