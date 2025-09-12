@@ -17,7 +17,6 @@
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="_static/translations.js?v=f85f4cfb"></script>
-      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Índice" href="genindex.html" />
     <link rel="search" title="Búsqueda" href="search.html" />
@@ -50,13 +49,19 @@
 <li class="toctree-l1"><a class="reference internal" href="Introduccion.html">Introducción</a></li>
 <li class="toctree-l1"><a class="reference internal" href="DescripcionProblema.html">Descripción Problema</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Modelos Teoricos</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#modelo-de-markowitz">Modelo de Markowitz</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#ideas-principales">Ideas principales</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#formulas-basicas">Fórmulas básicas</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#rentabilidad-esperada-de-la-cartera">1. Rentabilidad esperada de la cartera</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#varianza-de-la-cartera-riesgo">2. Varianza de la cartera (riesgo)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#modelo-de-markowitz">Modelo de Markowitz</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ideas-principales">Ideas principales</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#formulas-basicas">Fórmulas básicas</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#rentabilidad-esperada-de-la-cartera">1. Rentabilidad esperada de la cartera</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#varianza-de-la-cartera-riesgo">2. Varianza de la cartera (riesgo)</a></li>
 </ul>
 </li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#modelo-de-valoracion-de-activos-financierossecurity-market-line-sml">Modelo de Valoración de Activos FinancierosSecurity Market Line (SML)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#descripcion-del-grafico">Descripción del gráfico</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id1"></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#formula">Fórmula</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="DatosPreparacion.html">Datos y Preparación</a></li>
@@ -93,13 +98,13 @@
              
   <section id="modelos-teoricos">
 <h1>Modelos Teoricos<a class="headerlink" href="#modelos-teoricos" title="Link to this heading"></a></h1>
+<p>Para la eleccion de</p>
 <section id="modelo-de-markowitz">
 <h2>Modelo de Markowitz<a class="headerlink" href="#modelo-de-markowitz" title="Link to this heading"></a></h2>
 <p>El <strong>modelo de Markowitz</strong>, también conocido como <strong>teoría moderna de carteras (Modern Portfolio Theory, MPT)</strong>, fue desarrollado por <strong>Harry Markowitz en 1952</strong>.</p>
 <p>Es un modelo matemático de inversión que busca optimizar la asignación de activos en una cartera, equilibrando <strong>riesgo y rentabilidad esperada</strong>.</p>
-</section>
 <section id="ideas-principales">
-<h2>Ideas principales<a class="headerlink" href="#ideas-principales" title="Link to this heading"></a></h2>
+<h3>Ideas principales<a class="headerlink" href="#ideas-principales" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p><strong>Diversificación</strong>: no poner “todos los huevos en la misma cesta”. Al combinar activos con diferentes comportamientos, se reduce el riesgo total sin sacrificar necesariamente la rentabilidad.</p></li>
 <li><p><strong>Rentabilidad esperada</strong>: cada activo tiene un rendimiento medio esperado.</p></li>
@@ -109,9 +114,9 @@
 </ul>
 </section>
 <section id="formulas-basicas">
-<h2>Fórmulas básicas<a class="headerlink" href="#formulas-basicas" title="Link to this heading"></a></h2>
+<h3>Fórmulas básicas<a class="headerlink" href="#formulas-basicas" title="Link to this heading"></a></h3>
 <section id="rentabilidad-esperada-de-la-cartera">
-<h3>1. Rentabilidad esperada de la cartera<a class="headerlink" href="#rentabilidad-esperada-de-la-cartera" title="Link to this heading"></a></h3>
+<h4>1. Rentabilidad esperada de la cartera<a class="headerlink" href="#rentabilidad-esperada-de-la-cartera" title="Link to this heading"></a></h4>
 <p>La rentabilidad media ponderada de los activos que componen la cartera se define como:</p>
 <p>$$
 E(R_p) = \sum_{i=1}^n w_i \cdot E(R_i)
@@ -124,7 +129,7 @@ $$</p>
 </section>
 <hr class="docutils" />
 <section id="varianza-de-la-cartera-riesgo">
-<h3>2. Varianza de la cartera (riesgo)<a class="headerlink" href="#varianza-de-la-cartera-riesgo" title="Link to this heading"></a></h3>
+<h4>2. Varianza de la cartera (riesgo)<a class="headerlink" href="#varianza-de-la-cartera-riesgo" title="Link to this heading"></a></h4>
 <p>El riesgo total de la cartera se mide a través de su varianza:</p>
 <p>$$
 \sigma_p^2 = \sum_{i=1}^n \sum_{j=1}^n w_i w_j \sigma_{ij}
@@ -134,15 +139,64 @@ $$</p>
 <li><p>(\sigma_{ij}) → covarianza entre los activos (i) y (j)</p></li>
 <li><p>Si (i = j), entonces (\sigma_{ii}) corresponde a la varianza del activo (i).</p></li>
 </ul>
-<hr class="docutils" />
-<p><strong>Nota:</strong></p>
-<ul class="simple">
-<li><p>Si lo usas en <strong>Sphinx con MyST</strong>, puedes sustituir los bloques <code class="docutils literal notranslate"><span class="pre">$$</span> <span class="pre">...</span> <span class="pre">$$</span></code> por:</p></li>
-</ul>
-<div class="math notranslate nohighlight">
-\[E(R_p) = \sum_{i=1}^n w_i \cdot E(R_i)
-\]</div>
 </section>
+</section>
+</section>
+<hr class="docutils" />
+<section id="modelo-de-valoracion-de-activos-financierossecurity-market-line-sml">
+<h2>Modelo de Valoración de Activos FinancierosSecurity Market Line (SML)<a class="headerlink" href="#modelo-de-valoracion-de-activos-financierossecurity-market-line-sml" title="Link to this heading"></a></h2>
+<p>El <strong>Modelo de Valoración de Activos Financieros</strong> (Security Market Line (SML)) es una representación gráfica de la relación entre el riesgo sistemático de un activo y su rentabilidad esperada, según el modelo CAPM. Es un instrumento clave para entender cómo el mercado valora (o debería valorar) la compensación por riesgo que exige un inversor.</p>
+<p>Usando esta herramientas debemos tomar en cuenta que:</p>
+<ol class="arabic">
+<li><p>Beta (β): mide la sensibilidad del activo respecto al mercado.</p>
+<p>Si β &gt; 1 → el activo es más volátil que el mercado.</p>
+<p>Si β &lt; 1 → menos volátil.</p>
+<p>i β = 1 → sensibilidad igual al mercado.</p>
+</li>
+<li><p>Interpretaciones prácticas:</p></li>
+</ol>
+<ul class="simple">
+<li><p>Si un activo está <strong>encima de la SML</strong> → está <strong>infravalorado</strong> (ofrece más rentabilidad de la que debería para su nivel de riesgo).</p></li>
+<li><p>Si un activo está <strong>debajo de la SML</strong> → está <strong>sobrevalorado</strong> (da menos rentabilidad de la que debería para su riesgo).</p></li>
+<li><p>La SML sirve para comparar activos de <strong>distinto riesgo sistemático</strong>, y se aplica tanto a acciones como a carteras.</p></li>
+</ul>
+<ol class="arabic" start="3">
+<li><p>Supuestos del modelo CAPM / SML:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> Inversores racionales, aversos al riesgo, que maximizan la utilidad esperada.
+ Mercados eficientes (información disponible, sin costes de transacción, etc.).
+ Existencia de un activo libre de riesgo al que todos tienen acceso.
+ Sólo el riesgo sistemático (no diversificable) es recompensado; los riesgos idiosincráticos pueden diversificarse.
+</pre></div>
+</div>
+</li>
+</ol>
+<p>Distribución normal de retornos (o al menos, que las expectativas y varianzas-covarianzas son suficientes para describir el riesgo esperado).</p>
+</section>
+<section id="descripcion-del-grafico">
+<h2>Descripción del gráfico<a class="headerlink" href="#descripcion-del-grafico" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>Eje X:</strong> Riesgo sistemático de un activo, medido por su <strong>beta (β)</strong>.</p></li>
+<li><p><strong>Eje Y:</strong> Rentabilidad esperada (<strong>E[R]</strong>) del activo.</p></li>
+</ul>
+<p>La recta parte de la <strong>tasa libre de riesgo (Rf)</strong> y tiene pendiente igual a la <strong>prima de riesgo de mercado (Rm – Rf)</strong>.</p>
+</section>
+<section id="id1">
+<h2><img alt="FlujoN8N" src="_images/SML_Graph.jpg" /><a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+</section>
+<section id="formula">
+<h2>Fórmula<a class="headerlink" href="#formula" title="Link to this heading"></a></h2>
+<p>$$
+E(R_i) = R_f + \beta_i \cdot (R_m - R_f)
+$$</p>
+<p>donde:</p>
+<ul class="simple">
+<li><p>(E(R_i)): rentabilidad esperada del activo <em>i</em>.</p></li>
+<li><p>(R_f): tasa libre de riesgo (ej. bonos del Estado).</p></li>
+<li><p>(\beta_i): sensibilidad del activo frente al mercado.</p></li>
+<li><p>(R_m): rentabilidad esperada del mercado.</p></li>
+<li><p>((R_m - R_f)): prima de riesgo del mercado.</p></li>
+</ul>
+<hr class="docutils" />
 </section>
 </section>
 
