@@ -93,12 +93,15 @@ Matriz_portafolios = pd.DataFrame(portafolios)
 # ================================
 # Portafolios destacados
 # ================================
+
+# --8<-- [start:varianza_minima]
 varianza_minima = Matriz_portafolios.iloc[Matriz_portafolios['Riesgos'].idxmin()]
 
 risk_free = 0.03
 portafolio_optimo = Matriz_portafolios.iloc[
     ((Matriz_portafolios['Rendimientos'] - risk_free) / Matriz_portafolios['Riesgos']).idxmax()
 ]
+# --8<-- [end:varianza_minima]
 
 # ================================
 # Funciones auxiliares
