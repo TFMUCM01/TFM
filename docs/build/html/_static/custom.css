@@ -1,7 +1,14 @@
+/* Justificación de texto */
 body {
     text-align: justify;
 }
 
 p {
     text-align: justify;
+}
+
+/* Ensanchar el área de contenido */
+.wy-nav-content {
+    max-width: 100% !important;  /* usar todo el ancho disponible */
+    width: 95% !important;       /* puedes poner 90% o 100% según prefieras */
 }
