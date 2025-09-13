@@ -1,5 +1,4 @@
-.. "TFM: Análisis de Tendencias Económicas en Madrid mediante Modelos Financieros y de Sentimiento" documentation master file, created by
-   sphinx-quickstart on Sun Aug 24 20:54:10 2025.
+.. "TFM: Análisis de Tendencias Económicas en Madrid mediante Modelos Financieros y de Sentimiento"
 
 TFM: Desarrollo de un sistema de análisis financiero y sostenible del mercado bursátil europeo
 ==============================================================================================================
@@ -12,13 +11,12 @@ documentation for details.
    :maxdepth: 2
    :caption: Contents:
 
-   ResumenEjecutivo
    Introduccion
    DescripcionProblema
    MarcoTeorico
    DatosPreparacion
    ModeloPredictivo
-   EvaluacionModelo
+   AutomatizacionFinanciera
    Conclusiones
    Bibliografia
    Anexos

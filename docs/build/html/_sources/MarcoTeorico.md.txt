@@ -76,7 +76,10 @@ Distribución normal de retornos (o al menos, que las expectativas y varianzas-c
 - **Eje X:** Riesgo sistemático de un activo, medido por su **beta (β)**.  
 - **Eje Y:** Rentabilidad esperada (**E[R]**) del activo.  
 
-La recta parte de la **tasa libre de riesgo (Rf)** y tiene pendiente igual a la **prima de riesgo de mercado (Rm – Rf)**.  
+El gráfico muestra la **Security Market Line (SML)**, que representa la relación entre el **riesgo sistemático** de un activo, medido por la beta βi , y su **rentabilidad esperada** E(R). En el eje horizontal se sitúa la beta, mientras que en el eje vertical se encuentra la rentabilidad esperada. La recta parte de la **tasa libre de riesgo** Rf, en este caso un **3%**, y su pendiente corresponde a la **prima de riesgo del mercado** (Rm - Rf).  
+
+Según el modelo **CAPM**, un activo con βi = 1 debería tener una rentabilidad esperada igual a la del mercado, que en este ejemplo es del **10%**. A medida que la beta aumenta, la rentabilidad exigida por los inversores también crece, ya que el activo está más expuesto a los movimientos del mercado. Por el contrario, un activo con βi < 1 tendría una rentabilidad inferior, porque asume un menor riesgo sistemático.  
+
 
 ![SML](../../Imagenes/SML_Graph.jpg)
 

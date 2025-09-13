@@ -9,6 +9,7 @@
   <title>Descripción Problema &mdash; TFM: Análisis de Tendencias Económicas en Madrid mediante Modelos Financieros y de Sentimiento</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
@@ -45,7 +46,6 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="ResumenEjecutivo.html">Resumen Ejecutivo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Introduccion.html">Introducción</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Descripción Problema</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#que-es-el-mercado-bursatil">¿Qué es el mercado bursátil?</a></li>
@@ -57,7 +57,7 @@
 <li class="toctree-l1"><a class="reference internal" href="MarcoTeorico.html">Modelos Teoricos</a></li>
 <li class="toctree-l1"><a class="reference internal" href="DatosPreparacion.html">Datos y Preparación</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ModeloPredictivo.html">Modelos Predictivos</a></li>
-<li class="toctree-l1"><a class="reference internal" href="EvaluacionModelo.html">Evaluación de los Modelos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="AutomatizacionFinanciera.html">Automatizacion Financiera</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Conclusiones.html">Conclusiones</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Bibliografia.html">Bibliografía</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Anexos.html">Anexos</a></li>
@@ -131,7 +131,7 @@ Existe una relación entre el uso del asistente financiero automatizado y una me
 <p><strong>Delimitación temporal:</strong></p>
 <p>El análisis se desarrollará sobre el periodo comprendido entre enero de 2020 y septiembre de 2025, un intervalo marcado por acontecimientos económicos de gran relevancia —como la pandemia de COVID-19, la posterior recuperación económica, los repuntes inflacionarios y la guerra en Ucrania— que generaron abundante información periodística y fuertes fluctuaciones en los mercados financieros. No obstante, este marco temporal también presenta limitaciones en cuanto a la disponibilidad de datos: mientras que la información financiera puede recopilarse de manera consistente desde el inicio del periodo, en el caso de las noticias únicamente se dispone de registros desde enero de 2024 hasta la actualidad, lo que impide contar con un histórico más amplio. Estas restricciones condicionan el alcance del análisis, pero al mismo tiempo permiten centrar el estudio en un horizonte temporal reciente y relevante, asegurando la pertinencia de los resultados en relación con las dinámicas económicas actuales.</p>
 <p><strong>Delimitación tecnicos:</strong><br />
-El proyecto presenta diversas limitaciones derivadas tanto de restricciones técnicas como de recursos. En primer lugar, no ha sido posible descargar toda la información financiera disponible, dado que carecen de una estructura estandarizada para todos los tickers, lo que dificulta la homogeneización de datos. Asimismo, el consumo de tokens para la ejecución de modelos de inferencia estuvo condicionado por el uso de una versión gratuita, limitación que con mayores recursos econimicos podría suplirse. En el plano de infraestructura, se realizaron dos migraciones del DataLake debido a la imposibilidad de mantener de forma continua un servicio de almacenamiento en la nube de pago como Snowflake. A nivel operativo, se implementó cloudflared como túnel de acceso para la integración de GitHub Actions con n8n en entorno local, lo que si bien resolvió la conectividad, añade complejidad al flujo de trabajo. Otro aspecto a considerar es el tiempo de ejecución, que restringe la velocidad y eficiencia de descarga de datos a gran escala. Finalmente, los plazos disponibles limitaron la expansión del proyecto, impidiendo la incorporación de otros productos financieros relevantes como renta fija, ETFs, instrumentos mixtos o empaquetados.</p>
+El proyecto presenta diversas limitaciones derivadas tanto de restricciones técnicas como de recursos. En primer lugar, no ha sido posible descargar toda la información financiera disponible, dado que carecen de una estructura estandarizada para todos los tickers, lo que dificulta la homogeneización de datos. Asimismo, el consumo de tokens para la ejecución de modelos de inferencia estuvo condicionado por el uso de una versión gratuita, limitación que con mayores recursos econimicos podría suplirse. En el plano de infraestructura, se realizaron tres migraciones del DataLake debido a la imposibilidad de mantener de forma continua un servicio de almacenamiento en la nube de pago como Snowflake. A nivel operativo, se implementó cloudflared como túnel de acceso para la integración de GitHub Actions con n8n en entorno local, lo que si bien resolvió la conectividad, añade complejidad al flujo de trabajo. Otro aspecto a considerar es el tiempo de ejecución, que restringe la velocidad y eficiencia de descarga de datos a gran escala. Finalmente, los plazos disponibles limitaron la expansión del proyecto, impidiendo la incorporación de otros productos financieros relevantes como renta fija, ETFs, instrumentos mixtos o empaquetados.</p>
 </section>
 <hr class="docutils" />
 <section id="recursos">
