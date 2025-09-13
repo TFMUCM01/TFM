@@ -10,5 +10,34 @@ p {
 /* Ensanchar el área de contenido */
 .wy-nav-content {
     max-width: 100% !important;  /* usar todo el ancho disponible */
-    width: 95% !important;       /* puedes poner 90% o 100% según prefieras */
+    width: 95% !important;       /* puedes ajustar: 90%, 95%, 100% */
+}
+
+/* Recuadro superior izquierdo (logo + título del doc) */
+.wy-side-nav-search, .bd-sidebar-primary .sidebar-header {
+    background-color: #d4f1f4 !important;  /* aquí pones el color que quieras */
+    color: #ffffff !important;             /* texto en blanco para contraste */
+}
+
+/* Asegurar que el título también cambie de color */
+.wy-side-nav-search a,
+.wy-side-nav-search span,
+.bd-sidebar-primary .sidebar-header a {
+    color: #000000 !important;
+}
+
+/* Fondo del menú lateral izquierdo (parte inferior) */
+.wy-menu-vertical {
+    background-color: #05445e !important;  /* color de fondo */
+}
+
+/* Opcional: color del texto en el menú */
+.wy-menu-vertical a {
+    color: #189ab4 !important;  /* blanco para contraste */
+}
+
+/* Hover al pasar el ratón */
+.wy-menu-vertical a:hover {
+    color: #000000 !important;  /* negro al pasar el ratón */
+    background-color: #bfbfbf !important;  /* gris más claro de hover */
 }
