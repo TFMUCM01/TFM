@@ -31,3 +31,6 @@ html_theme = "sphinx_rtd_theme"
 html_static_path = ["_static"]
 html_title = project
 add_module_names = False
+
+def setup(app):
+    app.add_css_file('custom.css')
