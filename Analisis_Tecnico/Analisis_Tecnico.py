@@ -20,14 +20,13 @@ fecha_inicio = "2020-01-01"
 fecha_fin = "2024-12-31"
 tickers = ["BBVA.MC"]
 
-# Conectar a Snowflake
 conn = snowflake.connector.connect(
     user='TFMGRUPO4',
     password='TFMgrupo4ucm01_01#',
-    account='WYNIFVB-YE01854',
+    account='valklxh-zn41709',   # << org-locator de tu URL
     warehouse='COMPUTE_WH',
-    database='YAHOO_FINANCE',
-    schema='MACHINE_LEARNING',
+    database='TFM',   # <--- CAMBIO
+    schema='YAHOO_FINANCE',      # << Schema de la URL
     role='ACCOUNTADMIN'
 )
 
