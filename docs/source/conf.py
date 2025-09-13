@@ -5,7 +5,7 @@ from datetime import date
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
-project = "TFM: Análisis de Tendencias Económicas en Madrid mediante Modelos Financieros y de Sentimiento"
+project = "Desarrollo de un sistema de análisis financiero y sostenible del mercado bursátil europeo"
 author = "Julia Escudero, Marco Mendieta, Marco Pacora, Piero Rios, Juan Carlos Romero"
 copyright = f"{date.today().year}, {author}"
 version = "0.1"
@@ -31,6 +31,7 @@ html_theme = "sphinx_rtd_theme"
 html_static_path = ["_static"]
 html_title = project
 add_module_names = False
+html_logo = "_static/Logo.jpeg"
 
 def setup(app):
     app.add_css_file('custom.css')
