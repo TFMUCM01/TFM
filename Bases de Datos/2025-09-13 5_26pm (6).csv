@@ -1,0 +1,331 @@
+﻿TICKER_YAHOO,NOMBRE,PAIS,TICKET
+ITX.MC,"Industria de Diseno Textil, S.A.",España,ITX
+SAN.MC,"Banco Santander, S.A.",España,SAN
+IBE.MC,Iberdrola SA,España,IBE
+BBVA.MC,"Banco Bilbao Vizcaya Argentaria, S.A.",España,BBVA
+CABK.MC,CaixaBank SA,España,CABK
+AENA.MC,Aena SME SA,España,AENA
+FER.MC,Ferrovial SE,España,FER
+AMS.MC,Amadeus IT Group SA Class A,España,AMS
+ELE.MC,Endesa S.A.,España,ELE
+TEF.MC,Telefonica SA,España,TEF
+MTS.MC,ArcelorMittal SA,España,MTS
+NTGY.MC,"Naturgy Energy Group, S.A.",España,NTGY
+CLNX.MC,Cellnex Telecom S.A.,España,CLNX
+IAG.MC,International Consolidated Airlines Group SA,España,IAG
+ACS.MC,"ACS, Actividades de Construccion y Servicios SA",España,ACS
+REP.MC,Repsol SA,España,REP
+SAB.MC,Banco de Sabadell SA,España,SAB
+MAP.MC,Mapfre SA,España,MAP
+BKT.MC,Bankinter SA,España,BKT
+ANA.MC,Acciona SA,España,ANA
+RED.MC,Redeia Corporacion SA,España,RED
+PUIG.MC,"Puig Brands, S.A. Class B",España,PUIG
+ANE.MC,Corporacion Acciona Energias Renovables SA,España,ANE
+GRF.MC,"Grifols, S.A. Class A",España,GRF
+MRL.MC,"MERLIN Properties SOCIMI, S.A.",España,MRL
+UNI.MC,Unicaja Banco S.A.,España,UNI
+IDR.MC,"Indra Sistemas, S.A. Class A",España,IDR
+FDR.MC,"Fluidra, S.A.",España,FDR
+LOG.MC,"Logista Integral, S.A.",España,LOG
+COL.MC,Inmobiliaria Colonial SOCIMI SA,España,COL
+ENG.MC,Enagas SA,España,ENG
+ROVI.MC,"Laboratorios Farmaceuticos Rovi, S.A.",España,ROVI
+SCYR.MC,Sacyr SA,España,SCYR
+ACX.MC,Acerinox SA,España,ACX
+SLR.MC,"Solaria Energia y Medio Ambiente, S.A.",España,SLR
+SAP.DE,SAP SE,Alemania,SAP
+SIE.DE,Siemens Aktiengesellschaft,Alemania,SIE
+AIR.DE,Airbus SE,Alemania,AIR
+DTE.DE,Deutsche Telekom AG,Alemania,DTE
+ALV.DE,Allianz SE,Alemania,ALV
+RHM.DE,Rheinmetall AG,Alemania,RHM
+ENR.DE,Siemens Energy AG,Alemania,ENR
+MUV2.DE,Munchener Ruckversicherungs-Gesellschaft AG,Alemania,MUV2
+DBK.DE,Deutsche Bank Aktiengesellschaft,Alemania,DBK
+SHL.DE,Siemens Healthineers AG,Alemania,SHL
+VOW3.DE,Volkswagen AG Pref,Alemania,VOW3
+MBG.DE,Mercedes-Benz Group AG,Alemania,MBG
+BMW.DE,Bayerische Motoren Werke AG,Alemania,BMW
+MRK.DE,Merck KGaA,Alemania,MRK
+DHL.DE,Deutsche Post AG,Alemania,DHL
+DB1.DE,Deutsche Boerse AG,Alemania,DB1
+IFX.DE,Infineon Technologies AG,Alemania,IFX
+EOAN.DE,E.ON SE,Alemania,EOAN
+BAS.DE,BASF SE,Alemania,BAS
+P911.DE,Porsche AG,Alemania,P911
+CBK.DE,Commerzbank AG,Alemania,CBK
+HEI.DE,Heidelberg Materials AG,Alemania,HEI
+ADS.DE,adidas AG,Alemania,ADS
+DTG.DE,Daimler Truck Holding AG,Alemania,DTG
+HEN3.DE,Henkel AG & Co. KGaA Pref,Alemania,HEN3
+HNR1.DE,Hannover Rueck SE,Alemania,HNR1
+BAYN.DE,Bayer AG,Alemania,BAYN
+RWE.DE,RWE AG,Alemania,RWE
+FRE.DE,Fresenius SE & Co. KGaA,Alemania,FRE
+VNA.DE,Vonovia SE,Alemania,VNA
+BEI.DE,Beiersdorf AG,Alemania,BEI
+MTX.DE,MTU Aero Engines AG,Alemania,MTX
+CON.DE,Continental AG,Alemania,CON
+SRT3.DE,Sartorius AG Pref,Alemania,SRT3
+FME.DE,Fresenius Medical Care AG,Alemania,FME
+SY1.DE,Symrise AG,Alemania,SY1
+PAH3.DE,Porsche Automobil Holding SE Pref,Alemania,PAH3
+QIA.DE,QIAGEN NV,Alemania,QIA
+BNR.DE,Brenntag SE,Alemania,BNR
+ZAL.DE,Zalando SE,Alemania,ZAL
+MC.PA,LVMH Moet Hennessy Louis Vuitton SE,Francia,MC
+RMS.PA,Hermes International SCA,Francia,RMS
+OR.PA,L'Oreal S.A.,Francia,OR
+AIR.PA,Airbus SE,Francia,AIR
+SU.PA,Schneider Electric SE,Francia,SU
+EL.PA,EssilorLuxottica SA,Francia,EL
+TTE.PA,TotalEnergies SE,Francia,TTE
+SAF.PA,Safran SA,Francia,SAF
+AI.PA,Air Liquide SA,Francia,AI
+SAN.PA,Sanofi SA,Francia,SAN
+BNP.PA,BNP Paribas S.A. Class A,Francia,BNP
+CS.PA,AXA SA,Francia,CS
+DG.PA,VINCI SA,Francia,DG
+ACA.PA,Credit Agricole SA,Francia,ACA
+HO.PA,Thales SA,Francia,HO
+BN.PA,Danone SA,Francia,BN
+SGO.PA,Compagnie de Saint-Gobain SA,Francia,SGO
+ENGI.PA,ENGIE S.A.,Francia,ENGI
+GLE.PA,Societe Generale S.A. Class A,Francia,GLE
+DSY.PA,Dassault Systemes SE,Francia,DSY
+ORA.PA,Orange SA,Francia,ORA
+LR.PA,Legrand SA,Francia,LR
+KER.PA,Kering SA,Francia,KER
+STLAP.PA,Stellantis N.V.,Francia,STLAP
+RI.PA,Pernod Ricard SA,Francia,RI
+ML.PA,Cie Generale des Etablissements Michelin SA,Francia,ML
+CAP.PA,Capgemini SE,Francia,CAP
+VIE.PA,Veolia Environnement SA,Francia,VIE
+PUB.PA,Publicis Groupe SA,Francia,PUB
+STMPA.PA,STMicroelectronics NV,Francia,STMPA
+EN.PA,Bouygues SA,Francia,EN
+URW.PA,Unibail-Rodamco-Westfield SE Stapled Secs Cons of 1 Sh Unibail Rodamco + 1 Sh WFD Unib Rod,Francia,URW
+BVI.PA,Bureau Veritas SA,Francia,BVI
+ERF.PA,Eurofins Scientific SE,Francia,ERF
+AC.PA,Accor SA,Francia,AC
+RNO.PA,Renault SA,Francia,RNO
+CA.PA,Carrefour SA,Francia,CA
+EDEN.PA,Edenred SA,Francia,EDEN
+TEP.PA,Teleperformance SE,Francia,TEP
+UCG.MI,UniCredit S.p.A.,Italia,UCG
+ISP.MI,Intesa Sanpaolo S.p.A.,Italia,ISP
+RACE.MI,Ferrari NV,Italia,RACE
+ENEL.MI,Enel SpA,Italia,ENEL
+G.MI,Assicurazioni Generali S.p.A.,Italia,G
+ENI.MI,Eni S.p.A.,Italia,ENI
+STLAM.MI,Stellantis N.V.,Italia,STLAM
+LDO.MI,Leonardo SpA,Italia,LDO
+PST.MI,Poste Italiane SpA,Italia,PST
+PRY.MI,Prysmian S.p.A.,Italia,PRY
+STMMI.MI,STMicroelectronics NV,Italia,STMMI
+BAMI.MI,Banco BPM SpA,Italia,BAMI
+BPE.MI,BPER Banca S.p.A.,Italia,BPE
+SRG.MI,Snam S.p.A.,Italia,SRG
+TRN.MI,Terna S.p.A.,Italia,TRN
+MB.MI,Mediobanca - Banca di Credito Finanziario S.p.A.,Italia,MB
+TEN.MI,Tenaris S.A.,Italia,TEN
+MONC.MI,Moncler SpA,Italia,MONC
+BMED.MI,Banca Mediolanum SpA,Italia,BMED
+UNI.MI,UNIPOL ASSICURAZIONI SPA,Italia,UNI
+FBK.MI,FinecoBank SpA,Italia,FBK
+REC.MI,Recordati Industria Chimica e Farmaceutica S.p.A.,Italia,REC
+BMPS.MI,Banca Monte dei Paschi di Siena S.p.A.,Italia,BMPS
+TIT.MI,Telecom Italia S.p.A.,Italia,TIT
+INW.MI,Infrastrutture Wireless Italiane S.p.A.,Italia,INW
+BZU.MI,Buzzi Spa,Italia,BZU
+IG.MI,Italgas SpA,Italia,IG
+CPR.MI,Davide Campari-Milano N.V.,Italia,CPR
+A2A.MI,A2A S.p.A.,Italia,A2A
+BC.MI,Brunello Cucinelli S.p.A.,Italia,BC
+IVG.MI,Iveco Group NV,Italia,IVG
+PIRC.MI,Pirelli & C. S.p.A.,Italia,PIRC
+BPSO.MI,Banca Popolare di Sondrio S.p.A.,Italia,BPSO
+NEXI.MI,Nexi S.p.A.,Italia,NEXI
+HER.MI,Hera S.p.A.,Italia,HER
+SPM.MI,Saipem S.p.A.,Italia,SPM
+DIA.MI,DiaSorin S.p.A.,Italia,DIA
+IP.MI,Interpump Group S.p.A.,Italia,IP
+AZM.MI,Azimut Holding Spa,Italia,AZM
+AMP.MI,Amplifon SpA,Italia,AMP
+ASML.AS,ASML Holding NV,Países Bajos,ASML
+SHELL.AS,Shell Plc,Países Bajos,SHELL
+UNA.AS,Unilever PLC,Países Bajos,UNA
+PRX.AS,Prosus N.V. Class N,Países Bajos,PRX
+REN.AS,RELX PLC,Países Bajos,REN
+INGA.AS,ING Groep N.V.,Países Bajos,INGA
+UMG.AS,Universal Music Group N.V.,Países Bajos,UMG
+ADYEN.AS,Adyen NV,Países Bajos,ADYEN
+HEIA.AS,Heineken NV,Países Bajos,HEIA
+AD.AS,Koninklijke Ahold Delhaize N.V.,Países Bajos,AD
+EXO.AS,EXOR N.V.,Países Bajos,EXO
+WKL.AS,Wolters Kluwer N.V.,Países Bajos,WKL
+MT.AS,ArcelorMittal SA,Países Bajos,MT
+PHIA.AS,Koninklijke Philips N.V.,Países Bajos,PHIA
+DSFIR.AS,DSM-Firmenich AG,Países Bajos,DSFIR
+ABN.AS,ABN AMRO Bank N.V. Depositary receipts,Países Bajos,ABN
+ASM.AS,ASM International N.V.,Países Bajos,ASM
+KPN.AS,Royal KPN NV,Países Bajos,KPN
+NN.AS,NN Group N.V.,Países Bajos,NN
+ASRNL.AS,ASR Nederland N.V.,Países Bajos,ASRNL
+AKZA.AS,Akzo Nobel N.V.,Países Bajos,AKZA
+AGN.AS,Aegon Ltd.,Países Bajos,AGN
+BESI.AS,BE Semiconductor Industries N.V.,Países Bajos,BESI
+RAND.AS,Randstad NV,Países Bajos,RAND
+IMCD.AS,IMCD N.V.,Países Bajos,IMCD
+AZN.L,AstraZeneca PLC,Reino Unido,AZN
+HSBA.L,HSBC Holdings Plc,Reino Unido,HSBA
+SHEL.L,Shell Plc,Reino Unido,SHEL
+ULVR.L,Unilever PLC,Reino Unido,ULVR
+RR.L,Rolls-Royce Holdings plc,Reino Unido,RR
+BATS.L,British American Tobacco p.l.c.,Reino Unido,BATS
+RIO.L,Rio Tinto plc,Reino Unido,RIO
+BP.L,BP PLC,Reino Unido,BP
+REL.L,RELX PLC,Reino Unido,REL
+GSK.L,GSK plc,Reino Unido,GSK
+BA.L,BAE Systems plc,Reino Unido,BA
+BARC.L,Barclays PLC,Reino Unido,BARC
+NG.L,National Grid plc,Reino Unido,NG
+LLOY.L,Lloyds Banking Group plc,Reino Unido,LLOY
+LSEG.L,London Stock Exchange Group plc,Reino Unido,LSEG
+CPG.L,Compass Group PLC,Reino Unido,CPG
+DGE.L,Diageo plc,Reino Unido,DGE
+NWG.L,NatWest Group Plc,Reino Unido,NWG
+RKT.L,Reckitt Benckiser Group plc,Reino Unido,RKT
+III.L,3i Group plc,Reino Unido,III
+EXPN.L,Experian PLC,Reino Unido,EXPN
+GLEN.L,Glencore plc,Reino Unido,GLEN
+HLN.L,Haleon PLC,Reino Unido,HLN
+STAN.L,Standard Chartered PLC,Reino Unido,STAN
+CCEP.L,Coca-Cola Europacific Partners plc,Reino Unido,CCEP
+TSCO.L,Tesco PLC,Reino Unido,TSCO
+AAL.L,Anglo American plc,Reino Unido,AAL
+PRU.L,Prudential plc,Reino Unido,PRU
+IMB.L,Imperial Brands PLC,Reino Unido,IMB
+AHT.L,Ashtead Group plc,Reino Unido,AHT
+ANTO.L,Antofagasta plc,Reino Unido,ANTO
+VOD.L,Vodafone Group Public Limited Company,Reino Unido,VOD
+AV.L,Aviva plc,Reino Unido,AV
+BT-A.L,BT Group plc,Reino Unido,BT-A
+SSE.L,SSE PLC,Reino Unido,SSE
+IAG.L,International Consolidated Airlines Group SA,Reino Unido,IAG
+FRES.L,Fresnillo PLC,Reino Unido,FRES
+NXT.L,Next plc,Reino Unido,NXT
+ABF.L,Associated British Foods plc,Reino Unido,ABF
+IHG.L,InterContinental Hotels Group PLC,Reino Unido,IHG
+CCH.L,Coca-Cola HBC AG,Reino Unido,CCH
+LGEN.L,Legal & General Group Plc,Reino Unido,LGEN
+SMT.L,Scottish Mortgage Investment Trust Plc,Reino Unido,SMT
+HLMA.L,Halma plc,Reino Unido,HLMA
+SN.L,Smith & Nephew plc,Reino Unido,SN
+INF.L,Informa Plc,Reino Unido,INF
+SGE.L,Sage Group plc,Reino Unido,SGE
+ADM.L,Admiral Group plc,Reino Unido,ADM
+RTO.L,Rentokil Initial plc,Reino Unido,RTO
+SGRO.L,SEGRO plc,Reino Unido,SGRO
+AAF.L,Airtel Africa Plc,Reino Unido,AAF
+BNZL.L,Bunzl plc,Reino Unido,BNZL
+PSH.L,"Pershing Square Holdings, Ltd. Public Class USD Accum.Shs",Reino Unido,PSH
+SMIN.L,Smiths Group Plc,Reino Unido,SMIN
+SVT.L,Severn Trent Plc,Reino Unido,SVT
+UU.L,United Utilities Group PLC,Reino Unido,UU
+MRO.L,Melrose Industries PLC,Reino Unido,MRO
+CNA.L,Centrica plc,Reino Unido,CNA
+DPLM.L,Diploma PLC,Reino Unido,DPLM
+ITRK.L,Intertek Group plc,Reino Unido,ITRK
+MKS.L,Marks and Spencer Group plc,Reino Unido,MKS
+AUTO.L,Auto Trader Group PLC,Reino Unido,AUTO
+EDV.L,Endeavour Mining PLC,Reino Unido,EDV
+SBRY.L,J Sainsbury plc,Reino Unido,SBRY
+PSON.L,Pearson PLC,Reino Unido,PSON
+WEIR.L,Weir Group PLC,Reino Unido,WEIR
+STJ.L,St. James's Place Plc,Reino Unido,STJ
+PHNX.L,Phoenix Group Holdings plc,Reino Unido,PHNX
+ICG.L,ICG plc,Reino Unido,ICG
+MNG.L,M&G Plc,Reino Unido,MNG
+SDR.L,Schroders PLC,Reino Unido,SDR
+RMV.L,Rightmove plc,Reino Unido,RMV
+ENT.L,Entain PLC,Reino Unido,ENT
+FCIT.L,F&C Investment Trust PLC GBP,Reino Unido,FCIT
+IMI.L,IMI plc,Reino Unido,IMI
+BAB.L,Babcock International Group PLC,Reino Unido,BAB
+WTB.L,Whitbread PLC,Reino Unido,WTB
+SPX.L,Spirax Group plc.,Reino Unido,SPX
+BTRW.L,Barratt Redrow plc,Reino Unido,BTRW
+ALW.L,Alliance Witan PLC,Reino Unido,ALW
+GAW.L,Games Workshop Group PLC,Reino Unido,GAW
+CTEC.L,ConvaTec Group Plc,Reino Unido,CTEC
+BEZ.L,Beazley Plc,Reino Unido,BEZ
+PCT.L,Polar Capital Technology Trust PLC,Reino Unido,PCT
+JD.L,JD Sports Fashion Plc,Reino Unido,JD
+DCC.L,DCC Plc,Reino Unido,DCC
+HWDN.L,Howden Joinery Group PLC,Reino Unido,HWDN
+MNDI.L,Mondi plc,Reino Unido,MNDI
+WPP.L,WPP Plc,Reino Unido,WPP
+HSX.L,Hiscox Ltd,Reino Unido,HSX
+KGF.L,Kingfisher Plc,Reino Unido,KGF
+LMP.L,LondonMetric Property Plc,Reino Unido,LMP
+LAND.L,Land Securities Group PLC,Reino Unido,LAND
+HIK.L,Hikma Pharmaceuticals Plc,Reino Unido,HIK
+CRDA.L,Croda International Plc,Reino Unido,CRDA
+EZJ.L,easyJet plc,Reino Unido,EZJ
+UTG.L,UNITE Group plc,Reino Unido,UTG
+BKG.L,Berkeley Group Holdings plc,Reino Unido,BKG
+PSN.L,Persimmon Plc,Reino Unido,PSN
+TW.L,Taylor Wimpey plc,Reino Unido,TW
+AZN.ST,AstraZeneca PLC,Suecia,AZN
+ABB.ST,ABB Ltd.,Suecia,ABB
+INVE-B.ST,Investor AB Class B,Suecia,INVE-B
+ATCO-A.ST,Atlas Copco AB Class A,Suecia,ATCO-A
+VOLV-B.ST,Volvo AB Class B,Suecia,VOLV-B
+NDA-SE.ST,Nordea Bank Abp,Suecia,NDA-SE
+EQT.ST,EQT AB,Suecia,EQT
+ASSA-B.ST,ASSA ABLOY AB Class B,Suecia,ASSA-B
+SEB-A.ST,Skandinaviska Enskilda Banken AB Class A,Suecia,SEB-A
+SAND.ST,Sandvik AB,Suecia,SAND
+SWED-A.ST,Swedbank AB Class A,Suecia,SWED-A
+HEXA-B.ST,Hexagon AB Class B,Suecia,HEXA-B
+SAAB-B.ST,Saab AB Class B,Suecia,SAAB-B
+ERIC-B.ST,Telefonaktiebolaget LM Ericsson Class B,Suecia,ERIC-B
+SHB-A.ST,Svenska Handelsbanken AB Class A,Suecia,SHB-A
+HM-B.ST,H&M Hennes & Mauritz AB Class B,Suecia,HM-B
+EPI-A.ST,Epiroc AB Class A,Suecia,EPI-A
+ALFA.ST,Alfa Laval AB,Suecia,ALFA
+ESSITY-B.ST,Essity AB Class B,Suecia,ESSITY-B
+EVO.ST,Evolution AB,Suecia,EVO
+INDU-C.ST,Industrivarden AB Class C,Suecia,INDU-C
+LIFCO-B.ST,Lifco AB Class B,Suecia,LIFCO-B
+TELIA.ST,Telia Company AB,Suecia,TELIA
+TEL2-B.ST,Tele2 AB Class B,Suecia,TEL2-B
+SKF-B.ST,SKF AB Class B,Suecia,SKF-B
+SKA-B.ST,Skanska AB Class B,Suecia,SKA-B
+BOL.ST,Boliden AB,Suecia,BOL
+ADDT-B.ST,Addtech AB Class B,Suecia,ADDT-B
+SCA-B.ST,Svenska Cellulosa AB SCA Class B,Suecia,SCA-B
+NIBE-B.ST,NIBE Industrier AB Class B,Suecia,NIBE-B
+ROG.SW,Roche Holding Ltd Dividend Right Cert.,Suiza,ROG
+NOVN.SW,Novartis AG,Suiza,NOVN
+NESN.SW,Nestle S.A.,Suiza,NESN
+ABBN.SW,ABB Ltd.,Suiza,ABBN
+UBSG.SW,UBS Group AG,Suiza,UBSG
+CFR.SW,Compagnie Financiere Richemont SA,Suiza,CFR
+ZURN.SW,Zurich Insurance Group Ltd,Suiza,ZURN
+LONN.SW,Lonza Group AG,Suiza,LONN
+SREN.SW,Swiss Re AG,Suiza,SREN
+HOLN.SW,Holcim Ltd,Suiza,HOLN
+ALC.SW,Alcon AG,Suiza,ALC
+GIVN.SW,Givaudan SA,Suiza,GIVN
+SCMN.SW,Swisscom AG,Suiza,SCMN
+SIKA.SW,Sika AG,Suiza,SIKA
+PGHN.SW,Partners Group Holding AG,Suiza,PGHN
+AMRZ.SW,Amrize Ltd,Suiza,AMRZ
+SLHN.SW,Swiss Life Holding AG,Suiza,SLHN
+KNIN.SW,Kuehne & Nagel International AG,Suiza,KNIN
+GEBN.SW,Geberit AG,Suiza,GEBN
+SOON.SW,Sonova Holding AG,Suiza,SOON
+LOGN.SW,Logitech International S.A.,Suiza,LOGN
