@@ -12,13 +12,12 @@ documentation for details.
    :maxdepth: 2
    :caption: Contents:
 
-   ResumenEjecutivo
    Introduccion
    DescripcionProblema
    MarcoTeorico
    DatosPreparacion
    ModeloPredictivo
-   EvaluacionModelo
+   AutomatizacionFinanciera   
    Conclusiones
    Bibliografia
    Anexos
