@@ -51,7 +51,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#que-es-el-mercado-bursatil">¿Qué es el mercado bursátil?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#hipotesis-del-estudio">Hipótesis del estudio</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#alcance-del-proyecto-temporal-geografico-sectorial">Alcance del proyecto (temporal, geográfico, sectorial)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#como-lo-haremos">¿Cómo lo haremos?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#recursos">Recursos</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="MarcoTeorico.html">Modelos Teoricos</a></li>
@@ -102,8 +102,7 @@
 <p>El mercado bursátil europeo es el conjunto de bolsas de valores que operan en los países de Europa, donde se negocian instrumentos financieros como acciones, bonos, derivados y fondos cotizados. Este mercado desempeña un papel fundamental en la economía del continente, ya que permite a empresas europeas captar inversión y a los inversores gestionar su capital a través de activos financieros.</p>
 <p>Las principales bolsas europeas incluyen:</p>
 <ul class="simple">
-<li><p><strong>Euronext</strong> (con presencia en París, Ámsterdam, Bruselas, Lisboa, Dublín, entre otras),</p></li>
-<li><p><strong>Deutsche Börse</strong> (Fráncfort, Alemania),</p></li>
+<li><p><strong>Deutsche Börse</strong> (Alemania),</p></li>
 <li><p><strong>London Stock Exchange (LSE)</strong> (Reino Unido),</p></li>
 <li><p><strong>BME – Bolsas y Mercados Españoles</strong> (España),</p></li>
 <li><p><strong>Swiss Exchange (SIX)</strong> (Suiza).</p></li>
@@ -117,9 +116,9 @@
 <h2>Hipótesis del estudio<a class="headerlink" href="#hipotesis-del-estudio" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p><strong>Hipótesis nula (H₀):</strong><br />
-Un dashboard interactivo y un asistente financiero automatizado, alimentados con datos de TradingView y Yahoo Finance, <strong>no mejoran</strong> el análisis del mercado europeo ni la toma de decisiones de inversión.</p></li>
+No existe relación entre el uso del asistente financiero automatizado y una mejora en el análisis del mercado europeo o en la toma de decisiones de inversión.</p></li>
 <li><p><strong>Hipótesis alternativa (H₁):</strong><br />
-Un dashboard interactivo y un asistente financiero automatizado, alimentados con datos de TradingView y Yahoo Finance, facilitan el análisis del mercado europeo y mejoran la toma de decisiones de inversión.</p></li>
+Existe una relación entre el uso del asistente financiero automatizado y una mejora en el análisis del mercado europeo o en la toma de decisiones de inversión.</p></li>
 </ul>
 </section>
 <hr class="docutils" />
@@ -135,12 +134,12 @@ Un dashboard interactivo y un asistente financiero automatizado, alimentados con
 El proyecto presenta diversas limitaciones derivadas tanto de restricciones técnicas como de recursos. En primer lugar, no ha sido posible descargar toda la información financiera disponible, dado que carecen de una estructura estandarizada para todos los tickers, lo que dificulta la homogeneización de datos. Asimismo, el consumo de tokens para la ejecución de modelos de inferencia estuvo condicionado por el uso de una versión gratuita, limitación que con mayores recursos econimicos podría suplirse. En el plano de infraestructura, se realizaron dos migraciones del DataLake debido a la imposibilidad de mantener de forma continua un servicio de almacenamiento en la nube de pago como Snowflake. A nivel operativo, se implementó cloudflared como túnel de acceso para la integración de GitHub Actions con n8n en entorno local, lo que si bien resolvió la conectividad, añade complejidad al flujo de trabajo. Otro aspecto a considerar es el tiempo de ejecución, que restringe la velocidad y eficiencia de descarga de datos a gran escala. Finalmente, los plazos disponibles limitaron la expansión del proyecto, impidiendo la incorporación de otros productos financieros relevantes como renta fija, ETFs, instrumentos mixtos o empaquetados.</p>
 </section>
 <hr class="docutils" />
-<section id="como-lo-haremos">
-<h2>¿Cómo lo haremos?<a class="headerlink" href="#como-lo-haremos" title="Link to this heading"></a></h2>
+<section id="recursos">
+<h2>Recursos<a class="headerlink" href="#recursos" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p><strong>Comparación de estado de resultados financieros</strong></p>
 <ul>
-<li><p><em>Fuentes:</em></p>
+<li><p>Fuentes:</p>
 <ul>
 <li><p>Yahoo Finance</p></li>
 <li><p>TradingView</p></li>
@@ -159,18 +158,50 @@ El proyecto presenta diversas limitaciones derivadas tanto de restricciones téc
 <li><p>El economista</p></li>
 </ul>
 </li>
-<li><p><strong>Escalabilidad del producto: productivizar el modelo</strong></p>
+<li><p><strong>Escalabilidad del producto: productivizar el modelo</strong></p></li>
+<li><p>Ambientes:</p>
 <ul>
-<li><p><em>Herramientas:</em></p>
-<ul>
-<li><p>SnowFlake</p></li>
-<li><p>N8N</p></li>
+<li><p>Visual Studio</p></li>
+<li><p>Google Colab</p></li>
+<li><p>n8n</p></li>
 <li><p>Cloudflared</p></li>
-<li><p>Tableu</p></li>
-<li><p>Python</p></li>
-<li><p>Git / GitHub</p></li>
+<li><p>Tableau</p></li>
 </ul>
 </li>
+<li><p>Programas</p>
+<ul>
+<li><p>Docker</p></li>
+<li><p>Snowflake</p></li>
+<li><p>Google Drive</p></li>
+</ul>
+</li>
+<li><p>Lenguajes de programación</p>
+<ul>
+<li><p>SQL</p></li>
+<li><p>Python</p></li>
+<li><p>JavaScript</p></li>
+<li><p>HTML</p></li>
+</ul>
+</li>
+<li><p>Librerías / Frameworks</p>
+<ul>
+<li><p>Pandas</p></li>
+<li><p>NumPy</p></li>
+<li><p>Transformers</p></li>
+<li><p>Torch (PyTorch)</p></li>
+<li><p>Snowflake Connector</p></li>
+<li><p>Matplotlib</p></li>
+<li><p>Seaborn</p></li>
+<li><p>Plotly (Graph Objects, Express)</p></li>
+<li><p>Statsmodels</p></li>
+</ul>
+</li>
+<li><p>Herramientas</p>
+<ul>
+<li><p>Git / GitHub</p></li>
+<li><p>OpenAI</p></li>
+<li><p>Hugging Face</p></li>
+<li><p>Telegram Bots</p></li>
 </ul>
 </li>
 </ul>

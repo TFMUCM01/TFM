@@ -22,8 +22,7 @@ El mercado bursátil europeo es el conjunto de bolsas de valores que operan en l
 
 Las principales bolsas europeas incluyen:
 
-- **Euronext** (con presencia en París, Ámsterdam, Bruselas, Lisboa, Dublín, entre otras),
-- **Deutsche Börse** (Fráncfort, Alemania),
+- **Deutsche Börse** (Alemania),
 - **London Stock Exchange (LSE)** (Reino Unido),
 - **BME – Bolsas y Mercados Españoles** (España),
 - **Swiss Exchange (SIX)** (Suiza).
@@ -39,10 +38,10 @@ En este contexto, el análisis de sentimiento se ha convertido en una herramient
 ## Hipótesis del estudio
 
 - **Hipótesis nula (H₀):**  
-  Un dashboard interactivo y un asistente financiero automatizado, alimentados con datos de TradingView y Yahoo Finance, **no mejoran** el análisis del mercado europeo ni la toma de decisiones de inversión.
+    No existe relación entre el uso del asistente financiero automatizado y una mejora en el análisis del mercado europeo o en la toma de decisiones de inversión.
 
 - **Hipótesis alternativa (H₁):**  
-  Un dashboard interactivo y un asistente financiero automatizado, alimentados con datos de TradingView y Yahoo Finance, facilitan el análisis del mercado europeo y mejoran la toma de decisiones de inversión.
+    Existe una relación entre el uso del asistente financiero automatizado y una mejora en el análisis del mercado europeo o en la toma de decisiones de inversión.
 
 ---
 
@@ -65,10 +64,10 @@ El proyecto presenta diversas limitaciones derivadas tanto de restricciones téc
 
 ---
 
-## ¿Cómo lo haremos?
+## Recursos
 
 - **Comparación de estado de resultados financieros**  
-  - *Fuentes:*  
+  - Fuentes:
     - Yahoo Finance 
     - TradingView 
 
@@ -82,10 +81,38 @@ El proyecto presenta diversas limitaciones derivadas tanto de restricciones téc
   - El economista
 
 - **Escalabilidad del producto: productivizar el modelo**  
-  - *Herramientas:*  
-    - SnowFlake 
-    - N8N
-    - Cloudflared
-    - Tableu
-    - Python 
-    - Git / GitHub
+ - Ambientes:
+    - Visual Studio  
+    - Google Colab  
+    - n8n  
+    - Cloudflared  
+    - Tableau  
+
+  - Programas
+    - Docker  
+    - Snowflake  
+    - Google Drive  
+
+  - Lenguajes de programación
+    - SQL  
+    - Python  
+    - JavaScript  
+    - HTML  
+
+  - Librerías / Frameworks
+    - Pandas  
+    - NumPy  
+    - Transformers  
+    - Torch (PyTorch)  
+    - Snowflake Connector  
+    - Matplotlib  
+    - Seaborn  
+    - Plotly (Graph Objects, Express)  
+    - Statsmodels  
+
+  - Herramientas
+    - Git / GitHub  
+    - OpenAI  
+    - Hugging Face  
+    - Telegram Bots  
+

@@ -9,7 +9,7 @@ Es un modelo matemático de inversión que busca optimizar la asignación de act
 ![SML](../../Imagenes/capm.jpg)
 
 ### Ideas principales
-- **Diversificación**: no poner “todos los huevos en la misma cesta”. Al combinar activos con diferentes comportamientos, se reduce el riesgo total sin sacrificar necesariamente la rentabilidad.  
+- **Diversificación**: Al combinar activos con diferentes comportamientos, se reduce el riesgo total sin sacrificar necesariamente la rentabilidad.  
 - **Rentabilidad esperada**: cada activo tiene un rendimiento medio esperado.  
 - **Riesgo**: se mide con la **varianza o desviación estándar** de los rendimientos.  
 - **Correlación**: el modelo tiene en cuenta cómo se mueven los activos entre sí. Activos con correlación baja o negativa reducen el riesgo global.  
@@ -26,8 +26,8 @@ E(R_p) = \sum_{i=1}^n w_i \cdot E(R_i)
 $$
 
 donde:  
-- \(w_i\) → peso del activo \(i\) en la cartera  
-- \(E(R_i)\) → rentabilidad esperada del activo \(i\)  
+- Wi → peso del activo (i) en la cartera  
+- E(Ri) → rentabilidad esperada del activo (i)
 
 2. Varianza de la cartera (riesgo)  
 
@@ -38,8 +38,8 @@ $$
 $$
 
 donde:  
-- \(\sigma_{ij}\) → covarianza entre los activos \(i\) y \(j\)  
-- Si \(i = j\), entonces \(\sigma_{ii}\) corresponde a la varianza del activo \(i\).  
+- σ(ij) → covarianza entre los activos \(i\) y \(j\)  
+- Si (i = j), entonces σ(ij) corresponde a la varianza del activo \(i\).  
 
 ---
 
@@ -76,7 +76,10 @@ Distribución normal de retornos (o al menos, que las expectativas y varianzas-c
 - **Eje X:** Riesgo sistemático de un activo, medido por su **beta (β)**.  
 - **Eje Y:** Rentabilidad esperada (**E[R]**) del activo.  
 
-La recta parte de la **tasa libre de riesgo (Rf)** y tiene pendiente igual a la **prima de riesgo de mercado (Rm – Rf)**.  
+El gráfico muestra la **Security Market Line (SML)**, que representa la relación entre el **riesgo sistemático** de un activo, medido por la beta \(\beta\), y su **rentabilidad esperada** \(E(R)\). En el eje horizontal se sitúa la beta, mientras que en el eje vertical se encuentra la rentabilidad esperada. La recta parte de la **tasa libre de riesgo** \(R_f\), en este caso un **3%**, y su pendiente corresponde a la **prima de riesgo del mercado** \((R_m - R_f)\).  
+
+Según el modelo **CAPM**, un activo con \(\beta = 1\) debería tener una rentabilidad esperada igual a la del mercado, que en este ejemplo es del **10%**. A medida que la beta aumenta, la rentabilidad exigida por los inversores también crece, ya que el activo está más expuesto a los movimientos del mercado. Por el contrario, un activo con \(\beta < 1\) tendría una rentabilidad inferior, porque asume un menor riesgo sistemático.  
+
 
 ![SML](../../Imagenes/SML_Graph.jpg)
 
@@ -87,10 +90,11 @@ La recta parte de la **tasa libre de riesgo (Rf)** y tiene pendiente igual a la 
 ```{math}
 E(R_i) = R_f + \beta_i \cdot (R_m - R_f)
 ```
+
 donde:  
-- \(E(R_i)\): rentabilidad esperada del activo *i*.  
-- \(R_f\): tasa libre de riesgo (ej. bonos del Estado).  
-- \(\beta_i\): sensibilidad del activo frente al mercado.  
-- \(R_m\): rentabilidad esperada del mercado.  
-- \((R_m - R_f)\): prima de riesgo del mercado.  
+- E(Ri): rentabilidad esperada del activo *i*.  
+- Rf: tasa libre de riesgo (ej. bonos del Estado).  
+- βi: sensibilidad del activo frente al mercado.  
+- Rm: rentabilidad esperada del mercado.  
+- (Rm - Rf): prima de riesgo del mercado.  
 
