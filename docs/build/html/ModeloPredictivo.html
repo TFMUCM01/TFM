@@ -20,7 +20,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Índice" href="genindex.html" />
     <link rel="search" title="Búsqueda" href="search.html" />
-    <link rel="next" title="Conclusiones" href="Conclusiones.html" />
+    <link rel="next" title="&lt;no title&gt;" href="AutomatizacionFinanciera.html" />
     <link rel="prev" title="Datos y Preparación" href="DatosPreparacion.html" /> 
 </head>
 
@@ -161,53 +161,15 @@
 <h2><img alt="FlujoN8N" src="_images/FlujoN8N.jpeg" /><a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
 <section id="flujo-de-utilizacion-de-los-modelos">
 <h3>Flujo de utilizacion de los modelos<a class="headerlink" href="#flujo-de-utilizacion-de-los-modelos" title="Link to this heading"></a></h3>
-<p>Dentro del <em>datalake</em> definido en el módulo de <strong>Datos y Preparación</strong>, se encuentra la tabla unificada denominada <code class="docutils literal notranslate"><span class="pre">TODOS_TITULARES</span></code>. A partir de esta base de datos se extraen los titulares procedentes de los distintos noticieros. Posteriormente, mediante un <strong>árbol de decisión</strong> se determina el idioma de cada titular (inglés o español). Según el resultado, se aplica el modelo de predicción correspondiente, previamente entrenado para el análisis de sentimiento en cada idioma.</p>
+<p>Dentro del <em>datalake</em> definido en el módulo de <strong>Datos y Preparación</strong>, se encuentra la tabla unificada denominada <code class="docutils literal notranslate"><span class="pre">NOTICIAS_ANALIZADAS</span></code>. A partir de esta base de datos se extraen los titulares procedentes de los distintos noticieros. Posteriormente, mediante un <strong>árbol de decisión</strong> se determina el idioma de cada titular (inglés o español). Según el resultado, se aplica el modelo de predicción correspondiente, previamente entrenado para el análisis de sentimiento en cada idioma.</p>
 </section>
 <hr class="docutils" />
 <section id="generacion-de-las-columnas-con-tipo-de-titulos">
 <h3>Generacion de las columnas con tipo de titulos<a class="headerlink" href="#generacion-de-las-columnas-con-tipo-de-titulos" title="Link to this heading"></a></h3>
 <p>Una vez aplicados los modelos de análisis de sentimiento, se generan cuatro variables principales: <code class="docutils literal notranslate"><span class="pre">SENTIMIENTO_RESULTADO</span></code>, <code class="docutils literal notranslate"><span class="pre">PROBABILIDAD_POSITIVO</span></code>, <code class="docutils literal notranslate"><span class="pre">PROBABILIDAD_NEGATIVA</span></code> y <code class="docutils literal notranslate"><span class="pre">PROBABILIDAD_NEUTRAL</span></code>. Estas variables permiten determinar de manera objetiva la clasificación final del texto en función de su polaridad. Posteriormente, los resultados se incorporan a la tabla principal de <strong>Noticias_Analizadas</strong> y se almacenan nuevamente en Snowflake, lo que garantiza su disponibilidad para futuros análisis, tanto de carácter técnico como de integración con otros indicadores financieros.</p>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>FECHA</p></th>
-<th class="head"><p>TITULAR</p></th>
-<th class="head"><p>FUENTE</p></th>
-<th class="head"><p>SENTIMIENTO_RESULTADO</p></th>
-<th class="head"><p>PROBABILIDAD_POSITIVO</p></th>
-<th class="head"><p>PROBABILIDAD_NEUTRAL</p></th>
-<th class="head"><p>PROBABILIDAD_POSITIVO</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>2024-02-27</p></td>
-<td><p>Felipe VI pide que los avances tecnológicos protejan la seguridad y los derechos individuales</p></td>
-<td><p>ABC</p></td>
-<td><p>Neutral</p></td>
-<td><p>0.73806867</p></td>
-<td><p>0.1435076594</p></td>
-<td><p>0.73806867</p></td>
-</tr>
-<tr class="row-odd"><td><p>2024-01-16</p></td>
-<td><p>El Gobierno delega en las autonomías la ampliación del bono joven de alquiler</p></td>
-<td><p>ABC</p></td>
-<td><p>Neutral</p></td>
-<td><p>0.7266298234</p></td>
-<td><p>0.1628957987</p></td>
-<td><p>0.7266298234</p></td>
-</tr>
-<tr class="row-even"><td><p>2024-01-30</p></td>
-<td><p>Reynés (Naturgy) elogia a BlackRock por dar estabilidad a las empresas y ve «alineamiento de intereses»</p></td>
-<td><p>ABC</p></td>
-<td><p>Neutral</p></td>
-<td><p>0.4201913178</p></td>
-<td><p>0.3785941601</p></td>
-<td><p>0.4201913178</p></td>
-</tr>
-</tbody>
-</table>
+<p><img alt="correo_titulares" src="_images/Correo_Titulares.png" /></p>
 </section>
 </section>
-<hr class="docutils" />
 <section id="analisis-de-frontera-de-eficiencia">
 <h2>Analisis de Frontera de eficiencia<a class="headerlink" href="#analisis-de-frontera-de-eficiencia" title="Link to this heading"></a></h2>
 <p>Para la selección de nuestra cartera emplearemos el modelo de media-varianza de Markowitz, considerado la base de la Teoría Moderna de Carteras. Este enfoque es ampliamente utilizado en finanzas porque permite encontrar la combinación óptima de activos equilibrando riesgo y rendimiento esperado.
@@ -333,7 +295,7 @@ El procedimiento consiste en simular 50.000 carteras aleatorias con diferentes p
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Pie de página">
         <a href="DatosPreparacion.html" class="btn btn-neutral float-left" title="Datos y Preparación" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Anterior</a>
-        <a href="Conclusiones.html" class="btn btn-neutral float-right" title="Conclusiones" accesskey="n" rel="next">Siguiente <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="AutomatizacionFinanciera.html" class="btn btn-neutral float-right" title="&lt;no title&gt;" accesskey="n" rel="next">Siguiente <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
