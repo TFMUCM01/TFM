@@ -313,6 +313,14 @@ El procedimiento consiste en simular 50.000 carteras aleatorias con diferentes p
 </tr>
 </tbody>
 </table>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="n">varianza_minima</span> <span class="o">=</span> <span class="n">Matriz_portafolios</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">Matriz_portafolios</span><span class="p">[</span><span class="s1">&#39;Riesgos&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">idxmin</span><span class="p">()]</span>
+<span class="linenos">2</span>
+<span class="linenos">3</span><span class="n">risk_free</span> <span class="o">=</span> <span class="mf">0.03</span>
+<span class="linenos">4</span><span class="n">portafolio_optimo</span> <span class="o">=</span> <span class="n">Matriz_portafolios</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span>
+<span class="linenos">5</span>    <span class="p">((</span><span class="n">Matriz_portafolios</span><span class="p">[</span><span class="s1">&#39;Rendimientos&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">risk_free</span><span class="p">)</span> <span class="o">/</span> <span class="n">Matriz_portafolios</span><span class="p">[</span><span class="s1">&#39;Riesgos&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">idxmax</span><span class="p">()</span>
+<span class="linenos">6</span><span class="p">]</span>
+</pre></div>
+</div>
 <section id="grafica-de-la-frontera-de-eficiencia">
 <h3>Gráfica de la frontera de eficiencia<a class="headerlink" href="#grafica-de-la-frontera-de-eficiencia" title="Link to this heading"></a></h3>
 <p>Este gráfico es un ejemplo con una cartera del IBEX35 el cual representa la frontera eficiente obtenida a partir de la simulación de 50.000 combinaciones de activos. En ek eje horizontal tenemos el riesgo del portafolio medido como volatilidad y en el eje vertical tenemos el rendimiento esperado por el portafolio. La nuve de puntos son los portafolios creados aleatoriamente que combina cada uno de los pesos de las acciones de cada portafolio.</p>
