@@ -6,9 +6,10 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Introducción &mdash; TFM: Análisis de Tendencias Económicas en Madrid mediante Modelos Financieros y de Sentimiento</title>
+  <title>Introducción &mdash; Desarrollo de un sistema de análisis financiero y sostenible del mercado bursátil europeo</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=8a334cfc" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
@@ -21,7 +22,7 @@
     <link rel="index" title="Índice" href="genindex.html" />
     <link rel="search" title="Búsqueda" href="search.html" />
     <link rel="next" title="Descripción Problema" href="DescripcionProblema.html" />
-    <link rel="prev" title="Resumen Ejecutivo" href="ResumenEjecutivo.html" /> 
+    <link rel="prev" title="TFM: Desarrollo de un sistema de análisis financiero y sostenible del mercado bursátil europeo" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -33,7 +34,8 @@
           
           
           <a href="index.html" class="icon icon-home">
-            TFM: Análisis de Tendencias Económicas en Madrid mediante Modelos Financieros y de Sentimiento
+            Desarrollo de un sistema de análisis financiero y sostenible del mercado bursátil europeo
+              <img src="_static/Logo.jpeg" class="logo" alt="Logotipo"/>
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -45,7 +47,6 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="ResumenEjecutivo.html">Resumen Ejecutivo</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Introducción</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#contextualizacion-del-problema">Contextualización del problema</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#justificacion-del-tema">Justificación del tema</a></li>
@@ -56,7 +57,7 @@
 <li class="toctree-l1"><a class="reference internal" href="MarcoTeorico.html">Modelos Teoricos</a></li>
 <li class="toctree-l1"><a class="reference internal" href="DatosPreparacion.html">Datos y Preparación</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ModeloPredictivo.html">Modelos Predictivos</a></li>
-<li class="toctree-l1"><a class="reference internal" href="EvaluacionModelo.html">Evaluación de los Modelos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="AutomatizacionFinanciera.html">Automatizacion Financiera</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Conclusiones.html">Conclusiones</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Bibliografia.html">Bibliografía</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Anexos.html">Anexos</a></li>
@@ -68,7 +69,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">TFM: Análisis de Tendencias Económicas en Madrid mediante Modelos Financieros y de Sentimiento</a>
+          <a href="index.html">Desarrollo de un sistema de análisis financiero y sostenible del mercado bursátil europeo</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -90,7 +91,11 @@
 <h1>Introducción<a class="headerlink" href="#introduccion" title="Link to this heading"></a></h1>
 <section id="contextualizacion-del-problema">
 <h2>Contextualización del problema<a class="headerlink" href="#contextualizacion-del-problema" title="Link to this heading"></a></h2>
-<p>Investigar</p>
+<p>En la actualidad, los mercados financieros europeos enfrentan una creciente complejidad derivada de la globalización económica, la volatilidad macroeconómica y la alta interconexión entre sectores y países. Si bien los métodos tradicionales de análisis —fundamental y técnico— han sido ampliamente utilizados para evaluar activos, resultan limitados para capturar el efecto de variables intangibles, como la percepción social, la sostenibilidad empresarial o la reacción inmediata a las noticias y eventos geopolíticos.</p>
+<p>En este escenario, el análisis de sentimiento y la aplicación de técnicas de machine learning se consolidan como enfoques innovadores para complementar las metodologías financieras clásicas. Diversos estudios recientes han demostrado que la información procedente de noticias, redes sociales y métricas de sostenibilidad puede anticipar movimientos de mercado y mejorar la precisión de los modelos predictivos (Bollen, Mao &amp; Zeng, 2011; Nassirtoussi et al., 2014).</p>
+<p>La crisis sanitaria global de la COVID-19 (2020) marcó un punto de inflexión en los mercados financieros internacionales. En cuestión de semanas, la volatilidad alcanzó niveles históricos y los inversores se enfrentaron a un entorno de incertidumbre sin precedentes. En Europa, las bolsas sufrieron caídas abruptas seguidas de una rápida recuperación impulsada por estímulos fiscales y monetarios, lo que evidenció la fragilidad de los métodos tradicionales de análisis financiero ante choques exógenos.</p>
+<p>Al mismo tiempo, la digitalización y el auge de las plataformas abiertas de datos financieros han impulsado el desarrollo de herramientas de visualización y automatización que democratizan el acceso a la información. Sin embargo, en Europa, la mayoría de estas soluciones se encuentran fragmentadas, con una fuerte concentración en mercados estadounidenses, lo que genera un vacío en el análisis integral y accesible para el inversor medio europeo.</p>
+<p>Por ello, la construcción de un dashboard interactivo y un asistente conversacional basado en datos financieros, métricas ESG (Environmental, Social and Governance) y análisis de noticias, responde a una necesidad actual: disponer de un sistema abierto, transparente y automatizado que apoye la toma de decisiones de inversión en un entorno caracterizado por la rapidez y la incertidumbre.</p>
 </section>
 <hr class="docutils" />
 <section id="justificacion-del-tema">
@@ -120,7 +125,7 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Pie de página">
-        <a href="ResumenEjecutivo.html" class="btn btn-neutral float-left" title="Resumen Ejecutivo" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Anterior</a>
+        <a href="index.html" class="btn btn-neutral float-left" title="TFM: Desarrollo de un sistema de análisis financiero y sostenible del mercado bursátil europeo" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Anterior</a>
         <a href="DescripcionProblema.html" class="btn btn-neutral float-right" title="Descripción Problema" accesskey="n" rel="next">Siguiente <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

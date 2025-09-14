@@ -1,7 +1,52 @@
+/* Justificación de texto */
 body {
     text-align: justify;
 }
 
 p {
     text-align: justify;
+}
+
+/* Ensanchar el área de contenido */
+.wy-nav-content {
+    max-width: 100% !important;  /* usar todo el ancho disponible */
+    width: 95% !important;       /* puedes ajustar: 90%, 95%, 100% */
+}
+
+/* Recuadro superior izquierdo (logo + título del doc) */
+.wy-side-nav-search, .bd-sidebar-primary .sidebar-header {
+    background-color: #B3C9C3 !important;  /* verde claro */
+    color: #ffffff !important;             /* texto en blanco para contraste */
+}
+
+/* Asegurar que el título también cambie de color */
+.wy-side-nav-search a,
+.wy-side-nav-search span,
+.bd-sidebar-primary .sidebar-header a {
+    color: #4C8074 !important;  /* verde oscuro */
+}
+
+/* Fondo del menú lateral izquierdo (parte inferior) */
+.wy-menu-vertical {
+    background-color: #05445e !important;  /* verde oscuro */
+}
+
+/* Color del texto en el menú */
+.wy-menu-vertical a {
+    color: #B3C9C3 !important;  /* verde claro */
+}
+
+/* Hover al pasar el ratón */
+.wy-menu-vertical a:hover {
+    color: #ffffff !important;       /* texto en blanco */
+    background-color: #B3C9C3 !important;  /* fondo verde claro */
+}
+/* Fondo completo del panel lateral (incluye parte inferior que quedaba negra) */
+.wy-nav-side {
+    background-color: #05445e !important;  /* verde oscuro */
+}
+
+/* Scroll interno del menú lateral */
+.wy-side-scroll {
+    background-color: #05445e !important;  /* mismo verde oscuro */
 }

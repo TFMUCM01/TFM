@@ -6,7 +6,7 @@ En paralelo, los datos de mercado (OHLCV por ticker) se descargaron y consolidar
 
 ## Titulares de noticieros
 
-Como primera fase, se recopilaron titulares de noticieros financieros y generalistas de acceso público —entre ellos El País, The Times y Bloomberg— a través de sus respectivas fuentes web y archivos digitales. Posteriormente, estos textos fueron procesados mediante técnicas de análisis de texto <span style="color:red">[aquí se puede especificar el método exacto]</span> , con el objetivo de identificar noticias relevantes capaces de influir en el comportamiento bursátil de las acciones.
+Como primera fase, se llevó a cabo la recopilación de titulares procedentes de noticieros financieros y generalistas de acceso público mediante sus plataformas web y archivos digitales, los cuales fueron posteriormente procesados a través de técnicas de análisis de texto con el fin de filtrar e identificar aquellas noticias con mayor relevancia y potencial de impacto en el comportamiento bursátil de las acciones.
 
 Ejemplo de base da datos de titulares:
 
@@ -31,16 +31,16 @@ Estos modelos generan una probabilidad asociada a cada noticia, lo que permite c
 ### Módulos y dependencias
 
 - **`config.py`**
-  - `NOTICIEROS`: lista de medios (URL, fuente, idioma, tabla destino)
-  - `SNOWFLAKE_CONFIG`: credenciales y parámetros de conexión
-  - `RETRIES`, `SLEEP_BETWEEN_DIAS`: reintentos y pausas
+  - NOTICIEROS: lista de medios (URL, fuente, idioma, tabla destino)
+  - SNOWFLAKE_CONFIG: credenciales y parámetros de conexión
+  - RETRIES, SLEEP_BETWEEN_DIAS: reintentos y pausas
 - **`scraper.py`**
-  - `obtener_snapshot_url_directo(url, fecha)`
-  - `extraer_titulares(url, fecha, fuente)`
-  - `log_error(msg)`
+  - obtener_snapshot_url_directo(url, fecha)
+  - extraer_titulares(url, fecha, fuente)
+  - log_error(msg)
 - **`snowflake_utils.py`**
-  - `obtener_ultima_fecha_en_snowflake(config, tabla)`
-  - `subir_a_snowflake(df, config, tabla)`
+  - obtener_ultima_fecha_en_snowflake(config, tabla)
+  - subir_a_snowflake(df, config, tabla)
 
 ---
 ### Flujo general
@@ -62,8 +62,8 @@ En primer lugar, es necesario verificar la última fecha de carga en **Snowflake
 ```
 ---
 
-Adicionalmente, es necesario extraer las URL correctas por cada noticiero. Para ello, se ha desarrollado la función **`obtener_snapshot_url(original_url, fecha_str)`**, la cual consulta la API de **Wayback Machine** con el objetivo de recuperar la versión archivada más cercana de una página web en una fecha determinada. El procedimiento consiste en construir la URL de la API a partir de la dirección original y la fecha solicitada, realizar una petición `GET` y procesar la respuesta en formato **JSON**.  
-Si existe un *snapshot* disponible, la función devuelve la URL más próxima a la fecha indicada en formato `https`; en caso contrario, retorna `None` mostrando un mensaje informativo.  
+Adicionalmente, es necesario extraer las URL correctas por cada noticiero. Para ello, se ha desarrollado la función **`obtener_snapshot_url(original_url, fecha_str)`**, la cual consulta la API de **Wayback Machine** con el objetivo de recuperar la versión archivada más cercana de una página web en una fecha determinada. El procedimiento consiste en construir la URL de la API a partir de la dirección original y la fecha solicitada, realizar una petición GET y procesar la respuesta en formato **JSON**.  
+Si existe un *snapshot* disponible, la función devuelve la URL más próxima a la fecha indicada en formato https; en caso contrario, retorna None mostrando un mensaje informativo.  
 
 ```{literalinclude} ../../scrapping/scraper.py
 :language: python
@@ -89,7 +89,7 @@ Módulo de descarga en API’s
 ### Carga del DataFrame de titulares de noticieros en el DataLake
 
 Por último, se valida si el **DataFrame** contiene información; en caso de estar vacío, no se ejecuta ninguna acción.  
-En caso contrario, se transforma la columna de fecha al tipo de dato adecuado (`datetime.date`) y se establece la conexión con **Snowflake** mediante las credenciales configuradas en el entorno.  
+En caso contrario, se transforma la columna de fecha al tipo de dato adecuado y se establece la conexión con **Snowflake** mediante las credenciales configuradas en el entorno.  
 
 Si la tabla de destino no existe, esta se crea con un esquema predefinido que incluye los campos: **fecha**, **titular de la noticia**, **URL del snapshot**, **fuente** e **idioma**. Posteriormente, se realiza una inserción en bloque de todos los registros del DataFrame, lo que permite almacenar de forma eficiente los titulares extraídos de los medios archivados, garantizando su disponibilidad para procesos posteriores de análisis o visualización.   
 
@@ -119,7 +119,7 @@ En el análisis financiero, en primer lugar se necesitan los tickers sobre los q
 
 ### Scraping de índices europeos en TradingView
 
-En una primera etapa resulta necesario extraer los tickers representativos de las principales bolsas europeas. Para ello se emplea la API de TradingView, ampliamente utilizada en el ámbito del análisis financiero, implementando la función scrape_country como componente orquestador del proceso. Esta función integra, por un lado, `fetch_html`, encargada de recuperar el código HTML de las páginas de TradingView, y por otro, `extract_rows_precise`, que a través de la librería BeautifulSoup identifica los nombres y tickers de las compañías, filtra los resultados según el mercado de interés, elimina duplicados y descarta instrumentos no relevantes como ETFs o futuros. Finalmente, scrape_country consolida ambos procedimientos para cada índice bursátil, generando un DataFrame estandarizado con el ticker en formato Yahoo Finance, el nombre depurado de la empresa, el país y el símbolo local, lo que permite conformar una base de datos estructurada y preparada para su posterior almacenamiento en Snowflake y para los análisis financieros avanzados.
+En una primera etapa resulta necesario extraer los tickers representativos de las principales bolsas europeas. Para ello se emplea la API de TradingView, ampliamente utilizada en el ámbito del análisis financiero, implementando la función scrape_country como componente orquestador del proceso. Esta función integra, por un lado, fetch_html, encargada de recuperar el código HTML de las páginas de TradingView, y por otro, extract_rows_precise, que a través de la librería BeautifulSoup identifica los nombres y tickers de las compañías, filtra los resultados según el mercado de interés, elimina duplicados y descarta instrumentos no relevantes como ETFs o futuros. Finalmente, scrape_country consolida ambos procedimientos para cada índice bursátil, generando un DataFrame estandarizado con el ticker en formato Yahoo Finance, el nombre depurado de la empresa, el país y el símbolo local, lo que permite conformar una base de datos estructurada y preparada para su posterior almacenamiento en Snowflake y para los análisis financieros avanzados.
 
 ```{literalinclude} ../../Yahoo_prueba/tickers_precios_global.py
 :language: python
@@ -138,7 +138,7 @@ Ejemplos de DataFrame de stickers:
 
 ### Descarga de precios por empresa diaria
 
-Una vez obtenida la lista de tickers, se procede a la consulta de la información histórica en Yahoo Finance mediante la función `download_batch`. Dicha función permite recopilar de forma automatizada los precios diarios de apertura, cierre, máximo y mínimo, además del volumen de acciones negociadas, vinculando cada registro con su fecha correspondiente. Posteriormente, los datos son transformados y estandarizados en un formato homogéneo, lo que garantiza su integración sin inconsistencias dentro del flujo de almacenamiento en el DataLake y asegura la disponibilidad de un conjunto de información fiable para el análisis y la modelización posteriores.
+Una vez obtenida la lista de tickers, se procede a la consulta de la información histórica en Yahoo Finance mediante la función download_batch. Dicha función permite recopilar de forma automatizada los precios diarios de apertura, cierre, máximo y mínimo, además del volumen de acciones negociadas, vinculando cada registro con su fecha correspondiente. Posteriormente, los datos son transformados y estandarizados en un formato homogéneo, lo que garantiza su integración sin inconsistencias dentro del flujo de almacenamiento en el DataLake y asegura la disponibilidad de un conjunto de información fiable para el análisis y la modelización posteriores.
 
 ```{literalinclude} ../../Yahoo_prueba/tickers_precios_global.py
 :language: python
@@ -168,3 +168,61 @@ Finalmente, se lleva a cabo un proceso de verificación de la última fecha de a
 
 ## Estados Financieros por tickers
 
+### Ratios Financieros
+
+Los principales ratios bursátiles constituyen herramientas fundamentales para evaluar cómo el mercado valora a una empresa y qué expectativas existen sobre su desempeño. El PER (Price to Earnings Ratio), tanto en su versión histórica (trailing) como en la proyectada (forward), mide cuántas veces los inversores están pagando las utilidades de la compañía; un valor elevado puede reflejar expectativas de crecimiento, mientras que uno reducido puede sugerir infravaloración. El Price to Book (P/B) compara el precio de mercado con el valor contable, permitiendo identificar si la acción cotiza por encima o por debajo de sus activos netos. Por su parte, el EV/EBITDA es un ratio muy utilizado para comparar empresas dentro de un mismo sector, ya que relaciona el valor total de la compañía (incluyendo deuda) con su capacidad operativa de generar beneficios.
+
+El script desarrollado en este proyecto automatiza la obtención de estos indicadores bursátiles desde Yahoo Finance y los almacena en Snowflake de forma estructurada y actualizada. Este procedimiento permite disponer de un repositorio centralizado de ratios de valoración, rentabilidad y dividendos, listo para ser utilizado en análisis posteriores. Al integrarse con los otros módulos implementados, se conforma una base de datos integral que combina perspectivas de mercado, solidez fundamental y sostenibilidad, lo que proporciona una visión completa para la toma de decisiones financieras y de inversión.
+
+```{literalinclude} ../../Yahoo_prueba/financieros_snapshot.py
+:language: python
+:linenos:
+:start-after: --8<-- [start:fetch_snapshot_one]
+:end-before: --8<-- [end:fetch_snapshot_one]
+```
+
+| TICKER | PE_TRAILING | PE_FORWARD | PRICE_TO_BOOK | EV_TO_EBITDA | DIVIDEND_YIELD | PAYOUT_RATIO | MARKET_CAP   | ENTERPRISE_VALUE | SHARES_OUTSTANDING |
+|--------|-------------|------------|---------------|--------------|----------------|--------------|--------------|------------------|--------------------|
+| A2A.MI | 8.319231    | 12.016666  | 1.406372      | 6.135        | 4.62           | 0.3868       | 6767140864   | 12491133952      | 3128590080         |
+| AAF.L  | 32.62857    | 19.033333  | 321.69016     | 6.584        | 2.15           | 0.71650004   | 8328902656   | 14142440448      | 3646629888         |
+| AAL.L  |             | 15.484849  | 157.49245     | 6.569        | 0.94           | 5.6102004    | 27304775680  | 45547601920      | 1068680000         |
+
+
+### Estados Financieros
+
+Este script es importante porque automatiza la recopilación y almacenamiento de estados financieros anuales (balance, cuenta de resultados y flujos de caja) desde Yahoo Finance, asegurando que en Snowflake solo se guarden los años faltantes y evitando duplicados. Los estados financieros son la base del análisis fundamental, ya que muestran la salud económica de una empresa: el balance indica qué posee y qué debe, la cuenta de resultados revela si es rentable y el estado de flujos de efectivo refleja su liquidez real. A partir de estos datos se calculan ratios clave como ROA, ROE, margen neto y deuda/equity, fundamentales para evaluar la solidez, rentabilidad y riesgos de una compañía, lo que convierte al script en una pieza esencial para integrar análisis financiero sólido dentro de tu proyecto.
+
+```{literalinclude} ../../Yahoo_prueba/financieros_resumen_anual.py
+:language: python
+:linenos:
+:start-after: --8<-- [start:summarize_missing_years]
+:end-before: --8<-- [end:summarize_missing_years]
+```
+
+| TICKER | YEAR | ASSETS       | LIABILITIES   | EQUITY      | REVENUE      | EXPENSES     | NET_INCOME  | OPERATING_CF | INVESTING_CF | FINANCING_CF | FREE_CF     | NET_MARGIN | ROA   | ROE   | DEBT_EQUITY |
+|--------|------|--------------|---------------|-------------|--------------|--------------|-------------|--------------|--------------|--------------|-------------|------------|-------|-------|-------------|
+| A2A.MI | 2021 | 18008000000  | 13705000000   | 3760000000  | 11352000000  | 10848000000  | 504000000   | 1135000000   | -1595000000  | 412000000    | 61000000    | 0.044      | 0.028 | 0.134 | 3.645       |
+| A2A.MI | 2022 | 21367000000  | 16900000000   | 3899000000  | 22938000000  | 22537000000  | 401000000   | 1260000000   | -1142000000  | 1502000000   | 20000000    | 0.017      | 0.019 | 0.103 | 4.334       |
+| A2A.MI | 2023 | 18798000000  | 13996000000   | 4240000000  | 14492000000  | 13833000000  | 659000000   | 1040000000   | -1359000000  | -636000000   | -336000000  | 0.045      | 0.035 | 0.155 | 3.301       |
+
+### Análisis de Sostenibilidad ESG 
+
+ESG son las siglas de Environmental, Social and Governance (Medioambiental, Social y Gobernanza). Es un conjunto de criterios que se usan para evaluar a las empresas más allá de sus resultados financieros.
+1. Environmental (Medioambiental): mide el impacto que tiene la empresa sobre el medio ambiente. Ejemplos: emisiones de CO₂, gestión de residuos, eficiencia energética, uso de energías renovables.
+
+2. Social (Social): evalúa cómo la empresa se relaciona con empleados, clientes, comunidades y sociedad en general. Ejemplos: condiciones laborales, diversidad e inclusión, derechos humanos, impacto en la comunidad.
+
+3. Governance (Gobernanza): analiza cómo se gestiona y dirige la empresa. Ejemplos: independencia del consejo de administración, ética corporativa, transparencia, políticas contra la corrupción.
+
+```{literalinclude} ../../Yahoo_prueba/financieros_esg_snapshot.py
+:language: python
+:linenos:
+:start-after: --8<-- [start:fetch_esg_one]
+:end-before: --8<-- [end:fetch_esg_one]
+```
+
+| TICKER | HAS_ESG | TOTAL_ESG | ENVIRONMENTAL | SOCIAL | GOVERNANCE | CONTROVERSY |
+|--------|---------|-----------|---------------|--------|------------|-------------|
+| A2A.MI | TRUE    | 20.10     | 10.59         | 4.90   | 4.61       | 1           |
+| AAF.L  | TRUE    | 22.69     | 6.52          | 11.82  | 4.35       | 2           |
+| AAL.L  | TRUE    | 25.79     | 14.22         | 8.96   | 2.62       | 3           |

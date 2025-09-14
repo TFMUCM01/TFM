@@ -130,6 +130,7 @@ FINCF_KEYS     = ["Financing Cash Flow", "Net Cash Provided by (Used for) Financ
 FCF_KEYS       = ["Free Cash Flow"]
 CAPEX_KEYS     = ["Capital Expenditure", "Purchase of Property, Plant & Equipment", "Purchase Of Fixed Assets"]
 
+# --8<-- [start:summarize_missing_years]
 def summarize_missing_years(ticker: str, allowed_years: Set[int]) -> pd.DataFrame:
     """
     Devuelve sólo las filas de los años en allowed_years (ya filtrado por rango).
@@ -210,6 +211,7 @@ def summarize_missing_years(ticker: str, allowed_years: Set[int]) -> pd.DataFram
     for c in [x for x in COLS_ORDER if x not in ("TICKER","YEAR")]:
         df[c] = pd.to_numeric(df[c], errors="coerce")
     return df.sort_values(["TICKER","YEAR"])
+# --8<-- [end:summarize_missing_years]
 
 def insert_only_missing(conn, df: pd.DataFrame):
     """

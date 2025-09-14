@@ -13,7 +13,7 @@ import plotly.express as px
 conn = snowflake.connector.connect(
     user='TFMGRUPO4',
     password='TFMgrupo4ucm01_01#',
-    account='valklxh-zn41709',   # << org-locator de tu URL
+    account='VLNVLDD-WJ67583',   # << org-locator de tu URL
     warehouse='COMPUTE_WH',
     database='TFM',   # <--- CAMBIO
     schema='YAHOO_FINANCE',      # << Schema de la URL
