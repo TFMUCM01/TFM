@@ -168,3 +168,61 @@ Finalmente, se lleva a cabo un proceso de verificación de la última fecha de a
 
 ## Estados Financieros por tickers
 
+### Ratios Financieros
+
+Los principales ratios bursátiles constituyen herramientas fundamentales para evaluar cómo el mercado valora a una empresa y qué expectativas existen sobre su desempeño. El PER (Price to Earnings Ratio), tanto en su versión histórica (trailing) como en la proyectada (forward), mide cuántas veces los inversores están pagando las utilidades de la compañía; un valor elevado puede reflejar expectativas de crecimiento, mientras que uno reducido puede sugerir infravaloración. El Price to Book (P/B) compara el precio de mercado con el valor contable, permitiendo identificar si la acción cotiza por encima o por debajo de sus activos netos. Por su parte, el EV/EBITDA es un ratio muy utilizado para comparar empresas dentro de un mismo sector, ya que relaciona el valor total de la compañía (incluyendo deuda) con su capacidad operativa de generar beneficios.
+
+El script desarrollado en este proyecto automatiza la obtención de estos indicadores bursátiles desde Yahoo Finance y los almacena en Snowflake de forma estructurada y actualizada. Este procedimiento permite disponer de un repositorio centralizado de ratios de valoración, rentabilidad y dividendos, listo para ser utilizado en análisis posteriores. Al integrarse con los otros módulos implementados, se conforma una base de datos integral que combina perspectivas de mercado, solidez fundamental y sostenibilidad, lo que proporciona una visión completa para la toma de decisiones financieras y de inversión.
+
+```{literalinclude} ../../Yahoo_prueba/financieros_snapshot.py
+:language: python
+:linenos:
+:start-after: --8<-- [start:fetch_snapshot_one]
+:end-before: --8<-- [end:fetch_snapshot_one]
+```
+
+| TICKER | PE_TRAILING | PE_FORWARD | PRICE_TO_BOOK | EV_TO_EBITDA | DIVIDEND_YIELD | PAYOUT_RATIO | MARKET_CAP   | ENTERPRISE_VALUE | SHARES_OUTSTANDING |
+|--------|-------------|------------|---------------|--------------|----------------|--------------|--------------|------------------|--------------------|
+| A2A.MI | 8.319231    | 12.016666  | 1.406372      | 6.135        | 4.62           | 0.3868       | 6767140864   | 12491133952      | 3128590080         |
+| AAF.L  | 32.62857    | 19.033333  | 321.69016     | 6.584        | 2.15           | 0.71650004   | 8328902656   | 14142440448      | 3646629888         |
+| AAL.L  |             | 15.484849  | 157.49245     | 6.569        | 0.94           | 5.6102004    | 27304775680  | 45547601920      | 1068680000         |
+
+
+### Estados Financieros
+
+Este script es importante porque automatiza la recopilación y almacenamiento de estados financieros anuales (balance, cuenta de resultados y flujos de caja) desde Yahoo Finance, asegurando que en Snowflake solo se guarden los años faltantes y evitando duplicados. Los estados financieros son la base del análisis fundamental, ya que muestran la salud económica de una empresa: el balance indica qué posee y qué debe, la cuenta de resultados revela si es rentable y el estado de flujos de efectivo refleja su liquidez real. A partir de estos datos se calculan ratios clave como ROA, ROE, margen neto y deuda/equity, fundamentales para evaluar la solidez, rentabilidad y riesgos de una compañía, lo que convierte al script en una pieza esencial para integrar análisis financiero sólido dentro de tu proyecto.
+
+```{literalinclude} ../../Yahoo_prueba/financieros_resumen_anual.py
+:language: python
+:linenos:
+:start-after: --8<-- [start:summarize_missing_years]
+:end-before: --8<-- [end:summarize_missing_years]
+```
+
+| TICKER | YEAR | ASSETS       | LIABILITIES   | EQUITY      | REVENUE      | EXPENSES     | NET_INCOME  | OPERATING_CF | INVESTING_CF | FINANCING_CF | FREE_CF     | NET_MARGIN | ROA   | ROE   | DEBT_EQUITY |
+|--------|------|--------------|---------------|-------------|--------------|--------------|-------------|--------------|--------------|--------------|-------------|------------|-------|-------|-------------|
+| A2A.MI | 2021 | 18008000000  | 13705000000   | 3760000000  | 11352000000  | 10848000000  | 504000000   | 1135000000   | -1595000000  | 412000000    | 61000000    | 0.044      | 0.028 | 0.134 | 3.645       |
+| A2A.MI | 2022 | 21367000000  | 16900000000   | 3899000000  | 22938000000  | 22537000000  | 401000000   | 1260000000   | -1142000000  | 1502000000   | 20000000    | 0.017      | 0.019 | 0.103 | 4.334       |
+| A2A.MI | 2023 | 18798000000  | 13996000000   | 4240000000  | 14492000000  | 13833000000  | 659000000   | 1040000000   | -1359000000  | -636000000   | -336000000  | 0.045      | 0.035 | 0.155 | 3.301       |
+
+### Análisis de Sostenibilidad ESG 
+
+ESG son las siglas de Environmental, Social and Governance (Medioambiental, Social y Gobernanza). Es un conjunto de criterios que se usan para evaluar a las empresas más allá de sus resultados financieros.
+1. Environmental (Medioambiental): mide el impacto que tiene la empresa sobre el medio ambiente. Ejemplos: emisiones de CO₂, gestión de residuos, eficiencia energética, uso de energías renovables.
+
+2. Social (Social): evalúa cómo la empresa se relaciona con empleados, clientes, comunidades y sociedad en general. Ejemplos: condiciones laborales, diversidad e inclusión, derechos humanos, impacto en la comunidad.
+
+3. Governance (Gobernanza): analiza cómo se gestiona y dirige la empresa. Ejemplos: independencia del consejo de administración, ética corporativa, transparencia, políticas contra la corrupción.
+
+```{literalinclude} ../../Yahoo_prueba/financieros_esg_snapshot.py
+:language: python
+:linenos:
+:start-after: --8<-- [start:fetch_esg_one]
+:end-before: --8<-- [end:fetch_esg_one]
+```
+
+| TICKER | HAS_ESG | TOTAL_ESG | ENVIRONMENTAL | SOCIAL | GOVERNANCE | CONTROVERSY |
+|--------|---------|-----------|---------------|--------|------------|-------------|
+| A2A.MI | TRUE    | 20.10     | 10.59         | 4.90   | 4.61       | 1           |
+| AAF.L  | TRUE    | 22.69     | 6.52          | 11.82  | 4.35       | 2           |
+| AAL.L  | TRUE    | 25.79     | 14.22         | 8.96   | 2.62       | 3           |
