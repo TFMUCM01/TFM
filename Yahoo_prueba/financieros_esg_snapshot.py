@@ -89,7 +89,7 @@ def _get_from_any_shape(df: pd.DataFrame, key: str):
     except Exception:
         pass
     return None
-
+# --8<-- [start:fetch_esg_one]
 def fetch_esg_one(ticker: str, retries: int = 2, pause: float = 0.5) -> dict:
     for i in range(retries):
         try:
@@ -116,6 +116,7 @@ def fetch_esg_one(ticker: str, retries: int = 2, pause: float = 0.5) -> dict:
             else:
                 return {"TICKER": ticker, "HAS_ESG": False,
                         "TOTAL_ESG": None, "ENVIRONMENTAL": None, "SOCIAL": None, "GOVERNANCE": None, "CONTROVERSY": None}
+# --8<-- [end:fetch_esg_one]
 
 def upsert_esg(conn, df: pd.DataFrame):
     if df is None or df.empty:

@@ -78,6 +78,7 @@ def _latest_ebitda_from_financials(tk: yf.Ticker):
         pass
     return None
 
+# --8<-- [start:fetch_snapshot_one]
 def fetch_snapshot_one(ticker: str, retries: int = 3, pause: float = 0.6) -> dict:
     for i in range(retries):
         try:
@@ -137,6 +138,7 @@ def fetch_snapshot_one(ticker: str, retries: int = 3, pause: float = 0.6) -> dic
                     "ENTERPRISE_VALUE": None,
                     "SHARES_OUTSTANDING": None,
                 }
+# --8<-- [end:fetch_snapshot_one]
 
 # ====== Upsert ======
 def upsert_snapshot(conn, df: pd.DataFrame):

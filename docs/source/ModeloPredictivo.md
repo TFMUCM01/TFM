@@ -35,8 +35,6 @@ https://huggingface.co/nlptown/bert-base-multilingual-uncased-sentiment
 ### Comparación y justificación de uso  
 La principal diferencia entre ambos modelos radica en su **especialización**. El modelo en inglés ofrece un mejor desempeño en el contexto financiero gracias a su ajuste en noticias económicas, mientras que el modelo en español, aunque más generalista, permite cubrir de manera efectiva los textos en este idioma. En conjunto, la combinación de ambos modelos garantiza un análisis más robusto y equilibrado de noticias financieras procedentes de distintas fuentes y en diferentes idiomas.  
 
----
-
 ### Tabla comparativa de modelos  
 
 | Modelo                                                        | Idioma(s)       | Ventajas                                                                 | Limitaciones                                              |
@@ -44,27 +42,20 @@ La principal diferencia entre ambos modelos radica en su **especialización**. E
 | *mrm8488/distilroberta-finetuned-financial-news-sentiment-analysis* | Inglés          | Especializado en noticias financieras, mayor precisión en este dominio. | Solo aplica a textos en inglés.                           |
 | *nlptown/bert-base-multilingual-uncased-sentiment*            | Multilingüe (incluye español) | Cobertura en más de 100 idiomas, adecuado para análisis en español.     | No especializado en finanzas, menor precisión contextual. |
 
----
-
 ### Automatización del flujo de trabajo con n8n
 
-En la automatización de la ingesta y el procesamiento de datos se ha empleado **n8n**, una herramienta de *workflow automation* de código abierto. Su función principal es permitir la integración entre múltiples servicios, APIs y bases de datos mediante la creación de flujos de trabajo visuales que se ejecutan de manera automática en función de determinados eventos o programaciones. A partir del trigger que en nuestro caso de de tiempo (00:00 todos los dias), los nodos se van ejecutando en orden lógico, permitiendo que la información fluya automáticamente entre servicios sin intervención manual.
-
-En conjunto, n8n se convierte en un componente clave para la **orquestación de datos** en este proyecto, permitiendo que el análisis de sentimiento y financiero se sustente en información 
-
+En la automatización de la ingesta y el procesamiento de datos se ha empleado **n8n**, una herramienta de *workflow automation* de código abierto. Su función principal es permitir la integración entre múltiples servicios, APIs y bases de datos mediante la creación de flujos de trabajo visuales que se ejecutan de manera automática en función de determinados eventos o programaciones. A partir del trigger que en nuestro caso de de tiempo (00:00 todos los dias), los nodos se van ejecutando en orden lógico, permitiendo que la información fluya automáticamente entre servicios sin intervención manual.En conjunto, n8n se convierte en un componente clave para la **orquestación de datos** en este proyecto, permitiendo que el análisis de sentimiento y financiero se sustente en información 
 ![FlujoN8N](../../Imagenes/FlujoN8N.jpeg)
----
+
 ### Flujo de utilizacion de los modelos
 
 Dentro del *datalake* definido en el módulo de **Datos y Preparación**, se encuentra la tabla unificada denominada `NOTICIAS_ANALIZADAS`. A partir de esta base de datos se extraen los titulares procedentes de los distintos noticieros. Posteriormente, mediante un **árbol de decisión** se determina el idioma de cada titular (inglés o español). Según el resultado, se aplica el modelo de predicción correspondiente, previamente entrenado para el análisis de sentimiento en cada idioma.
 
----
 ### Generacion de las columnas con tipo de titulos 
 
 Una vez aplicados los modelos de análisis de sentimiento, se generan cuatro variables principales: `SENTIMIENTO_RESULTADO`, `PROBABILIDAD_POSITIVO`, `PROBABILIDAD_NEGATIVA` y `PROBABILIDAD_NEUTRAL`. Estas variables permiten determinar de manera objetiva la clasificación final del texto en función de su polaridad. Posteriormente, los resultados se incorporan a la tabla principal de **Noticias_Analizadas** y se almacenan nuevamente en Snowflake, lo que garantiza su disponibilidad para futuros análisis, tanto de carácter técnico como de integración con otros indicadores financieros.
 
 ![correo_titulares](../../Imagenes/Correo_Titulares.png)
-
 ## Analisis de Frontera de eficiencia
 
 Para la selección de nuestra cartera emplearemos el modelo de media-varianza de Markowitz, considerado la base de la Teoría Moderna de Carteras. Este enfoque es ampliamente utilizado en finanzas porque permite encontrar la combinación óptima de activos equilibrando riesgo y rendimiento esperado.
