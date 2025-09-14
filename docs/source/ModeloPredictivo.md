@@ -14,7 +14,11 @@ En cuanto a resultados, el modelo alcanzó un **accuracy del 98,23 %** y una pé
 
 La principal ventaja de este modelo es su **alta especialización en finanzas**, lo que le permite detectar matices en titulares y frases económicas con gran precisión. No obstante, presenta la limitación de estar restringido exclusivamente al inglés.  
 
+<<<<<<< HEAD
 https://huggingface.co/mrm8488/distilroberta-finetuned-financial-news-sentiment-analysis 
+=======
+[Ver HuggingFace - Modelo Sentimento español ](https://huggingface.co/mrm8488/distilroberta-finetuned-financial-news-sentiment-analysis )
+>>>>>>> 5062e7f375c09351ca31db2eac833438f29ebaa5
 
 ### Modelo en español (multilingüe): *nlptown/bert-base-multilingual-uncased-sentiment*
 
@@ -30,7 +34,13 @@ Sin embargo, el modelo también presenta **limitaciones importantes**. En primer
 
 En el contexto de este trabajo, el modelo ha sido utilizado principalmente como una herramienta complementaria para el análisis de textos en español. Si bien su desempeño no alcanza la especialización del modelo en inglés, su flexibilidad multilingüe y su buena capacidad de aproximación al sentimiento general lo convierten en una opción adecuada para garantizar cobertura en medios hispanohablantes.
 
+<<<<<<< HEAD
 https://huggingface.co/nlptown/bert-base-multilingual-uncased-sentiment
+=======
+[Ver HuggingFace - Modelo Sentimento multilingual ](https://huggingface.co/nlptown/bert-base-multilingual-uncased-sentiment)
+
+![Diagrama de Sentimientos](../../Imagenes/DigSentimientos.png)
+>>>>>>> 5062e7f375c09351ca31db2eac833438f29ebaa5
 
 ### Comparación y justificación de uso  
 La principal diferencia entre ambos modelos radica en su **especialización**. El modelo en inglés ofrece un mejor desempeño en el contexto financiero gracias a su ajuste en noticias económicas, mientras que el modelo en español, aunque más generalista, permite cubrir de manera efectiva los textos en este idioma. En conjunto, la combinación de ambos modelos garantiza un análisis más robusto y equilibrado de noticias financieras procedentes de distintas fuentes y en diferentes idiomas.  
@@ -45,6 +55,10 @@ La principal diferencia entre ambos modelos radica en su **especialización**. E
 ### Automatización del flujo de trabajo con n8n
 
 En la automatización de la ingesta y el procesamiento de datos se ha empleado **n8n**, una herramienta de *workflow automation* de código abierto. Su función principal es permitir la integración entre múltiples servicios, APIs y bases de datos mediante la creación de flujos de trabajo visuales que se ejecutan de manera automática en función de determinados eventos o programaciones. A partir del trigger que en nuestro caso de de tiempo (00:00 todos los dias), los nodos se van ejecutando en orden lógico, permitiendo que la información fluya automáticamente entre servicios sin intervención manual.En conjunto, n8n se convierte en un componente clave para la **orquestación de datos** en este proyecto, permitiendo que el análisis de sentimiento y financiero se sustente en información 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 5062e7f375c09351ca31db2eac833438f29ebaa5
 ![FlujoN8N](../../Imagenes/FlujoN8N.jpeg)
 
 ### Flujo de utilizacion de los modelos
@@ -67,7 +81,11 @@ El procedimiento consiste en simular 50.000 carteras aleatorias con diferentes p
 
 El primer aspecto a considerar es que los resultados de nuestro modelo se generan siempre con datos actualizados hasta el día anterior en todas las bases de datos. Dichos resultados se almacenan en un datalake implementado en Snowflake, el cual se encuentra en constante actualización. Por ello, la primera fase de nuestro análisis consiste en establecer la conexión con Snowflake y asegurar la correcta creación, configuración y mantenimiento del datalake.
 
+<<<<<<< HEAD
 Una vez completada esta etapa, el modelo se vincula con las acciones seleccionadas por el usuario en función de su análisis fundamental —[AQUÍ INCLUIR EL NOMBRE DE LA SECCIÓN DE ANÁLISIS FUNDAMENTAL]—. Para cada activo elegido, se verifican las tendencias históricas y se realizan diferentes simulaciones con variaciones en los porcentajes de asignación.
+=======
+Una vez completada esta etapa, el modelo se vincula con las acciones seleccionadas por el usuario en función de su análisis fundamental. Para cada activo elegido, se verifican las tendencias históricas y se realizan diferentes simulaciones con variaciones en los porcentajes de asignación.
+>>>>>>> 5062e7f375c09351ca31db2eac833438f29ebaa5
 
 De este modo, el modelo permite seleccionar la combinación más eficiente considerando no solo los criterios de diversificación cuantitativa, sino también el análisis fundamental, el análisis descriptivo de los datos históricos y el análisis de sentimiento obtenido a partir de noticias sectoriales e industriales.
 
