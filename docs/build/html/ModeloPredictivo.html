@@ -9,7 +9,7 @@
   <title>Modelos Predictivos &mdash; Desarrollo de un sistema de análisis financiero y sostenible del mercado bursátil europeo</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
-      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=d6aa1ce3" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=43544402" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
@@ -58,9 +58,6 @@
 <li class="toctree-l3"><a class="reference internal" href="#comparacion-y-justificacion-de-uso">Comparación y justificación de uso</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#tabla-comparativa-de-modelos">Tabla comparativa de modelos</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#automatizacion-del-flujo-de-trabajo-con-n8n">Automatización del flujo de trabajo con n8n</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#id1"></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#flujo-de-utilizacion-de-los-modelos">Flujo de utilizacion de los modelos</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#generacion-de-las-columnas-con-tipo-de-titulos">Generacion de las columnas con tipo de titulos</a></li>
 </ul>
@@ -128,7 +125,6 @@
 <h3>Comparación y justificación de uso<a class="headerlink" href="#comparacion-y-justificacion-de-uso" title="Link to this heading"></a></h3>
 <p>La principal diferencia entre ambos modelos radica en su <strong>especialización</strong>. El modelo en inglés ofrece un mejor desempeño en el contexto financiero gracias a su ajuste en noticias económicas, mientras que el modelo en español, aunque más generalista, permite cubrir de manera efectiva los textos en este idioma. En conjunto, la combinación de ambos modelos garantiza un análisis más robusto y equilibrado de noticias financieras procedentes de distintas fuentes y en diferentes idiomas.</p>
 </section>
-<hr class="docutils" />
 <section id="tabla-comparativa-de-modelos">
 <h3>Tabla comparativa de modelos<a class="headerlink" href="#tabla-comparativa-de-modelos" title="Link to this heading"></a></h3>
 <table class="docutils align-default">
@@ -153,20 +149,15 @@
 </tbody>
 </table>
 </section>
-<hr class="docutils" />
 <section id="automatizacion-del-flujo-de-trabajo-con-n8n">
 <h3>Automatización del flujo de trabajo con n8n<a class="headerlink" href="#automatizacion-del-flujo-de-trabajo-con-n8n" title="Link to this heading"></a></h3>
-<p>En la automatización de la ingesta y el procesamiento de datos se ha empleado <strong>n8n</strong>, una herramienta de <em>workflow automation</em> de código abierto. Su función principal es permitir la integración entre múltiples servicios, APIs y bases de datos mediante la creación de flujos de trabajo visuales que se ejecutan de manera automática en función de determinados eventos o programaciones. A partir del trigger que en nuestro caso de de tiempo (00:00 todos los dias), los nodos se van ejecutando en orden lógico, permitiendo que la información fluya automáticamente entre servicios sin intervención manual.</p>
-<p>En conjunto, n8n se convierte en un componente clave para la <strong>orquestación de datos</strong> en este proyecto, permitiendo que el análisis de sentimiento y financiero se sustente en información</p>
+<p>En la automatización de la ingesta y el procesamiento de datos se ha empleado <strong>n8n</strong>, una herramienta de <em>workflow automation</em> de código abierto. Su función principal es permitir la integración entre múltiples servicios, APIs y bases de datos mediante la creación de flujos de trabajo visuales que se ejecutan de manera automática en función de determinados eventos o programaciones. A partir del trigger que en nuestro caso de de tiempo (00:00 todos los dias), los nodos se van ejecutando en orden lógico, permitiendo que la información fluya automáticamente entre servicios sin intervención manual.En conjunto, n8n se convierte en un componente clave para la <strong>orquestación de datos</strong> en este proyecto, permitiendo que el análisis de sentimiento y financiero se sustente en información
+<img alt="FlujoN8N" src="_images/FlujoN8N.jpeg" /></p>
 </section>
-</section>
-<section id="id1">
-<h2><img alt="FlujoN8N" src="_images/FlujoN8N.jpeg" /><a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
 <section id="flujo-de-utilizacion-de-los-modelos">
 <h3>Flujo de utilizacion de los modelos<a class="headerlink" href="#flujo-de-utilizacion-de-los-modelos" title="Link to this heading"></a></h3>
 <p>Dentro del <em>datalake</em> definido en el módulo de <strong>Datos y Preparación</strong>, se encuentra la tabla unificada denominada <code class="docutils literal notranslate"><span class="pre">NOTICIAS_ANALIZADAS</span></code>. A partir de esta base de datos se extraen los titulares procedentes de los distintos noticieros. Posteriormente, mediante un <strong>árbol de decisión</strong> se determina el idioma de cada titular (inglés o español). Según el resultado, se aplica el modelo de predicción correspondiente, previamente entrenado para el análisis de sentimiento en cada idioma.</p>
 </section>
-<hr class="docutils" />
 <section id="generacion-de-las-columnas-con-tipo-de-titulos">
 <h3>Generacion de las columnas con tipo de titulos<a class="headerlink" href="#generacion-de-las-columnas-con-tipo-de-titulos" title="Link to this heading"></a></h3>
 <p>Una vez aplicados los modelos de análisis de sentimiento, se generan cuatro variables principales: <code class="docutils literal notranslate"><span class="pre">SENTIMIENTO_RESULTADO</span></code>, <code class="docutils literal notranslate"><span class="pre">PROBABILIDAD_POSITIVO</span></code>, <code class="docutils literal notranslate"><span class="pre">PROBABILIDAD_NEGATIVA</span></code> y <code class="docutils literal notranslate"><span class="pre">PROBABILIDAD_NEUTRAL</span></code>. Estas variables permiten determinar de manera objetiva la clasificación final del texto en función de su polaridad. Posteriormente, los resultados se incorporan a la tabla principal de <strong>Noticias_Analizadas</strong> y se almacenan nuevamente en Snowflake, lo que garantiza su disponibilidad para futuros análisis, tanto de carácter técnico como de integración con otros indicadores financieros.</p>
