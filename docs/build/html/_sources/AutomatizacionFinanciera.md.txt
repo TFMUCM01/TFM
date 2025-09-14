@@ -39,6 +39,7 @@ Finalmente, el bot devuelve al usuario un mensaje dentro del chat de Telegram, m
 ![Flujo Robot n8n](../../Imagenes/FlujoRobot_n8n.jpeg)
 
 ![Flujo Robot](../../Imagenes/FlujoRobot.png)
+
 ## Beneficios del Proceso
 
 - Automatización completa de la consulta de datos desde Snowflake.
@@ -52,3 +53,7 @@ Finalmente, el bot devuelve al usuario un mensaje dentro del chat de Telegram, m
 - Escalabilidad, ya que el flujo puede extenderse a más bases de datos o nuevas funcionalidades del bot.
 
 El robot implementado integra de manera efectiva N8N, Telegram, Snowflake y OpenAI, logrando un flujo robusto para la consulta y análisis de datos en tiempo real. Este sistema no solo proporciona respuestas automáticas, sino que también añade valor al usuario al interpretar la información, consolidando un asesor virtual de inteligencia artificial (AsesorIA) dentro de un entorno de mensajería instantánea.
+
+![Robot](../../Imagenes/Robot.jpeg)
+
+[Datos del Robot Financiero](https://t.me/TFMGRUPO4_BOT)

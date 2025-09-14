@@ -6,7 +6,7 @@ En paralelo, los datos de mercado (OHLCV por ticker) se descargaron y consolidar
 
 ## Titulares de noticieros
 
-Como primera fase, se recopilaron titulares de noticieros financieros y generalistas de acceso público —entre ellos El País, The Times y Bloomberg— a través de sus respectivas fuentes web y archivos digitales. Posteriormente, estos textos fueron procesados mediante técnicas de análisis de texto <span style="color:red">[aquí se puede especificar el método exacto]</span> , con el objetivo de identificar noticias relevantes capaces de influir en el comportamiento bursátil de las acciones.
+Como primera fase, se llevó a cabo la recopilación de titulares procedentes de noticieros financieros y generalistas de acceso público mediante sus plataformas web y archivos digitales, los cuales fueron posteriormente procesados a través de técnicas de análisis de texto con el fin de filtrar e identificar aquellas noticias con mayor relevancia y potencial de impacto en el comportamiento bursátil de las acciones.
 
 Ejemplo de base da datos de titulares:
 
@@ -31,16 +31,16 @@ Estos modelos generan una probabilidad asociada a cada noticia, lo que permite c
 ### Módulos y dependencias
 
 - **`config.py`**
-  - `NOTICIEROS`: lista de medios (URL, fuente, idioma, tabla destino)
-  - `SNOWFLAKE_CONFIG`: credenciales y parámetros de conexión
-  - `RETRIES`, `SLEEP_BETWEEN_DIAS`: reintentos y pausas
+  - NOTICIEROS: lista de medios (URL, fuente, idioma, tabla destino)
+  - SNOWFLAKE_CONFIG: credenciales y parámetros de conexión
+  - RETRIES, SLEEP_BETWEEN_DIAS: reintentos y pausas
 - **`scraper.py`**
-  - `obtener_snapshot_url_directo(url, fecha)`
-  - `extraer_titulares(url, fecha, fuente)`
-  - `log_error(msg)`
+  - obtener_snapshot_url_directo(url, fecha)
+  - extraer_titulares(url, fecha, fuente)
+  - log_error(msg)
 - **`snowflake_utils.py`**
-  - `obtener_ultima_fecha_en_snowflake(config, tabla)`
-  - `subir_a_snowflake(df, config, tabla)`
+  - obtener_ultima_fecha_en_snowflake(config, tabla)
+  - subir_a_snowflake(df, config, tabla)
 
 ---
 ### Flujo general
@@ -62,8 +62,8 @@ En primer lugar, es necesario verificar la última fecha de carga en **Snowflake
 ```
 ---
 
-Adicionalmente, es necesario extraer las URL correctas por cada noticiero. Para ello, se ha desarrollado la función **`obtener_snapshot_url(original_url, fecha_str)`**, la cual consulta la API de **Wayback Machine** con el objetivo de recuperar la versión archivada más cercana de una página web en una fecha determinada. El procedimiento consiste en construir la URL de la API a partir de la dirección original y la fecha solicitada, realizar una petición `GET` y procesar la respuesta en formato **JSON**.  
-Si existe un *snapshot* disponible, la función devuelve la URL más próxima a la fecha indicada en formato `https`; en caso contrario, retorna `None` mostrando un mensaje informativo.  
+Adicionalmente, es necesario extraer las URL correctas por cada noticiero. Para ello, se ha desarrollado la función **`obtener_snapshot_url(original_url, fecha_str)`**, la cual consulta la API de **Wayback Machine** con el objetivo de recuperar la versión archivada más cercana de una página web en una fecha determinada. El procedimiento consiste en construir la URL de la API a partir de la dirección original y la fecha solicitada, realizar una petición GET y procesar la respuesta en formato **JSON**.  
+Si existe un *snapshot* disponible, la función devuelve la URL más próxima a la fecha indicada en formato https; en caso contrario, retorna None mostrando un mensaje informativo.  
 
 ```{literalinclude} ../../scrapping/scraper.py
 :language: python
@@ -89,7 +89,7 @@ Módulo de descarga en API’s
 ### Carga del DataFrame de titulares de noticieros en el DataLake
 
 Por último, se valida si el **DataFrame** contiene información; en caso de estar vacío, no se ejecuta ninguna acción.  
-En caso contrario, se transforma la columna de fecha al tipo de dato adecuado (`datetime.date`) y se establece la conexión con **Snowflake** mediante las credenciales configuradas en el entorno.  
+En caso contrario, se transforma la columna de fecha al tipo de dato adecuado y se establece la conexión con **Snowflake** mediante las credenciales configuradas en el entorno.  
 
 Si la tabla de destino no existe, esta se crea con un esquema predefinido que incluye los campos: **fecha**, **titular de la noticia**, **URL del snapshot**, **fuente** e **idioma**. Posteriormente, se realiza una inserción en bloque de todos los registros del DataFrame, lo que permite almacenar de forma eficiente los titulares extraídos de los medios archivados, garantizando su disponibilidad para procesos posteriores de análisis o visualización.   
 
@@ -119,7 +119,7 @@ En el análisis financiero, en primer lugar se necesitan los tickers sobre los q
 
 ### Scraping de índices europeos en TradingView
 
-En una primera etapa resulta necesario extraer los tickers representativos de las principales bolsas europeas. Para ello se emplea la API de TradingView, ampliamente utilizada en el ámbito del análisis financiero, implementando la función scrape_country como componente orquestador del proceso. Esta función integra, por un lado, `fetch_html`, encargada de recuperar el código HTML de las páginas de TradingView, y por otro, `extract_rows_precise`, que a través de la librería BeautifulSoup identifica los nombres y tickers de las compañías, filtra los resultados según el mercado de interés, elimina duplicados y descarta instrumentos no relevantes como ETFs o futuros. Finalmente, scrape_country consolida ambos procedimientos para cada índice bursátil, generando un DataFrame estandarizado con el ticker en formato Yahoo Finance, el nombre depurado de la empresa, el país y el símbolo local, lo que permite conformar una base de datos estructurada y preparada para su posterior almacenamiento en Snowflake y para los análisis financieros avanzados.
+En una primera etapa resulta necesario extraer los tickers representativos de las principales bolsas europeas. Para ello se emplea la API de TradingView, ampliamente utilizada en el ámbito del análisis financiero, implementando la función scrape_country como componente orquestador del proceso. Esta función integra, por un lado, fetch_html, encargada de recuperar el código HTML de las páginas de TradingView, y por otro, extract_rows_precise, que a través de la librería BeautifulSoup identifica los nombres y tickers de las compañías, filtra los resultados según el mercado de interés, elimina duplicados y descarta instrumentos no relevantes como ETFs o futuros. Finalmente, scrape_country consolida ambos procedimientos para cada índice bursátil, generando un DataFrame estandarizado con el ticker en formato Yahoo Finance, el nombre depurado de la empresa, el país y el símbolo local, lo que permite conformar una base de datos estructurada y preparada para su posterior almacenamiento en Snowflake y para los análisis financieros avanzados.
 
 ```{literalinclude} ../../Yahoo_prueba/tickers_precios_global.py
 :language: python
@@ -138,7 +138,7 @@ Ejemplos de DataFrame de stickers:
 
 ### Descarga de precios por empresa diaria
 
-Una vez obtenida la lista de tickers, se procede a la consulta de la información histórica en Yahoo Finance mediante la función `download_batch`. Dicha función permite recopilar de forma automatizada los precios diarios de apertura, cierre, máximo y mínimo, además del volumen de acciones negociadas, vinculando cada registro con su fecha correspondiente. Posteriormente, los datos son transformados y estandarizados en un formato homogéneo, lo que garantiza su integración sin inconsistencias dentro del flujo de almacenamiento en el DataLake y asegura la disponibilidad de un conjunto de información fiable para el análisis y la modelización posteriores.
+Una vez obtenida la lista de tickers, se procede a la consulta de la información histórica en Yahoo Finance mediante la función download_batch. Dicha función permite recopilar de forma automatizada los precios diarios de apertura, cierre, máximo y mínimo, además del volumen de acciones negociadas, vinculando cada registro con su fecha correspondiente. Posteriormente, los datos son transformados y estandarizados en un formato homogéneo, lo que garantiza su integración sin inconsistencias dentro del flujo de almacenamiento en el DataLake y asegura la disponibilidad de un conjunto de información fiable para el análisis y la modelización posteriores.
 
 ```{literalinclude} ../../Yahoo_prueba/tickers_precios_global.py
 :language: python

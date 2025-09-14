@@ -14,7 +14,7 @@ En cuanto a resultados, el modelo alcanzó un **accuracy del 98,23 %** y una pé
 
 La principal ventaja de este modelo es su **alta especialización en finanzas**, lo que le permite detectar matices en titulares y frases económicas con gran precisión. No obstante, presenta la limitación de estar restringido exclusivamente al inglés.  
 
-https://huggingface.co/mrm8488/distilroberta-finetuned-financial-news-sentiment-analysis 
+[Ver HuggingFace - Modelo Sentimento español ](https://huggingface.co/mrm8488/distilroberta-finetuned-financial-news-sentiment-analysis )
 
 ### Modelo en español (multilingüe): *nlptown/bert-base-multilingual-uncased-sentiment*
 
@@ -30,7 +30,9 @@ Sin embargo, el modelo también presenta **limitaciones importantes**. En primer
 
 En el contexto de este trabajo, el modelo ha sido utilizado principalmente como una herramienta complementaria para el análisis de textos en español. Si bien su desempeño no alcanza la especialización del modelo en inglés, su flexibilidad multilingüe y su buena capacidad de aproximación al sentimiento general lo convierten en una opción adecuada para garantizar cobertura en medios hispanohablantes.
 
-https://huggingface.co/nlptown/bert-base-multilingual-uncased-sentiment
+[Ver HuggingFace - Modelo Sentimento multilingual ](https://huggingface.co/nlptown/bert-base-multilingual-uncased-sentiment)
+
+![Diagrama de Sentimientos](../../Imagenes/DigSentimientos.png)
 
 ### Comparación y justificación de uso  
 La principal diferencia entre ambos modelos radica en su **especialización**. El modelo en inglés ofrece un mejor desempeño en el contexto financiero gracias a su ajuste en noticias económicas, mientras que el modelo en español, aunque más generalista, permite cubrir de manera efectiva los textos en este idioma. En conjunto, la combinación de ambos modelos garantiza un análisis más robusto y equilibrado de noticias financieras procedentes de distintas fuentes y en diferentes idiomas.  
