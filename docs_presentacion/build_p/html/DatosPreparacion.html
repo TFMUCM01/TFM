@@ -52,21 +52,12 @@
 <li class="toctree-l1"><a class="reference internal" href="MarcoTeorico.html">Modelos Teoricos</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Datos y Preparación</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#titulares-de-noticieros">Titulares de noticieros</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#modulos-y-dependencias">Módulos y dependencias</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#flujo-general">Flujo general</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#preparacion-del-procesamiento-por-medio">Preparación del procesamiento por medio</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#extraccion-de-titulares">Extracción de titulares</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#carga-del-dataframe-de-titulares-de-noticieros-en-el-datalake">Carga del DataFrame de titulares de noticieros en el DataLake</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#precios-por-tickers">Precios por tickers</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#scraping-de-indices-europeos-en-tradingview">Scraping de índices europeos en TradingView</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#descarga-de-precios-por-empresa-diaria">Descarga de precios por empresa diaria</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#carga-de-los-dataframe-de-precios-por-tickers-en-el-datalake">Carga de los DataFrame de precios por tickers en el DataLake</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#estados-financieros-por-tickers">Estados Financieros por tickers</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#ratios-financieros">Ratios Financieros</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#estados-financieros">Estados Financieros</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#analisis-de-sostenibilidad-esg">Análisis de Sostenibilidad ESG</a></li>
 </ul>
@@ -106,8 +97,10 @@
              
   <section id="datos-y-preparacion">
 <h1>Datos y Preparación<a class="headerlink" href="#datos-y-preparacion" title="Link to this heading"></a></h1>
-<p>Este trabajo integra dos fuentes complementarias para anticipar el comportamiento del precio de acciones europeas: señales de sentimiento extraídas de titulares de prensa y información cuantitativa de mercado y estados financieros. Los titulares se obtuvieron mediante scraping y de medios generalistas y económicos —BBC, ABC, El Economista, Bloomberg Europa, El País, The Times y Expansión—. Sobre estos textos se aplicó una depuración sistemática (eliminación de duplicados y de ruidos como elementos de navegación, normalización de caracteres/idiomas y control de fechas) para construir indicadores diarios de sentimiento por medio e instrumento.</p>
-<p>En paralelo, los datos de mercado (OHLCV por ticker) se descargaron y consolidaron en Snowflake, armonizando formatos de fecha y símbolos, verificando huecos y coherencia (festivos, sesiones sin volumen) y, cuando procede, incorporando información contable resumida por compañía. Finalmente, se integraron ambas fuentes en un único dataset analítico a nivel (ticker, fecha) que incluye rendimientos y rezagos, volumen y métricas de sentimiento agregadas. Este conjunto sirve de base para los modelos predictivos, combinando la dimensión informativa de las noticias con la evidencia numérica del mercado para obtener señales de compra/venta más robustas.</p>
+<p>Este trabajo combina dos fuentes de información complementarias para anticipar el comportamiento de acciones europeas:</p>
+<p>Señales de sentimiento obtenidas mediante scraping de titulares de medios generalistas y económicos (BBC, ABC, El Economista, Bloomberg Europa, El País, The Times y Expansión), tras un proceso de depuración y normalización.</p>
+<p>Datos cuantitativos de mercado y financieros (OHLCV y estados contables), descargados y consolidados en Snowflake con controles de coherencia.</p>
+<p>Ambas fuentes se integraron en un único dataset analítico a nivel (ticker, fecha), que incorpora rendimientos, rezagos, volumen y métricas de sentimiento agregadas. Este dataset constituye la base de los modelos predictivos, aportando señales de compra/venta más robustas al combinar información textual y numérica.</p>
 <section id="titulares-de-noticieros">
 <h2>Titulares de noticieros<a class="headerlink" href="#titulares-de-noticieros" title="Link to this heading"></a></h2>
 <p>Como primera fase, se llevó a cabo la recopilación de titulares procedentes de noticieros financieros y generalistas de acceso público mediante sus plataformas web y archivos digitales, los cuales fueron posteriormente procesados a través de técnicas de análisis de texto con el fin de filtrar e identificar aquellas noticias con mayor relevancia y potencial de impacto en el comportamiento bursátil de las acciones.</p>
@@ -135,100 +128,13 @@
 </tbody>
 </table>
 <p><img alt="Noticia times" src="_images/thetimes.png" /></p>
-<p>Se ha creado un <strong>orquestador</strong> con el objetivo de coordinar el proceso de <em>scraping</em> por cada medio de comunicación y la posterior carga de los datos en <strong>Snowflake</strong>, evitando la ejecución manual de código desde la documentación. Este flujo tiene como finalidad construir una base de datos de noticias relacionadas con las empresas que cotizan en las principales bolsas de valores europeas.</p>
 <p>Para la orquestación se ha utilizado la herramienta <strong>n8n</strong>, una plataforma de automatización en la que se centraliza el código encargado de realizar las solicitudes a las distintas API’s y de aplicar los modelos de análisis de sentimiento. En particular, se han empleado los siguientes modelos:</p>
 <ul class="simple">
 <li><p><strong>bert-base-multilingual-uncased</strong>, para el análisis de noticias en español.</p></li>
 <li><p><strong>DistilRoberta-financial-sentiment</strong>, especializado en noticias financieras en inglés.</p></li>
 </ul>
 <p>Estos modelos generan una probabilidad asociada a cada noticia, lo que permite clasificarla como <strong>positiva</strong>, <strong>negativa</strong> o <strong>neutral</strong>. Aunque el detalle de la aplicación de los modelos se desarrolla en una sección posterior, en este apartado se describe el procedimiento de descarga de titulares desde las API’s y la construcción del <em>data lake</em> en <strong>Snowflake</strong>.</p>
-<hr class="docutils" />
-<section id="modulos-y-dependencias">
-<h3>Módulos y dependencias<a class="headerlink" href="#modulos-y-dependencias" title="Link to this heading"></a></h3>
-<ul class="simple">
-<li><p><strong><code class="docutils literal notranslate"><span class="pre">config.py</span></code></strong></p>
-<ul>
-<li><p>NOTICIEROS: lista de medios (URL, fuente, idioma, tabla destino)</p></li>
-<li><p>SNOWFLAKE_CONFIG: credenciales y parámetros de conexión</p></li>
-<li><p>RETRIES, SLEEP_BETWEEN_DIAS: reintentos y pausas</p></li>
-</ul>
-</li>
-<li><p><strong><code class="docutils literal notranslate"><span class="pre">scraper.py</span></code></strong></p>
-<ul>
-<li><p>obtener_snapshot_url_directo(url, fecha)</p></li>
-<li><p>extraer_titulares(url, fecha, fuente)</p></li>
-<li><p>log_error(msg)</p></li>
-</ul>
-</li>
-<li><p><strong><code class="docutils literal notranslate"><span class="pre">snowflake_utils.py</span></code></strong></p>
-<ul>
-<li><p>obtener_ultima_fecha_en_snowflake(config, tabla)</p></li>
-<li><p>subir_a_snowflake(df, config, tabla)</p></li>
-</ul>
-</li>
-</ul>
-</section>
-<hr class="docutils" />
-<section id="flujo-general">
-<h3>Flujo general<a class="headerlink" href="#flujo-general" title="Link to this heading"></a></h3>
-<ol class="arabic simple">
-<li><p>Para cada noticiero en <code class="docutils literal notranslate"><span class="pre">config.py</span></code>, se obtiene la última fecha almacenada.</p></li>
-<li><p>Se recorren los días pendientes hasta el día anterior al actual.</p></li>
-<li><p>Para cada fecha: se resuelve el snapshot, se extraen titulares y se enriquecen con metadatos.</p></li>
-<li><p>Se suben los nuevos registros a Snowflake.</p></li>
-</ol>
-</section>
-<hr class="docutils" />
-<section id="preparacion-del-procesamiento-por-medio">
-<h3>Preparación del procesamiento por medio<a class="headerlink" href="#preparacion-del-procesamiento-por-medio" title="Link to this heading"></a></h3>
-<p>En primer lugar, es necesario verificar la última fecha de carga en <strong>Snowflake</strong>, tomando como referencia el período comprendido desde <strong>enero de 2024 hasta el día inmediatamente anterior</strong>. De esta manera se garantiza la continuidad del proceso y se evitan posibles duplicidades. Este enfoque asegura la disponibilidad de comentarios recientes, lo que permite realizar un análisis actualizado y contribuye a mejorar la capacidad de predicción sobre la evolución del valor de las acciones.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="k">def</span><span class="w"> </span><span class="nf">obtener_ultima_fecha_en_snowflake</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">tabla</span><span class="p">):</span>
-<span class="linenos"> 2</span>    <span class="n">ctx</span> <span class="o">=</span> <span class="n">snowflake</span><span class="o">.</span><span class="n">connector</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
-<span class="linenos"> 3</span>        <span class="n">user</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">],</span>
-<span class="linenos"> 4</span>        <span class="n">password</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;password&#39;</span><span class="p">],</span>
-<span class="linenos"> 5</span>        <span class="n">account</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;account&#39;</span><span class="p">],</span>
-<span class="linenos"> 6</span>        <span class="n">warehouse</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;warehouse&#39;</span><span class="p">],</span>
-<span class="linenos"> 7</span>        <span class="n">database</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;database&#39;</span><span class="p">],</span>
-<span class="linenos"> 8</span>        <span class="n">schema</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;schema&#39;</span><span class="p">]</span>
-<span class="linenos"> 9</span>    <span class="p">)</span>
-<span class="linenos">10</span>    <span class="n">cs</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
-<span class="linenos">11</span>    <span class="k">try</span><span class="p">:</span>
-<span class="linenos">12</span>        <span class="n">tabla_completa</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;database&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;schema&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">tabla</span><span class="si">}</span><span class="s2">&quot;</span>
-<span class="linenos">13</span>        <span class="n">cs</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SELECT MAX(fecha) FROM </span><span class="si">{</span><span class="n">tabla_completa</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="linenos">14</span>        <span class="n">resultado</span> <span class="o">=</span> <span class="n">cs</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
-<span class="linenos">15</span>        <span class="k">if</span> <span class="n">resultado</span> <span class="ow">and</span> <span class="n">resultado</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
-<span class="linenos">16</span>            <span class="n">ultima_fecha</span> <span class="o">=</span> <span class="n">resultado</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-<span class="linenos">17</span>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Última fecha en Snowflake para </span><span class="si">{</span><span class="n">tabla</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">ultima_fecha</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="linenos">18</span>            <span class="k">return</span> <span class="n">ultima_fecha</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="linenos">19</span>        <span class="k">else</span><span class="p">:</span>
-<span class="linenos">20</span>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No se encontraron registros en </span><span class="si">{</span><span class="n">tabla</span><span class="si">}</span><span class="s2">. Iniciando desde 2024-01-01.&quot;</span><span class="p">)</span>
-<span class="linenos">21</span>            <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="s2">&quot;20240101&quot;</span><span class="p">,</span> <span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
-<span class="linenos">22</span>    <span class="k">finally</span><span class="p">:</span>
-<span class="linenos">23</span>        <span class="n">cs</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-<span class="linenos">24</span>        <span class="n">ctx</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-</pre></div>
-</div>
-<hr class="docutils" />
-<p>Adicionalmente, es necesario extraer las URL correctas por cada noticiero. Para ello, se ha desarrollado la función <strong><code class="docutils literal notranslate"><span class="pre">obtener_snapshot_url(original_url,</span> <span class="pre">fecha_str)</span></code></strong>, la cual consulta la API de <strong>Wayback Machine</strong> con el objetivo de recuperar la versión archivada más cercana de una página web en una fecha determinada. El procedimiento consiste en construir la URL de la API a partir de la dirección original y la fecha solicitada, realizar una petición GET y procesar la respuesta en formato <strong>JSON</strong>.<br />
-Si existe un <em>snapshot</em> disponible, la función devuelve la URL más próxima a la fecha indicada en formato https; en caso contrario, retorna None mostrando un mensaje informativo.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="k">def</span><span class="w"> </span><span class="nf">obtener_snapshot_url</span><span class="p">(</span><span class="n">original_url</span><span class="p">,</span> <span class="n">fecha_str</span><span class="p">):</span>
-<span class="linenos"> 2</span>    <span class="n">wayback_api</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;https://archive.org/wayback/available?url=</span><span class="si">{</span><span class="n">original_url</span><span class="si">}</span><span class="s1">&amp;timestamp=</span><span class="si">{</span><span class="n">fecha_str</span><span class="si">}</span><span class="s1">&#39;</span>
-<span class="linenos"> 3</span>    <span class="k">try</span><span class="p">:</span>
-<span class="linenos"> 4</span>        <span class="n">res</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">wayback_api</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">WAYBACK_TIMEOUT</span><span class="p">)</span>
-<span class="linenos"> 5</span>        <span class="n">data</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
-<span class="linenos"> 6</span>        <span class="n">snapshots</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;archived_snapshots&#39;</span><span class="p">,</span> <span class="p">{})</span>
-<span class="linenos"> 7</span>        <span class="k">if</span> <span class="n">snapshots</span> <span class="ow">and</span> <span class="s1">&#39;closest&#39;</span> <span class="ow">in</span> <span class="n">snapshots</span><span class="p">:</span>
-<span class="linenos"> 8</span>            <span class="n">url_snapshot</span> <span class="o">=</span> <span class="n">snapshots</span><span class="p">[</span><span class="s1">&#39;closest&#39;</span><span class="p">][</span><span class="s1">&#39;url&#39;</span><span class="p">]</span>
-<span class="linenos"> 9</span>            <span class="k">return</span> <span class="n">url_snapshot</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;http://&quot;</span><span class="p">,</span> <span class="s2">&quot;https://&quot;</span><span class="p">)</span>
-<span class="linenos">10</span>        <span class="k">else</span><span class="p">:</span>
-<span class="linenos">11</span>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No snapshot disponible para </span><span class="si">{</span><span class="n">original_url</span><span class="si">}</span><span class="s2"> en </span><span class="si">{</span><span class="n">fecha_str</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="linenos">12</span>            <span class="k">return</span> <span class="kc">None</span>
-<span class="linenos">13</span>    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-<span class="linenos">14</span>        <span class="n">log_error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error consultando Wayback API para </span><span class="si">{</span><span class="n">original_url</span><span class="si">}</span><span class="s2"> en </span><span class="si">{</span><span class="n">fecha_str</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="linenos">15</span>        <span class="k">return</span> <span class="kc">None</span>
-</pre></div>
-</div>
-</section>
+<p><a class="reference download internal" download="" href="_downloads/b28b77ec8da5c3e1611bce40c9d6809a/DigSentimientos.png"><span class="xref download myst"><img alt="Diagrama de Sentimientos" src="_images/DigSentimientos.png" /></span></a></p>
 <hr class="docutils" />
 <section id="extraccion-de-titulares">
 <h3>Extracción de titulares<a class="headerlink" href="#extraccion-de-titulares" title="Link to this heading"></a></h3>
@@ -334,7 +240,7 @@ En caso contrario, se transforma la columna de fecha al tipo de dato adecuado y 
 <td><p>DAX 40</p></td>
 <td><p>XETR</p></td>
 <td><p>.DE</p></td>
-<td><p>0</p></td>
+<td><p>40</p></td>
 </tr>
 <tr class="row-even"><td><p>Francia</p></td>
 <td><p>CAC 40</p></td>
@@ -376,32 +282,7 @@ En caso contrario, se transforma la columna de fecha al tipo de dato adecuado y 
 </table>
 <section id="scraping-de-indices-europeos-en-tradingview">
 <h3>Scraping de índices europeos en TradingView<a class="headerlink" href="#scraping-de-indices-europeos-en-tradingview" title="Link to this heading"></a></h3>
-<p>En una primera etapa resulta necesario extraer los tickers representativos de las principales bolsas europeas. Para ello se emplea la API de TradingView, ampliamente utilizada en el ámbito del análisis financiero, implementando la función scrape_country como componente orquestador del proceso. Esta función integra, por un lado, fetch_html, encargada de recuperar el código HTML de las páginas de TradingView, y por otro, extract_rows_precise, que a través de la librería BeautifulSoup identifica los nombres y tickers de las compañías, filtra los resultados según el mercado de interés, elimina duplicados y descarta instrumentos no relevantes como ETFs o futuros. Finalmente, scrape_country consolida ambos procedimientos para cada índice bursátil, generando un DataFrame estandarizado con el ticker en formato Yahoo Finance, el nombre depurado de la empresa, el país y el símbolo local, lo que permite conformar una base de datos estructurada y preparada para su posterior almacenamiento en Snowflake y para los análisis financieros avanzados.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="k">def</span><span class="w"> </span><span class="nf">scrape_country</span><span class="p">(</span><span class="n">spec</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="linenos"> 2</span>    <span class="n">html</span> <span class="o">=</span> <span class="n">fetch_html</span><span class="p">(</span><span class="n">spec</span><span class="p">[</span><span class="s2">&quot;components_url&quot;</span><span class="p">])</span>
-<span class="linenos"> 3</span>    <span class="n">pairs</span> <span class="o">=</span> <span class="n">extract_rows_precise</span><span class="p">(</span><span class="n">html</span><span class="p">,</span> <span class="n">spec</span><span class="p">[</span><span class="s2">&quot;accept_exchanges&quot;</span><span class="p">])</span>
-<span class="linenos"> 4</span>    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">pairs</span><span class="p">)</span>
-<span class="linenos"> 5</span>    <span class="n">exp</span> <span class="o">=</span> <span class="n">spec</span><span class="p">[</span><span class="s2">&quot;expected_count&quot;</span><span class="p">]</span>
-<span class="linenos"> 6</span>    <span class="k">if</span> <span class="n">n</span> <span class="o">!=</span> <span class="n">exp</span><span class="p">:</span>
-<span class="linenos"> 7</span>        <span class="c1"># tolera ±2 y avisa (TV puede variar 1–2 componentes)</span>
-<span class="linenos"> 8</span>        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="n">exp</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">:</span>
-<span class="linenos"> 9</span>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[WARN] </span><span class="si">{</span><span class="n">spec</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">spec</span><span class="p">[</span><span class="s1">&#39;pais&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">): </span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2"> componentes (esperados </span><span class="si">{</span><span class="n">exp</span><span class="si">}</span><span class="s2">). Continuando...&quot;</span><span class="p">)</span>
-<span class="linenos">10</span>        <span class="k">else</span><span class="p">:</span>
-<span class="linenos">11</span>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[ERROR] </span><span class="si">{</span><span class="n">spec</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">spec</span><span class="p">[</span><span class="s1">&#39;pais&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">): </span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2"> componentes (esperados </span><span class="si">{</span><span class="n">exp</span><span class="si">}</span><span class="s2">). Intento de continuar...&quot;</span><span class="p">)</span>
-<span class="linenos">12</span>    <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="linenos">13</span>    <span class="k">for</span> <span class="n">exch</span><span class="p">,</span> <span class="n">sym</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">:</span>
-<span class="linenos">14</span>        <span class="n">base_for_yahoo</span> <span class="o">=</span> <span class="n">yahoo_ticker_from_local</span><span class="p">(</span><span class="n">sym</span><span class="p">,</span> <span class="n">spec</span><span class="p">[</span><span class="s2">&quot;pais&quot;</span><span class="p">])</span>
-<span class="linenos">15</span>        <span class="n">yahoo</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_for_yahoo</span><span class="si">}{</span><span class="n">spec</span><span class="p">[</span><span class="s1">&#39;yahoo_suffix&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
-<span class="linenos">16</span>        <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
-<span class="linenos">17</span>            <span class="s2">&quot;TICKER_YAHOO&quot;</span><span class="p">:</span> <span class="n">yahoo</span><span class="p">,</span>
-<span class="linenos">18</span>            <span class="s2">&quot;NOMBRE&quot;</span><span class="p">:</span> <span class="n">clean_company_name</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">sym</span><span class="p">),</span>
-<span class="linenos">19</span>            <span class="s2">&quot;PAIS&quot;</span><span class="p">:</span> <span class="n">spec</span><span class="p">[</span><span class="s2">&quot;pais&quot;</span><span class="p">],</span>
-<span class="linenos">20</span>            <span class="s2">&quot;TICKET&quot;</span><span class="p">:</span> <span class="n">base_for_yahoo</span>
-<span class="linenos">21</span>        <span class="p">})</span>
-<span class="linenos">22</span>        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.2</span><span class="p">)</span>  <span class="c1"># respeta un poco más a TV</span>
-<span class="linenos">23</span>    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;TICKER_YAHOO&quot;</span><span class="p">,</span> <span class="s2">&quot;NOMBRE&quot;</span><span class="p">,</span> <span class="s2">&quot;PAIS&quot;</span><span class="p">,</span> <span class="s2">&quot;TICKET&quot;</span><span class="p">])</span>
-</pre></div>
-</div>
+<p>Fuente principal: TradingView, empleada para obtener los tickers de referencia de las principales bolsas europeas.</p>
 <p>Ejemplos de DataFrame de stickers:</p>
 <table class="docutils align-default">
 <thead>
@@ -429,319 +310,12 @@ En caso contrario, se transforma la columna de fecha al tipo de dato adecuado y 
 </tr>
 </tbody>
 </table>
-</section>
-<section id="descarga-de-precios-por-empresa-diaria">
-<h3>Descarga de precios por empresa diaria<a class="headerlink" href="#descarga-de-precios-por-empresa-diaria" title="Link to this heading"></a></h3>
-<p>Una vez obtenida la lista de tickers, se procede a la consulta de la información histórica en Yahoo Finance mediante la función download_batch. Dicha función permite recopilar de forma automatizada los precios diarios de apertura, cierre, máximo y mínimo, además del volumen de acciones negociadas, vinculando cada registro con su fecha correspondiente. Posteriormente, los datos son transformados y estandarizados en un formato homogéneo, lo que garantiza su integración sin inconsistencias dentro del flujo de almacenamiento en el DataLake y asegura la disponibilidad de un conjunto de información fiable para el análisis y la modelización posteriores.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="k">def</span><span class="w"> </span><span class="nf">download_batch</span><span class="p">(</span><span class="n">tickers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">start_date</span><span class="p">,</span> <span class="n">end_excl</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="linenos"> 2</span>    <span class="k">if</span> <span class="ow">not</span> <span class="n">tickers</span><span class="p">:</span>
-<span class="linenos"> 3</span>        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;TICKER&quot;</span><span class="p">,</span><span class="s2">&quot;CLOSE&quot;</span><span class="p">,</span><span class="s2">&quot;HIGH&quot;</span><span class="p">,</span><span class="s2">&quot;LOW&quot;</span><span class="p">,</span><span class="s2">&quot;OPEN&quot;</span><span class="p">,</span><span class="s2">&quot;VOLUME&quot;</span><span class="p">,</span><span class="s2">&quot;FECHA&quot;</span><span class="p">])</span>
-<span class="linenos"> 4</span>    <span class="n">df</span> <span class="o">=</span> <span class="n">yf</span><span class="o">.</span><span class="n">download</span><span class="p">(</span>
-<span class="linenos"> 5</span>        <span class="n">tickers</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">start_date</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">end_excl</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="s2">&quot;1d&quot;</span><span class="p">,</span>
-<span class="linenos"> 6</span>        <span class="n">group_by</span><span class="o">=</span><span class="s2">&quot;ticker&quot;</span><span class="p">,</span> <span class="n">auto_adjust</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">progress</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="kc">True</span>
-<span class="linenos"> 7</span>    <span class="p">)</span>
-<span class="linenos"> 8</span>    <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="linenos"> 9</span>    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tickers</span><span class="p">:</span>
-<span class="linenos">10</span>        <span class="k">try</span><span class="p">:</span>
-<span class="linenos">11</span>            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="p">):</span>
-<span class="linenos">12</span>                <span class="k">if</span> <span class="n">t</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="mi">0</span><span class="p">):</span>
-<span class="linenos">13</span>                    <span class="k">continue</span>
-<span class="linenos">14</span>                <span class="n">dft</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">t</span><span class="p">]</span>
-<span class="linenos">15</span>            <span class="k">else</span><span class="p">:</span>
-<span class="linenos">16</span>                <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">{</span><span class="s2">&quot;Open&quot;</span><span class="p">,</span><span class="s2">&quot;High&quot;</span><span class="p">,</span><span class="s2">&quot;Low&quot;</span><span class="p">,</span><span class="s2">&quot;Close&quot;</span><span class="p">,</span><span class="s2">&quot;Volume&quot;</span><span class="p">}:</span>
-<span class="linenos">17</span>                    <span class="n">dft</span> <span class="o">=</span> <span class="n">df</span>
-<span class="linenos">18</span>                <span class="k">else</span><span class="p">:</span>
-<span class="linenos">19</span>                    <span class="k">continue</span>
-<span class="linenos">20</span>            <span class="n">dft</span> <span class="o">=</span> <span class="n">dft</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span>
-<span class="linenos">21</span>                <span class="s2">&quot;Date&quot;</span><span class="p">:</span><span class="s2">&quot;FECHA&quot;</span><span class="p">,</span><span class="s2">&quot;Open&quot;</span><span class="p">:</span><span class="s2">&quot;OPEN&quot;</span><span class="p">,</span><span class="s2">&quot;High&quot;</span><span class="p">:</span><span class="s2">&quot;HIGH&quot;</span><span class="p">,</span><span class="s2">&quot;Low&quot;</span><span class="p">:</span><span class="s2">&quot;LOW&quot;</span><span class="p">,</span><span class="s2">&quot;Close&quot;</span><span class="p">:</span><span class="s2">&quot;CLOSE&quot;</span><span class="p">,</span><span class="s2">&quot;Volume&quot;</span><span class="p">:</span><span class="s2">&quot;VOLUME&quot;</span>
-<span class="linenos">22</span>            <span class="p">})</span>
-<span class="linenos">23</span>            <span class="n">dft</span><span class="p">[</span><span class="s2">&quot;TICKER&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">t</span>
-<span class="linenos">24</span>            <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dft</span><span class="p">[[</span><span class="s2">&quot;TICKER&quot;</span><span class="p">,</span><span class="s2">&quot;CLOSE&quot;</span><span class="p">,</span><span class="s2">&quot;HIGH&quot;</span><span class="p">,</span><span class="s2">&quot;LOW&quot;</span><span class="p">,</span><span class="s2">&quot;OPEN&quot;</span><span class="p">,</span><span class="s2">&quot;VOLUME&quot;</span><span class="p">,</span><span class="s2">&quot;FECHA&quot;</span><span class="p">]])</span>
-<span class="linenos">25</span>        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-<span class="linenos">26</span>            <span class="k">continue</span>
-<span class="linenos">27</span>    <span class="k">if</span> <span class="ow">not</span> <span class="n">rows</span><span class="p">:</span>
-<span class="linenos">28</span>        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;TICKER&quot;</span><span class="p">,</span><span class="s2">&quot;CLOSE&quot;</span><span class="p">,</span><span class="s2">&quot;HIGH&quot;</span><span class="p">,</span><span class="s2">&quot;LOW&quot;</span><span class="p">,</span><span class="s2">&quot;OPEN&quot;</span><span class="p">,</span><span class="s2">&quot;VOLUME&quot;</span><span class="p">,</span><span class="s2">&quot;FECHA&quot;</span><span class="p">])</span>
-<span class="linenos">29</span>    <span class="n">out</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;CLOSE&quot;</span><span class="p">])</span>
-<span class="linenos">30</span>    <span class="n">out</span><span class="p">[</span><span class="s2">&quot;FECHA&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="s2">&quot;FECHA&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">date</span>
-<span class="linenos">31</span>    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;CLOSE&quot;</span><span class="p">,</span><span class="s2">&quot;HIGH&quot;</span><span class="p">,</span><span class="s2">&quot;LOW&quot;</span><span class="p">,</span><span class="s2">&quot;OPEN&quot;</span><span class="p">]:</span>
-<span class="linenos">32</span>        <span class="n">out</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span>
-<span class="linenos">33</span>    <span class="n">out</span><span class="p">[</span><span class="s2">&quot;VOLUME&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="s2">&quot;VOLUME&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;Int64&quot;</span><span class="p">)</span>
-<span class="linenos">34</span>    <span class="k">return</span> <span class="n">out</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;CLOSE&quot;</span><span class="p">,</span><span class="s2">&quot;HIGH&quot;</span><span class="p">,</span><span class="s2">&quot;LOW&quot;</span><span class="p">,</span><span class="s2">&quot;OPEN&quot;</span><span class="p">])</span>
-</pre></div>
-</div>
-<p>Ejemplos de DataFrame de Precios por accion</p>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>TICKER</p></th>
-<th class="head"><p>CLOSE</p></th>
-<th class="head"><p>HIGH</p></th>
-<th class="head"><p>LOW</p></th>
-<th class="head"><p>OPEN</p></th>
-<th class="head"><p>VOLUME</p></th>
-<th class="head"><p>FECHA</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>INGA.AS</p></td>
-<td><p>6.59100008</p></td>
-<td><p>6.656000137</p></td>
-<td><p>6.429999828</p></td>
-<td><p>6.5</p></td>
-<td><p>17736691</p></td>
-<td><p>10/23/20</p></td>
-</tr>
-<tr class="row-odd"><td><p>GLE.PA</p></td>
-<td><p>23.84499931</p></td>
-<td><p>24.03000069</p></td>
-<td><p>23.65500069</p></td>
-<td><p>23.87000084</p></td>
-<td><p>2111582</p></td>
-<td><p>10/28/24</p></td>
-</tr>
-<tr class="row-even"><td><p>LAND.L</p></td>
-<td><p>686.2000122</p></td>
-<td><p>697.2000122</p></td>
-<td><p>686.2000122</p></td>
-<td><p>690.5999756</p></td>
-<td><p>1574957</p></td>
-<td><p>06/17/21</p></td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="carga-de-los-dataframe-de-precios-por-tickers-en-el-datalake">
-<h3>Carga de los DataFrame de precios por tickers en el DataLake<a class="headerlink" href="#carga-de-los-dataframe-de-precios-por-tickers-en-el-datalake" title="Link to this heading"></a></h3>
-<p>Finalmente, se lleva a cabo un proceso de verificación de la última fecha de actualización registrada en el DataLake, tanto para los precios como para los tickers disponibles. A partir de dicha referencia temporal, se descargan únicamente los datos faltantes hasta el día inmediatamente anterior, con el fin de mantener una ingesta incremental que garantice la actualización diaria del repositorio. Este enfoque asegura la coherencia y completitud del histórico financiero, a la vez que proporciona una base de datos confiable, estructurada y permanentemente actualizada para los posteriores análisis y modelado mediante técnicas de machine learning.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="k">def</span><span class="w"> </span><span class="nf">merge_with_temp</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
-<span class="linenos"> 2</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;Carga df a TMP_PRICES con write_pandas y luego MERGE → sin límite de expresiones.&quot;&quot;&quot;</span>
-<span class="linenos"> 3</span>    <span class="k">if</span> <span class="n">df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
-<span class="linenos"> 4</span>        <span class="k">return</span>
-<span class="linenos"> 5</span>    <span class="n">df2</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="s2">&quot;TICKER&quot;</span><span class="p">,</span><span class="s2">&quot;CLOSE&quot;</span><span class="p">,</span><span class="s2">&quot;HIGH&quot;</span><span class="p">,</span><span class="s2">&quot;LOW&quot;</span><span class="p">,</span><span class="s2">&quot;OPEN&quot;</span><span class="p">,</span><span class="s2">&quot;VOLUME&quot;</span><span class="p">,</span><span class="s2">&quot;FECHA&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-<span class="linenos"> 6</span>    <span class="k">with</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span> <span class="k">as</span> <span class="n">cur</span><span class="p">:</span>
-<span class="linenos"> 7</span>        <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CREATE OR REPLACE TEMP TABLE TMP_PRICES LIKE </span><span class="si">{</span><span class="n">PRICES_TABLE</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="linenos"> 8</span>    <span class="n">ok</span><span class="p">,</span> <span class="n">nchunks</span><span class="p">,</span> <span class="n">nrows</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">write_pandas</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">df2</span><span class="p">,</span> <span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;TMP_PRICES&quot;</span><span class="p">,</span> <span class="n">quote_identifiers</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="linenos"> 9</span>    <span class="k">if</span> <span class="ow">not</span> <span class="n">ok</span><span class="p">:</span>
-<span class="linenos">10</span>        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;write_pandas falló al cargar TMP_PRICES.&quot;</span><span class="p">)</span>
-<span class="linenos">11</span>    <span class="n">merge_sql</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
-<span class="linenos">12</span><span class="s2">        MERGE INTO </span><span class="si">{</span><span class="n">PRICES_TABLE</span><span class="si">}</span><span class="s2"> t</span>
-<span class="linenos">13</span><span class="s2">        USING TMP_PRICES s</span>
-<span class="linenos">14</span><span class="s2">          ON t.TICKER = s.TICKER AND t.FECHA = s.FECHA</span>
-<span class="linenos">15</span><span class="s2">        WHEN MATCHED THEN UPDATE SET</span>
-<span class="linenos">16</span><span class="s2">          t.CLOSE = s.CLOSE, t.HIGH = s.HIGH, t.LOW = s.LOW, t.OPEN = s.OPEN, t.VOLUME = s.VOLUME</span>
-<span class="linenos">17</span><span class="s2">        WHEN NOT MATCHED THEN</span>
-<span class="linenos">18</span><span class="s2">          INSERT (TICKER, CLOSE, HIGH, LOW, OPEN, VOLUME, FECHA)</span>
-<span class="linenos">19</span><span class="s2">          VALUES (s.TICKER, s.CLOSE, s.HIGH, s.LOW, s.OPEN, s.VOLUME, s.FECHA)</span>
-<span class="linenos">20</span><span class="s2">    &quot;&quot;&quot;</span>
-<span class="linenos">21</span>    <span class="k">with</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span> <span class="k">as</span> <span class="n">cur</span><span class="p">:</span>
-<span class="linenos">22</span>        <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">merge_sql</span><span class="p">)</span>
-<span class="linenos">23</span>        <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
-</pre></div>
-</div>
-</section>
-</section>
-<section id="estados-financieros-por-tickers">
-<h2>Estados Financieros por tickers<a class="headerlink" href="#estados-financieros-por-tickers" title="Link to this heading"></a></h2>
-<section id="ratios-financieros">
-<h3>Ratios Financieros<a class="headerlink" href="#ratios-financieros" title="Link to this heading"></a></h3>
-<p>Los principales ratios bursátiles constituyen herramientas fundamentales para evaluar cómo el mercado valora a una empresa y qué expectativas existen sobre su desempeño. El PER (Price to Earnings Ratio), tanto en su versión histórica (trailing) como en la proyectada (forward), mide cuántas veces los inversores están pagando las utilidades de la compañía; un valor elevado puede reflejar expectativas de crecimiento, mientras que uno reducido puede sugerir infravaloración. El Price to Book (P/B) compara el precio de mercado con el valor contable, permitiendo identificar si la acción cotiza por encima o por debajo de sus activos netos. Por su parte, el EV/EBITDA es un ratio muy utilizado para comparar empresas dentro de un mismo sector, ya que relaciona el valor total de la compañía (incluyendo deuda) con su capacidad operativa de generar beneficios.</p>
-<p>El script desarrollado en este proyecto automatiza la obtención de estos indicadores bursátiles desde Yahoo Finance y los almacena en Snowflake de forma estructurada y actualizada. Este procedimiento permite disponer de un repositorio centralizado de ratios de valoración, rentabilidad y dividendos, listo para ser utilizado en análisis posteriores. Al integrarse con los otros módulos implementados, se conforma una base de datos integral que combina perspectivas de mercado, solidez fundamental y sostenibilidad, lo que proporciona una visión completa para la toma de decisiones financieras y de inversión.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="k">def</span><span class="w"> </span><span class="nf">fetch_snapshot_one</span><span class="p">(</span><span class="n">ticker</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">retries</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">pause</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.6</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="linenos"> 2</span>    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">retries</span><span class="p">):</span>
-<span class="linenos"> 3</span>        <span class="k">try</span><span class="p">:</span>
-<span class="linenos"> 4</span>            <span class="n">tk</span> <span class="o">=</span> <span class="n">yf</span><span class="o">.</span><span class="n">Ticker</span><span class="p">(</span><span class="n">ticker</span><span class="p">)</span>
-<span class="linenos"> 5</span>            <span class="c1"># prefer get_info() (más estable en versiones recientes); fallback a .info</span>
-<span class="linenos"> 6</span>            <span class="n">info</span> <span class="o">=</span> <span class="p">{}</span>
-<span class="linenos"> 7</span>            <span class="k">try</span><span class="p">:</span>
-<span class="linenos"> 8</span>                <span class="n">info</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">get_info</span><span class="p">()</span> <span class="ow">or</span> <span class="p">{}</span>
-<span class="linenos"> 9</span>            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-<span class="linenos">10</span>                <span class="n">info</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">info</span> <span class="ow">or</span> <span class="p">{}</span>
-<span class="linenos">11</span>
-<span class="linenos">12</span>            <span class="n">pe_trailing</span>   <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;trailingPE&quot;</span><span class="p">)</span>
-<span class="linenos">13</span>            <span class="n">pe_forward</span>    <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;forwardPE&quot;</span><span class="p">)</span>
-<span class="linenos">14</span>            <span class="n">price_to_book</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;priceToBook&quot;</span><span class="p">)</span>
-<span class="linenos">15</span>            <span class="n">ev_to_ebitda</span>  <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;enterpriseToEbitda&quot;</span><span class="p">)</span>
-<span class="linenos">16</span>            <span class="n">dividend_yld</span>  <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dividendYield&quot;</span><span class="p">)</span>
-<span class="linenos">17</span>            <span class="n">payout_ratio</span>  <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;payoutRatio&quot;</span><span class="p">)</span>
-<span class="linenos">18</span>            <span class="n">market_cap</span>    <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;marketCap&quot;</span><span class="p">)</span>
-<span class="linenos">19</span>            <span class="n">enterprise_v</span>  <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;enterpriseValue&quot;</span><span class="p">)</span>
-<span class="linenos">20</span>            <span class="n">shares_out</span>    <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sharesOutstanding&quot;</span><span class="p">)</span>
-<span class="linenos">21</span>
-<span class="linenos">22</span>            <span class="c1"># Si falta EV/EBITDA, calcula con enterpriseValue y EBITDA reciente</span>
-<span class="linenos">23</span>            <span class="k">if</span> <span class="n">ev_to_ebitda</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)):</span>
-<span class="linenos">24</span>                <span class="n">ebitda</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ebitda&quot;</span><span class="p">)</span>
-<span class="linenos">25</span>                <span class="k">if</span> <span class="n">ebitda</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-<span class="linenos">26</span>                    <span class="n">ebitda</span> <span class="o">=</span> <span class="n">_latest_ebitda_from_financials</span><span class="p">(</span><span class="n">tk</span><span class="p">)</span>
-<span class="linenos">27</span>                <span class="k">if</span> <span class="n">enterprise_v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">ebitda</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
-<span class="linenos">28</span>                    <span class="n">ev_to_ebitda</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">enterprise_v</span><span class="p">)</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">ebitda</span><span class="p">)</span>
-<span class="linenos">29</span>
-<span class="linenos">30</span>            <span class="n">row</span> <span class="o">=</span> <span class="p">{</span>
-<span class="linenos">31</span>                <span class="s2">&quot;TICKER&quot;</span><span class="p">:</span> <span class="n">ticker</span><span class="p">,</span>
-<span class="linenos">32</span>                <span class="s2">&quot;PE_TRAILING&quot;</span><span class="p">:</span> <span class="n">pe_trailing</span><span class="p">,</span>
-<span class="linenos">33</span>                <span class="s2">&quot;PE_FORWARD&quot;</span><span class="p">:</span> <span class="n">pe_forward</span><span class="p">,</span>
-<span class="linenos">34</span>                <span class="s2">&quot;PRICE_TO_BOOK&quot;</span><span class="p">:</span> <span class="n">price_to_book</span><span class="p">,</span>
-<span class="linenos">35</span>                <span class="s2">&quot;EV_TO_EBITDA&quot;</span><span class="p">:</span> <span class="n">ev_to_ebitda</span><span class="p">,</span>
-<span class="linenos">36</span>                <span class="s2">&quot;DIVIDEND_YIELD&quot;</span><span class="p">:</span> <span class="n">dividend_yld</span><span class="p">,</span>
-<span class="linenos">37</span>                <span class="s2">&quot;PAYOUT_RATIO&quot;</span><span class="p">:</span> <span class="n">payout_ratio</span><span class="p">,</span>
-<span class="linenos">38</span>                <span class="s2">&quot;MARKET_CAP&quot;</span><span class="p">:</span> <span class="n">market_cap</span><span class="p">,</span>
-<span class="linenos">39</span>                <span class="s2">&quot;ENTERPRISE_VALUE&quot;</span><span class="p">:</span> <span class="n">enterprise_v</span><span class="p">,</span>
-<span class="linenos">40</span>                <span class="s2">&quot;SHARES_OUTSTANDING&quot;</span><span class="p">:</span> <span class="n">shares_out</span><span class="p">,</span>
-<span class="linenos">41</span>            <span class="p">}</span>
-<span class="linenos">42</span>            <span class="k">return</span> <span class="n">row</span>
-<span class="linenos">43</span>        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-<span class="linenos">44</span>            <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">retries</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
-<span class="linenos">45</span>                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">pause</span> <span class="o">*</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
-<span class="linenos">46</span>            <span class="k">else</span><span class="p">:</span>
-<span class="linenos">47</span>                <span class="c1"># devuelve fila con NULOS si no se pudo obtener</span>
-<span class="linenos">48</span>                <span class="k">return</span> <span class="p">{</span>
-<span class="linenos">49</span>                    <span class="s2">&quot;TICKER&quot;</span><span class="p">:</span> <span class="n">ticker</span><span class="p">,</span>
-<span class="linenos">50</span>                    <span class="s2">&quot;PE_TRAILING&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-<span class="linenos">51</span>                    <span class="s2">&quot;PE_FORWARD&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-<span class="linenos">52</span>                    <span class="s2">&quot;PRICE_TO_BOOK&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-<span class="linenos">53</span>                    <span class="s2">&quot;EV_TO_EBITDA&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-<span class="linenos">54</span>                    <span class="s2">&quot;DIVIDEND_YIELD&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-<span class="linenos">55</span>                    <span class="s2">&quot;PAYOUT_RATIO&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-<span class="linenos">56</span>                    <span class="s2">&quot;MARKET_CAP&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-<span class="linenos">57</span>                    <span class="s2">&quot;ENTERPRISE_VALUE&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-<span class="linenos">58</span>                    <span class="s2">&quot;SHARES_OUTSTANDING&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-<span class="linenos">59</span>                <span class="p">}</span>
-</pre></div>
-</div>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>TICKER</p></th>
-<th class="head"><p>PE_TRAILING</p></th>
-<th class="head"><p>PE_FORWARD</p></th>
-<th class="head"><p>PRICE_TO_BOOK</p></th>
-<th class="head"><p>EV_TO_EBITDA</p></th>
-<th class="head"><p>DIVIDEND_YIELD</p></th>
-<th class="head"><p>PAYOUT_RATIO</p></th>
-<th class="head"><p>MARKET_CAP</p></th>
-<th class="head"><p>ENTERPRISE_VALUE</p></th>
-<th class="head"><p>SHARES_OUTSTANDING</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>A2A.MI</p></td>
-<td><p>8.319231</p></td>
-<td><p>12.016666</p></td>
-<td><p>1.406372</p></td>
-<td><p>6.135</p></td>
-<td><p>4.62</p></td>
-<td><p>0.3868</p></td>
-<td><p>6767140864</p></td>
-<td><p>12491133952</p></td>
-<td><p>3128590080</p></td>
-</tr>
-<tr class="row-odd"><td><p>AAF.L</p></td>
-<td><p>32.62857</p></td>
-<td><p>19.033333</p></td>
-<td><p>321.69016</p></td>
-<td><p>6.584</p></td>
-<td><p>2.15</p></td>
-<td><p>0.71650004</p></td>
-<td><p>8328902656</p></td>
-<td><p>14142440448</p></td>
-<td><p>3646629888</p></td>
-</tr>
-<tr class="row-even"><td><p>AAL.L</p></td>
-<td><p></p></td>
-<td><p>15.484849</p></td>
-<td><p>157.49245</p></td>
-<td><p>6.569</p></td>
-<td><p>0.94</p></td>
-<td><p>5.6102004</p></td>
-<td><p>27304775680</p></td>
-<td><p>45547601920</p></td>
-<td><p>1068680000</p></td>
-</tr>
-</tbody>
-</table>
+<p>PONER FOTO DE TRAIDINGVIEW</p>
 </section>
 <section id="estados-financieros">
 <h3>Estados Financieros<a class="headerlink" href="#estados-financieros" title="Link to this heading"></a></h3>
 <p>Este script es importante porque automatiza la recopilación y almacenamiento de estados financieros anuales (balance, cuenta de resultados y flujos de caja) desde Yahoo Finance, asegurando que en Snowflake solo se guarden los años faltantes y evitando duplicados. Los estados financieros son la base del análisis fundamental, ya que muestran la salud económica de una empresa: el balance indica qué posee y qué debe, la cuenta de resultados revela si es rentable y el estado de flujos de efectivo refleja su liquidez real. A partir de estos datos se calculan ratios clave como ROA, ROE, margen neto y deuda/equity, fundamentales para evaluar la solidez, rentabilidad y riesgos de una compañía, lo que convierte al script en una pieza esencial para integrar análisis financiero sólido dentro de tu proyecto.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="k">def</span><span class="w"> </span><span class="nf">summarize_missing_years</span><span class="p">(</span><span class="n">ticker</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">allowed_years</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="linenos"> 2</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="linenos"> 3</span><span class="sd">    Devuelve sólo las filas de los años en allowed_years (ya filtrado por rango).</span>
-<span class="linenos"> 4</span><span class="sd">    &quot;&quot;&quot;</span>
-<span class="linenos"> 5</span>    <span class="k">if</span> <span class="ow">not</span> <span class="n">allowed_years</span><span class="p">:</span>
-<span class="linenos"> 6</span>        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">COLS_ORDER</span><span class="p">)</span>
-<span class="linenos"> 7</span>
-<span class="linenos"> 8</span>    <span class="n">tk</span> <span class="o">=</span> <span class="n">yf</span><span class="o">.</span><span class="n">Ticker</span><span class="p">(</span><span class="n">ticker</span><span class="p">)</span>
-<span class="linenos"> 9</span>    <span class="n">balance</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">balance_sheet</span>        <span class="c1"># anual</span>
-<span class="linenos">10</span>    <span class="n">income</span>  <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">financials</span>           <span class="c1"># anual</span>
-<span class="linenos">11</span>    <span class="n">cf</span>      <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">cashflow</span>             <span class="c1"># anual</span>
-<span class="linenos">12</span>
-<span class="linenos">13</span>    <span class="c1"># periodos combinados</span>
-<span class="linenos">14</span>    <span class="n">cols</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-<span class="linenos">15</span>    <span class="k">for</span> <span class="n">df</span> <span class="ow">in</span> <span class="p">(</span><span class="n">balance</span><span class="p">,</span> <span class="n">income</span><span class="p">,</span> <span class="n">cf</span><span class="p">):</span>
-<span class="linenos">16</span>        <span class="k">if</span> <span class="n">df</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
-<span class="linenos">17</span>            <span class="n">cols</span> <span class="o">|=</span> <span class="nb">set</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
-<span class="linenos">18</span>    <span class="k">if</span> <span class="ow">not</span> <span class="n">cols</span><span class="p">:</span>
-<span class="linenos">19</span>        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">COLS_ORDER</span><span class="p">)</span>
-<span class="linenos">20</span>
-<span class="linenos">21</span>    <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="linenos">22</span>    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">:</span>
-<span class="linenos">23</span>        <span class="n">year</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">col</span><span class="p">)</span><span class="o">.</span><span class="n">year</span><span class="p">)</span>
-<span class="linenos">24</span>        <span class="k">if</span> <span class="n">year</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">allowed_years</span><span class="p">:</span>
-<span class="linenos">25</span>            <span class="k">continue</span>
-<span class="linenos">26</span>
-<span class="linenos">27</span>        <span class="n">assets</span> <span class="o">=</span> <span class="n">safe_get_cell</span><span class="p">(</span><span class="n">balance</span><span class="p">,</span> <span class="n">ASSETS_KEYS</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span>
-<span class="linenos">28</span>        <span class="n">liabs</span>  <span class="o">=</span> <span class="n">safe_get_cell</span><span class="p">(</span><span class="n">balance</span><span class="p">,</span> <span class="n">LIABS_KEYS</span><span class="p">,</span>  <span class="n">col</span><span class="p">)</span>
-<span class="linenos">29</span>        <span class="n">equity</span> <span class="o">=</span> <span class="n">safe_get_cell</span><span class="p">(</span><span class="n">balance</span><span class="p">,</span> <span class="n">EQUITY_KEYS</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span>
-<span class="linenos">30</span>        <span class="k">if</span> <span class="n">equity</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">assets</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">liabs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-<span class="linenos">31</span>            <span class="n">equity</span> <span class="o">=</span> <span class="n">assets</span> <span class="o">-</span> <span class="n">liabs</span>
-<span class="linenos">32</span>
-<span class="linenos">33</span>        <span class="n">revenue</span>     <span class="o">=</span> <span class="n">safe_get_cell</span><span class="p">(</span><span class="n">income</span><span class="p">,</span> <span class="n">REVENUE_KEYS</span><span class="p">,</span>  <span class="n">col</span><span class="p">)</span>
-<span class="linenos">34</span>        <span class="n">net_income</span>  <span class="o">=</span> <span class="n">safe_get_cell</span><span class="p">(</span><span class="n">income</span><span class="p">,</span> <span class="n">NETINC_KEYS</span><span class="p">,</span>   <span class="n">col</span><span class="p">)</span>
-<span class="linenos">35</span>        <span class="n">op_income</span>   <span class="o">=</span> <span class="n">safe_get_cell</span><span class="p">(</span><span class="n">income</span><span class="p">,</span> <span class="n">OPINC_KEYS</span><span class="p">,</span>    <span class="n">col</span><span class="p">)</span>
-<span class="linenos">36</span>        <span class="n">expenses</span>    <span class="o">=</span> <span class="p">(</span><span class="n">revenue</span> <span class="o">-</span> <span class="n">net_income</span><span class="p">)</span> <span class="k">if</span> <span class="p">(</span><span class="n">revenue</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">net_income</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
-<span class="linenos">37</span>
-<span class="linenos">38</span>        <span class="n">op_cf</span>   <span class="o">=</span> <span class="n">safe_get_cell</span><span class="p">(</span><span class="n">cf</span><span class="p">,</span> <span class="n">OPCF_KEYS</span><span class="p">,</span>  <span class="n">col</span><span class="p">)</span>
-<span class="linenos">39</span>        <span class="n">inv_cf</span>  <span class="o">=</span> <span class="n">safe_get_cell</span><span class="p">(</span><span class="n">cf</span><span class="p">,</span> <span class="n">INVCF_KEYS</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span>
-<span class="linenos">40</span>        <span class="n">fin_cf</span>  <span class="o">=</span> <span class="n">safe_get_cell</span><span class="p">(</span><span class="n">cf</span><span class="p">,</span> <span class="n">FINCF_KEYS</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span>
-<span class="linenos">41</span>        <span class="n">free_cf</span> <span class="o">=</span> <span class="n">safe_get_cell</span><span class="p">(</span><span class="n">cf</span><span class="p">,</span> <span class="n">FCF_KEYS</span><span class="p">,</span>   <span class="n">col</span><span class="p">)</span>
-<span class="linenos">42</span>        <span class="k">if</span> <span class="n">free_cf</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-<span class="linenos">43</span>            <span class="n">capex</span> <span class="o">=</span> <span class="n">safe_get_cell</span><span class="p">(</span><span class="n">cf</span><span class="p">,</span> <span class="n">CAPEX_KEYS</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span>
-<span class="linenos">44</span>            <span class="k">if</span> <span class="n">op_cf</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">capex</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-<span class="linenos">45</span>                <span class="n">free_cf</span> <span class="o">=</span> <span class="n">op_cf</span> <span class="o">+</span> <span class="n">capex</span>  <span class="c1"># CapEx suele ser negativo</span>
-<span class="linenos">46</span>
-<span class="linenos">47</span>        <span class="n">net_margin</span>  <span class="o">=</span> <span class="p">(</span><span class="n">net_income</span> <span class="o">/</span> <span class="n">revenue</span><span class="p">)</span> <span class="k">if</span> <span class="p">(</span><span class="n">net_income</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="n">revenue</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span> <span class="k">else</span> <span class="kc">None</span>
-<span class="linenos">48</span>        <span class="n">roa</span>         <span class="o">=</span> <span class="p">(</span><span class="n">net_income</span> <span class="o">/</span> <span class="n">assets</span><span class="p">)</span>  <span class="k">if</span> <span class="p">(</span><span class="n">net_income</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="n">assets</span>  <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span> <span class="k">else</span> <span class="kc">None</span>
-<span class="linenos">49</span>        <span class="n">roe</span>         <span class="o">=</span> <span class="p">(</span><span class="n">net_income</span> <span class="o">/</span> <span class="n">equity</span><span class="p">)</span>  <span class="k">if</span> <span class="p">(</span><span class="n">net_income</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="n">equity</span>  <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span> <span class="k">else</span> <span class="kc">None</span>
-<span class="linenos">50</span>        <span class="n">debt_equity</span> <span class="o">=</span> <span class="p">(</span><span class="n">liabs</span> <span class="o">/</span> <span class="n">equity</span><span class="p">)</span>       <span class="k">if</span> <span class="p">(</span><span class="n">liabs</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="n">equity</span>  <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span> <span class="k">else</span> <span class="kc">None</span>
-<span class="linenos">51</span>
-<span class="linenos">52</span>        <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
-<span class="linenos">53</span>            <span class="s2">&quot;TICKER&quot;</span><span class="p">:</span> <span class="n">ticker</span><span class="p">,</span>
-<span class="linenos">54</span>            <span class="s2">&quot;YEAR&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">year</span><span class="p">),</span>
-<span class="linenos">55</span>            <span class="s2">&quot;ASSETS&quot;</span><span class="p">:</span> <span class="n">assets</span><span class="p">,</span>
-<span class="linenos">56</span>            <span class="s2">&quot;LIABILITIES&quot;</span><span class="p">:</span> <span class="n">liabs</span><span class="p">,</span>
-<span class="linenos">57</span>            <span class="s2">&quot;EQUITY&quot;</span><span class="p">:</span> <span class="n">equity</span><span class="p">,</span>
-<span class="linenos">58</span>            <span class="s2">&quot;REVENUE&quot;</span><span class="p">:</span> <span class="n">revenue</span><span class="p">,</span>
-<span class="linenos">59</span>            <span class="s2">&quot;EXPENSES&quot;</span><span class="p">:</span> <span class="n">expenses</span><span class="p">,</span>
-<span class="linenos">60</span>            <span class="s2">&quot;NET_INCOME&quot;</span><span class="p">:</span> <span class="n">net_income</span><span class="p">,</span>
-<span class="linenos">61</span>            <span class="s2">&quot;OPERATING_CF&quot;</span><span class="p">:</span> <span class="n">op_cf</span><span class="p">,</span>
-<span class="linenos">62</span>            <span class="s2">&quot;INVESTING_CF&quot;</span><span class="p">:</span> <span class="n">inv_cf</span><span class="p">,</span>
-<span class="linenos">63</span>            <span class="s2">&quot;FINANCING_CF&quot;</span><span class="p">:</span> <span class="n">fin_cf</span><span class="p">,</span>
-<span class="linenos">64</span>            <span class="s2">&quot;FREE_CF&quot;</span><span class="p">:</span> <span class="n">free_cf</span><span class="p">,</span>
-<span class="linenos">65</span>            <span class="s2">&quot;NET_MARGIN&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">net_margin</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="k">if</span> <span class="n">net_margin</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
-<span class="linenos">66</span>            <span class="s2">&quot;ROA&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">roa</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="k">if</span> <span class="n">roa</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
-<span class="linenos">67</span>            <span class="s2">&quot;ROE&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">roe</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="k">if</span> <span class="n">roe</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
-<span class="linenos">68</span>            <span class="s2">&quot;DEBT_EQUITY&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">debt_equity</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="k">if</span> <span class="n">debt_equity</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
-<span class="linenos">69</span>        <span class="p">})</span>
-<span class="linenos">70</span>
-<span class="linenos">71</span>    <span class="k">if</span> <span class="ow">not</span> <span class="n">rows</span><span class="p">:</span>
-<span class="linenos">72</span>        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">COLS_ORDER</span><span class="p">)</span>
-<span class="linenos">73</span>
-<span class="linenos">74</span>    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span>
-<span class="linenos">75</span>    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">COLS_ORDER</span><span class="p">)</span>
-<span class="linenos">76</span>    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;TICKER&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;TICKER&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
-<span class="linenos">77</span>    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;YEAR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;YEAR&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;Int64&quot;</span><span class="p">)</span>
-<span class="linenos">78</span>    <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">COLS_ORDER</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;TICKER&quot;</span><span class="p">,</span><span class="s2">&quot;YEAR&quot;</span><span class="p">)]:</span>
-<span class="linenos">79</span>        <span class="n">df</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">c</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span>
-<span class="linenos">80</span>    <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">([</span><span class="s2">&quot;TICKER&quot;</span><span class="p">,</span><span class="s2">&quot;YEAR&quot;</span><span class="p">])</span>
-</pre></div>
-</div>
+<p>PONER LO DE API</p>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>TICKER</p></th>
@@ -825,34 +399,6 @@ En caso contrario, se transforma la columna de fecha al tipo de dato adecuado y 
 <li><p>Social (Social): evalúa cómo la empresa se relaciona con empleados, clientes, comunidades y sociedad en general. Ejemplos: condiciones laborales, diversidad e inclusión, derechos humanos, impacto en la comunidad.</p></li>
 <li><p>Governance (Gobernanza): analiza cómo se gestiona y dirige la empresa. Ejemplos: independencia del consejo de administración, ética corporativa, transparencia, políticas contra la corrupción.</p></li>
 </ol>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="k">def</span><span class="w"> </span><span class="nf">fetch_esg_one</span><span class="p">(</span><span class="n">ticker</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">retries</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">pause</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="linenos"> 2</span>    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">retries</span><span class="p">):</span>
-<span class="linenos"> 3</span>        <span class="k">try</span><span class="p">:</span>
-<span class="linenos"> 4</span>            <span class="n">tk</span> <span class="o">=</span> <span class="n">yf</span><span class="o">.</span><span class="n">Ticker</span><span class="p">(</span><span class="n">ticker</span><span class="p">)</span>
-<span class="linenos"> 5</span>            <span class="k">try</span><span class="p">:</span>
-<span class="linenos"> 6</span>                <span class="n">sust</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">sustainability</span>
-<span class="linenos"> 7</span>            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-<span class="linenos"> 8</span>                <span class="n">sust</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="linenos"> 9</span>
-<span class="linenos">10</span>            <span class="n">row</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;TICKER&quot;</span><span class="p">:</span> <span class="n">ticker</span><span class="p">,</span> <span class="s2">&quot;HAS_ESG&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-<span class="linenos">11</span>                   <span class="s2">&quot;TOTAL_ESG&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;ENVIRONMENTAL&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;SOCIAL&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;GOVERNANCE&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;CONTROVERSY&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
-<span class="linenos">12</span>
-<span class="linenos">13</span>            <span class="k">if</span> <span class="n">sust</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">sust</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
-<span class="linenos">14</span>                <span class="n">any_val</span> <span class="o">=</span> <span class="kc">False</span>
-<span class="linenos">15</span>                <span class="k">for</span> <span class="n">k_src</span><span class="p">,</span> <span class="n">k_dst</span> <span class="ow">in</span> <span class="n">ESG_KEYS</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-<span class="linenos">16</span>                    <span class="n">v</span> <span class="o">=</span> <span class="n">_get_from_any_shape</span><span class="p">(</span><span class="n">sust</span><span class="p">,</span> <span class="n">k_src</span><span class="p">)</span>
-<span class="linenos">17</span>                    <span class="n">row</span><span class="p">[</span><span class="n">k_dst</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
-<span class="linenos">18</span>                    <span class="n">any_val</span> <span class="o">=</span> <span class="n">any_val</span> <span class="ow">or</span> <span class="p">(</span><span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span>
-<span class="linenos">19</span>                <span class="n">row</span><span class="p">[</span><span class="s2">&quot;HAS_ESG&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">any_val</span><span class="p">)</span>
-<span class="linenos">20</span>            <span class="k">return</span> <span class="n">row</span>
-<span class="linenos">21</span>        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-<span class="linenos">22</span>            <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">retries</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
-<span class="linenos">23</span>                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">pause</span> <span class="o">*</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
-<span class="linenos">24</span>            <span class="k">else</span><span class="p">:</span>
-<span class="linenos">25</span>                <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;TICKER&quot;</span><span class="p">:</span> <span class="n">ticker</span><span class="p">,</span> <span class="s2">&quot;HAS_ESG&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-<span class="linenos">26</span>                        <span class="s2">&quot;TOTAL_ESG&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;ENVIRONMENTAL&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;SOCIAL&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;GOVERNANCE&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;CONTROVERSY&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
-</pre></div>
-</div>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>TICKER</p></th>

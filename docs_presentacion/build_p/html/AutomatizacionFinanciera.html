@@ -91,36 +91,16 @@
 <p>Se desarrolló un flujo automatizado en N8N utilizando Telegram BotFather, la herramienta oficial de Telegram para la creación de bots. El objetivo principal del robot es permitir a los usuarios consultar información almacenada en la base de datos Snowflake, empleando consultas SQL generadas y validadas de manera automática con apoyo de modelos de lenguaje de OpenAI.</p>
 <section id="flujo-del-proceso">
 <h2>Flujo del Proceso<a class="headerlink" href="#flujo-del-proceso" title="Link to this heading"></a></h2>
-<p>El diagrama muestra las etapas principales del proceso de automatización:</p>
-<p>Telegram Trigger:
-El flujo inicia cuando un usuario envía un mensaje al bot en Telegram. Este mensaje es capturado y transmitido al sistema de N8N.</p>
-<p>Recepción de solicitud:
-El mensaje recibido se interpreta como un modelo de entrada. Aquí entra en juego OpenAI, que procesa el contenido del mensaje y genera una posible consulta SQL en función de la solicitud realizada por el usuario.</p>
-<p>Validación de SQL:</p>
-<p>Si el mensaje no contiene una instrucción SQL válida, el sistema responde informando que no es posible generar una respuesta.</p>
-<p>Si la instrucción SQL es válida, se continúa con la ejecución de la consulta.</p>
-<p>Ejecución en Snowflake:
-La consulta SQL generada se envía a Snowflake, que procesa la petición y devuelve los datos correspondientes desde la base de datos corporativa.</p>
-<p>Preparación y análisis de resultados:
-Los resultados devueltos por Snowflake son organizados y enviados a OpenAI, que realiza un análisis automático de la información obtenida. Este análisis incluye:</p>
-<p>Resumen de los datos consultados.</p>
-<p>Breve interpretación de los resultados.</p>
-<p>Inclusión de la consulta SQL utilizada.</p>
-<p>Formato de salida:
-La información es transformada a un formato HTML amigable para mejorar la presentación final.</p>
-<p>Envío de mensaje a Telegram:
-Finalmente, el bot devuelve al usuario un mensaje dentro del chat de Telegram, mostrando el resultado de la consulta junto con un análisis y la consulta SQL que se ejecutó. El bot funciona como un AsesorIA para dar soporte inteligente en la interpretación de datos.</p>
+<p>El proceso comienza cuando el usuario escribe al bot en Telegram. Ese mensaje llega a N8N, donde OpenAI lo interpreta y, si corresponde, genera una consulta SQL. Si la consulta no es válida, el sistema avisa; si lo es, se ejecuta directamente en Snowflake. Los resultados se organizan y se analizan automáticamente para generar un resumen con la interpretación y la propia consulta utilizada. Finalmente, todo se transforma en un formato claro y se devuelve al usuario en Telegram, de manera que el bot actúa como un asistente inteligente en la interpretación de datos.</p>
 <p><img alt="Flujo Robot n8n" src="_images/FlujoRobot_n8n.jpeg" /></p>
 <p><img alt="Flujo Robot" src="_images/FlujoRobot.png" /></p>
 </section>
 <section id="beneficios-del-proceso">
 <h2>Beneficios del Proceso<a class="headerlink" href="#beneficios-del-proceso" title="Link to this heading"></a></h2>
 <ul class="simple">
-<li><p>Automatización completa de la consulta de datos desde Snowflake.</p></li>
-<li><p>Acceso inmediato a información empresarial mediante un canal accesible como Telegram.</p></li>
-<li><p>Análisis asistido por IA, que no solo muestra datos sino también interpreta resultados.</p></li>
-<li><p>Validación automática de consultas SQL, reduciendo errores y mejorando la seguridad.</p></li>
-<li><p>Escalabilidad, ya que el flujo puede extenderse a más bases de datos o nuevas funcionalidades del bot.</p></li>
+<li><p>Automatización completa de las consultas en Snowflake.</p></li>
+<li><p>Acceso inmediato a la información a través de Telegram.</p></li>
+<li><p>Análisis asistido por IA, que interpreta y explica los resultados.</p></li>
 </ul>
 <p>El robot implementado integra de manera efectiva N8N, Telegram, Snowflake y OpenAI, logrando un flujo robusto para la consulta y análisis de datos en tiempo real. Este sistema no solo proporciona respuestas automáticas, sino que también añade valor al usuario al interpretar la información, consolidando un asesor virtual de inteligencia artificial (AsesorIA) dentro de un entorno de mensajería instantánea.</p>
 <p><img alt="Robot" src="_images/Robot.jpeg" /></p>
