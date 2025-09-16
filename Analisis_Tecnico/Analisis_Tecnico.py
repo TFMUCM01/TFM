@@ -23,7 +23,7 @@ tickers = ["BBVA.MC"]
 conn = snowflake.connector.connect(
     user='TFMGRUPO4',
     password='TFMgrupo4ucm01_01#',
-    account='valklxh-zn41709',   # << org-locator de tu URL
+    account='VLNVLDD-WJ67583',   # << org-locator de tu URL
     warehouse='COMPUTE_WH',
     database='TFM',   # <--- CAMBIO
     schema='YAHOO_FINANCE',      # << Schema de la URL
@@ -116,23 +116,6 @@ def calcular_estocastico(datos, ventana_k=14, ventana_d=3):
 
 # Gráficos de Tendencias
 
-# Gráfico de Velas
-for ticker in tickers:
-    if 'OPEN' in acciones.columns:
-        # Crear el gráfico de velas
-        grafico_velas = go.Figure(data=[go.Candlestick(x=acciones.index,
-                                                       open=acciones['OPEN'],
-                                                       high=acciones['HIGH'],
-                                                       low=acciones['LOW'],
-                                                       close=acciones['CLOSE'])])
-
-        # Actualizar el diseño del gráfico
-        grafico_velas.update_layout(xaxis_rangeslider_visible=False, title=f'Gráfico de Velas de {ticker}')
-        grafico_velas.update_xaxes(title_text='Fecha')
-        grafico_velas.update_yaxes(title_text=f'Precio de Cierre de {ticker}', tickprefix='$')
-
-        # Mostrar el gráfico
-        grafico_velas.show()
 
 # Gráfico de velas personalizado
 for ticker in tickers:
@@ -164,24 +147,6 @@ for ticker in tickers:
 
         c_candlestick.update_yaxes(title_text=f'{ticker} Close Price', tickprefix='$')
         c_candlestick.show()
-
-# Gráfico OHLC
-for ticker in tickers:
-    if 'OPEN' in acciones.columns:
-        # Crear el gráfico OHLC
-        grafico_ohlc = go.Figure(data=[go.Ohlc(x=acciones.index,
-                                               open=acciones['OPEN'],
-                                               high=acciones['HIGH'],
-                                               low=acciones['LOW'],
-                                               close=acciones['CLOSE'])])
-
-        # Actualizar el diseño del gráfico
-        grafico_ohlc.update_layout(xaxis_rangeslider_visible=False, title=f'Gráfico OHLC de {ticker}')
-        grafico_ohlc.update_xaxes(title_text='Fecha')
-        grafico_ohlc.update_yaxes(title_text=f'Precio de Cierre de {ticker}', tickprefix='$')
-
-        # Mostrar el gráfico
-        grafico_ohlc.show()
 
 # Gráfico OHLC personalizado
 for ticker in tickers:
