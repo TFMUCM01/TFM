@@ -64,23 +64,6 @@ Usando esta herramientas debemos tomar en cuenta que:
 - Si un activo está **debajo de la SML** → está **sobrevalorado** (da menos rentabilidad de la que debería para su riesgo).  
 - La SML sirve para comparar activos de **distinto riesgo sistemático**, y se aplica tanto a acciones como a carteras.  
 
-3. Supuestos del modelo CAPM / SML:
-- Inversores racionales, aversos al riesgo, que maximizan la utilidad esperada.
-- Mercados eficientes (información disponible, sin costes de transacción, etc.).
-- Existencia de un activo libre de riesgo al que todos tienen acceso.
-- Sólo el riesgo sistemático (no diversificable) es recompensado; los riesgos idiosincráticos pueden diversificarse.
-
-Distribución normal de retornos (o al menos, que las expectativas y varianzas-covarianzas son suficientes para describir el riesgo esperado).
-
-### Descripción del gráfico
-- **Eje X:** Riesgo sistemático de un activo, medido por su **beta (β)**.  
-- **Eje Y:** Rentabilidad esperada (**E[R]**) del activo.  
-
-El gráfico muestra la **Security Market Line (SML)**, que representa la relación entre el **riesgo sistemático** de un activo, medido por la beta βi , y su **rentabilidad esperada** E(R). En el eje horizontal se sitúa la beta, mientras que en el eje vertical se encuentra la rentabilidad esperada. La recta parte de la **tasa libre de riesgo** Rf, en este caso un **3%**, y su pendiente corresponde a la **prima de riesgo del mercado** (Rm - Rf).  
-
-Según el modelo **CAPM**, un activo con βi = 1 debería tener una rentabilidad esperada igual a la del mercado, que en este ejemplo es del **10%**. A medida que la beta aumenta, la rentabilidad exigida por los inversores también crece, ya que el activo está más expuesto a los movimientos del mercado. Por el contrario, un activo con βi < 1 tendría una rentabilidad inferior, porque asume un menor riesgo sistemático.  
-
-
 ![SML](../../Imagenes/SML_Graph.jpg)
 
 ---
