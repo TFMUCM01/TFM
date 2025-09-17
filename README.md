@@ -34,7 +34,7 @@ El trabajo abarca desde la **optimización de portafolios** y la **evaluación d
 ## Estructura del Proyecto
 
 - **scrapping/**: Scripts para la extracción de datos financieros y su almacenamiento en Snowflake.
-- **Analisis_ML/**: Notebooks y scripts para la optimización de portafolios, frontera de eficiencia y Security Market Line.
+- **Analisis_Financiero/**: Notebooks y scripts para la optimización de portafolios, frontera de eficiencia y Security Market Line.
 - **Analisis_sentimiento/**: Análisis de sentimiento de noticias financieras y diagramas explicativos.
 - **DataBase_News/**: Almacenamiento y consulta de datos históricos y de noticias.
 - **Documentacion/** y **docs/**: Documentación técnica y académica del proyecto.
