@@ -1,0 +1,243 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "actualizar-registros",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -832,
+        -608
+      ],
+      "id": "9d86283f-843b-4043-9a50-c0ac286abbe5",
+      "name": "Webhook Github Actions4",
+      "webhookId": "2ce651bb-7827-4c6e-a6cb-d0d6034741ea"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "table": "NOTICIAS.NOTICIAS_ANALIZADAS",
+        "updateKey": "ID",
+        "columns": "SENTIMIENTO_RESULTADO, PROBABILIDAD_POSITIVO, PROBABILIDAD_NEGATIVA, PROBABILIDAD_NEUTRAL"
+      },
+      "type": "n8n-nodes-base.snowflake",
+      "typeVersion": 1,
+      "position": [
+        288,
+        -608
+      ],
+      "id": "b18a5ad0-0b0c-49e3-adb4-75db74226b34",
+      "name": "Actualización de Registros Nuevos",
+      "credentials": {
+        "snowflake": {
+          "id": "XmoC8FIefMMahYGi",
+          "name": "Snowflake account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Usamos los items actuales (post-update) y recuperamos\n// los originales del nodo \"Selección de Noticias Nuevas1\"\nconst afterUpdate = $input.all().map(i => i.json);\nconst originals = $items(\"Snowflake - Noticias\", 0).map(i => i.json);\n\nfunction fila(data) {\n  const fecha = String(data.FECHA || '').slice(0,10);\n  const fuente = data.FUENTE || '';\n  const titular = data.TITULAR || '';\n  const s = String(data.SENTIMIENTO_RESULTADO || '').toUpperCase();\n\n  const sentFmt =\n    s === 'NEGATIVO' ? '<strong style=\"color:#b00020\">NEGATIVO</strong>' :\n    s === 'POSITIVO' ? '<strong style=\"color:#00796b\">POSITIVO</strong>' :\n    '<strong>NEUTRAL</strong>';\n\n  return `\n    <tr>\n      <td style=\"border:1px solid #ddd;padding:8px;white-space:nowrap\">${fecha}</td>\n      <td style=\"border:1px solid #ddd;padding:8px\">${fuente}</td>\n      <td style=\"border:1px solid #ddd;padding:8px\">${sentFmt}</td>\n      <td style=\"border:1px solid #ddd;padding:8px\">${titular}</td>\n    </tr>`;\n}\n\nconst rows = afterUpdate.map((upd, i) => {\n  const base = originals[i] || {};\n  return fila({ ...base, ...upd });\n}).join('\\n');\n\nconst now = new Date();\nconst dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;\nconst count = afterUpdate.length;\n\nconst html = `\n<div style=\"font-family:Arial,Helvetica,sans-serif\">\n  <h2>Resumen de noticias analizadas</h2>\n  <p>Se muestran ${count} de ${count} registros.</p>\n  <table style=\"border-collapse:collapse;width:100%\">\n    <thead>\n      <tr style=\"background:#f5f5f5;text-align:left\">\n        <th style=\"border:1px solid #ddd;padding:8px\">Fecha</th>\n        <th style=\"border:1px solid #ddd;padding:8px\">Fuente</th>\n        <th style=\"border:1px solid #ddd;padding:8px\">Sentimiento</th>\n        <th style=\"border:1px solid #ddd;padding:8px\">Titular</th>\n      </tr>\n    </thead>\n    <tbody>\n      ${rows}\n    </tbody>\n  </table>\n</div>`;\n\nreturn [{\n  json: {\n    subject: `Noticias analizadas (${count}) - ${dateStr}`,\n    html\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        512,
+        -608
+      ],
+      "id": "ede401ab-6e17-48d4-9857-408f40f74a1f",
+      "name": "Formatear Correo1"
+    },
+    {
+      "parameters": {
+        "sendTo": "tfmgrupo4ucm@gmail.com",
+        "subject": "={{ $json.subject }}",
+        "message": "={{ $json.html }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        736,
+        -608
+      ],
+      "id": "f3dda525-96bb-4e87-b2e0-a589e908c752",
+      "name": "Envio de Confirmación2",
+      "webhookId": "e18ccef7-58fe-47cf-9430-8bd95e702f65",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ABChjQvLmrzv7K5r",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT ID, TITULAR, FECHA, FUENTE\nFROM TFM.NOTICIAS.NOTICIAS_ANALIZADAS\nWHERE IDIOMA = 'en'\n  AND (SENTIMIENTO_RESULTADO IS NULL OR PROBABILIDAD_POSITIVO IS NULL)\nORDER BY FECHA DESC\nLIMIT 3;"
+      },
+      "type": "n8n-nodes-base.snowflake",
+      "typeVersion": 1,
+      "position": [
+        -608,
+        -608
+      ],
+      "id": "ff1cd442-e399-451e-89bc-1fdd1ba97697",
+      "name": "Snowflake - Noticias",
+      "credentials": {
+        "snowflake": {
+          "id": "XmoC8FIefMMahYGi",
+          "name": "Snowflake account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api-inference.huggingface.co/models/ProsusAI/finbert",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"inputs\": $json[\"TITULAR\"] } }}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -384,
+        -544
+      ],
+      "id": "f5187f87-0c1d-4261-ab51-715c523bec48",
+      "name": "API HuggingFace - FinBERT",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "GpRj6C1pV9fqZNqo",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Normaliza las predicciones y devuelve probabilidades + etiqueta\nfunction toArray3(src){ if(Array.isArray(src)) return src; return [src?.[\"0\"],src?.[\"1\"],src?.[\"2\"]].filter(Boolean); }\nfunction normLabel(lbl){ const s=String(lbl||\"\").toLowerCase(); if(s.includes(\"pos\")) return \"positive\"; if(s.includes(\"neg\")) return \"negative\"; if(s.includes(\"neut\")) return \"neutral\"; return s; }\nfunction num(x){ return Number(x)||0; }\n\nreturn items.map(it=>{\n  const root=it.json.body ?? it.json;\n  const preds=toArray3(root);\n  const scores={positive:0,negative:0,neutral:0};\n\n  for(const p of preds){\n    const k=normLabel(p?.label);\n    if(k in scores) scores[k]=num(p?.score);\n  }\n\n  let SENTIMIENTO_RESULTADO='NEUTRAL';\n  if(scores.positive>=scores.negative && scores.positive>=scores.neutral) SENTIMIENTO_RESULTADO='POSITIVO';\n  else if(scores.negative>=scores.positive && scores.negative>=scores.neutral) SENTIMIENTO_RESULTADO='NEGATIVO';\n\n  return {\n    json:{\n      SENTIMIENTO_RESULTADO,\n      PROBABILIDAD_POSITIVO:scores.positive,\n      PROBABILIDAD_NEGATIVA:scores.negative,\n      PROBABILIDAD_NEUTRAL:scores.neutral\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -160,
+        -544
+      ],
+      "id": "a9bc146e-2ac0-435b-975d-bb8ad0eea589",
+      "name": "Procesar Sentimiento"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        64,
+        -608
+      ],
+      "id": "eb5aa89e-be34-42d5-a4c6-60c60cf9205e",
+      "name": "Unir Datos Originales + Sentimiento1"
+    }
+  ],
+  "connections": {
+    "Webhook Github Actions4": {
+      "main": [
+        [
+          {
+            "node": "Snowflake - Noticias",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Actualización de Registros Nuevos": {
+      "main": [
+        [
+          {
+            "node": "Formatear Correo1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formatear Correo1": {
+      "main": [
+        [
+          {
+            "node": "Envio de Confirmación2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Snowflake - Noticias": {
+      "main": [
+        [
+          {
+            "node": "API HuggingFace - FinBERT",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Unir Datos Originales + Sentimiento1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API HuggingFace - FinBERT": {
+      "main": [
+        [
+          {
+            "node": "Procesar Sentimiento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Procesar Sentimiento": {
+      "main": [
+        [
+          {
+            "node": "Unir Datos Originales + Sentimiento1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Unir Datos Originales + Sentimiento1": {
+      "main": [
+        [
+          {
+            "node": "Actualización de Registros Nuevos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d629a5505b3cbcb54160b70f2271634ee6b9bfcfe28d543ea1719d3934ac71d5"
+  }
+}
