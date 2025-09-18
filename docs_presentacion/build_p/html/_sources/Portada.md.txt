@@ -2,6 +2,5 @@
 
 ```{image} ../../Imagenes/portada.png
 :alt: Noticia times
-:width: 110%
+:width: 100%
 :align: center
-```
