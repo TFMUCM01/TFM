@@ -269,7 +269,7 @@ fig.add_annotation(
 # ---------- layout (estilo simple_white, márgenes generosos) ----------
 fig.update_layout(
     template='simple_white',
-    title="Frontera de Eficiencia — Portafolios IBEX 35",
+    title="Frontera de Eficiencia",
     xaxis_title="Riesgo (Volatilidad)",
     yaxis_title="Rendimiento esperado",
     margin=dict(l=60, r=170, t=90, b=80),   # r grande para la barra de color
