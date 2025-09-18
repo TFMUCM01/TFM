@@ -1,3 +1,4 @@
+# --8<-- [start:inicio]
 import pandas as pd
 import numpy as np
 import snowflake.connector
@@ -362,8 +363,4 @@ fig.update_yaxes(
 )
 
 fig.show()
-
-
-
-
-
+# --8<-- [end:fin]

@@ -26,12 +26,14 @@ Como primera fase, se llevó a cabo la recopilación de titulares procedentes de
 
 Estos modelos generan una probabilidad asociada a cada noticia, lo que permite clasificarla como **positiva**, **negativa** o **neutral**. Aunque el detalle de la aplicación de los modelos se desarrolla en una sección posterior, en este apartado se describe el procedimiento de descarga de titulares desde las API’s y la construcción del *data lake* en **Snowflake**.  
 
+
 ```{figure} ../../Imagenes/DigSentimientos.png
 :alt: Diagrama de Sentimientos
 :width: 110%
 :align: center
 **Figura 7.** Flujo de proceso de scrapping
 ```
+
 En este proceso tenemos el data lake el cual se alimenta nuestros análisis a diario y lo integra en uno solo para que el análisis tanto del visualizador como el bot en telegram tengan la información correspondiente para el cliente.
 
 ```{figure} ../../Imagenes/Snowflake_noticias.png

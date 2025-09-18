@@ -10,6 +10,7 @@ Se ha decidido utilizar un modelo predictivo para estimar la probabilidad de que
 :align: center
 **Figura 12.** Flujograma del modelo de scrapping
 ```
+
 ### Automatización del flujo de trabajo con N8N
 
 N8N es la herramienta de automatización que integra servicios, APIs y bases de datos mediante flujos de trabajo programados (ej. cada día a las 00:00). Permite que la información fluya sin intervención manual, convirtiéndose en un elemento clave para la orquestación de datos y garantizando que el análisis se realice siempre con información actualizada. 

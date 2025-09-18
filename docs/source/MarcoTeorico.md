@@ -1,12 +1,15 @@
-# Modelos Teoricos
+# Modelos Teóricos
 
 (modelo-de-markowitz)=
 ## Modelo de Markowitz
-El **modelo de Markowitz**, también conocido como **teoría moderna de carteras (Modern Portfolio Theory, MPT)**, fue desarrollado por **Harry Markowitz en 1952**.  
+El **modelo de Markowitz**, también conocido como **teoría moderna de carteras (Modern Portfolio Theory, MPT)**, fue desarrollado por **Harry Markowitz en 1952**. Es un modelo matemático de inversión que busca optimizar la asignación de activos en una cartera, equilibrando **riesgo y rentabilidad esperada**.  
 
-Es un modelo matemático de inversión que busca optimizar la asignación de activos en una cartera, equilibrando **riesgo y rentabilidad esperada**.  
-
-![SML](../../Imagenes/capm.jpg)
+```{figure} ../../Imagenes/capm.jpg
+:alt: SML
+:align: center
+:width: 80%
+**Figura 2.** Representación del modelo CAPM (Capital Asset Pricing Model), que ilustra la relación entre el riesgo sistemático (beta) y la rentabilidad esperada de un activo en comparación con el mercado.*
+```
 
 ### Ideas principales
 - **Diversificación**: Al combinar activos con diferentes comportamientos, se reduce el riesgo total sin sacrificar necesariamente la rentabilidad.  
@@ -48,7 +51,7 @@ donde:
 
 El **Modelo de Valoración de Activos Financieros** (Security Market Line (SML)) es una representación gráfica de la relación entre el riesgo sistemático de un activo y su rentabilidad esperada, según el modelo CAPM. Es un instrumento clave para entender cómo el mercado valora (o debería valorar) la compensación por riesgo que exige un inversor.
 
-Usando esta herramientas debemos tomar en cuenta que:
+Usando estas herramientas debemos tomar en cuenta que:
 
 1. Beta (β): mide la sensibilidad del activo respecto al mercado.
 
@@ -80,8 +83,12 @@ El gráfico muestra la **Security Market Line (SML)**, que representa la relaci�
 
 Según el modelo **CAPM**, un activo con βi = 1 debería tener una rentabilidad esperada igual a la del mercado, que en este ejemplo es del **10%**. A medida que la beta aumenta, la rentabilidad exigida por los inversores también crece, ya que el activo está más expuesto a los movimientos del mercado. Por el contrario, un activo con βi < 1 tendría una rentabilidad inferior, porque asume un menor riesgo sistemático.  
 
-
-![SML](../../Imagenes/SML_Graph.jpg)
+```{figure} ../../Imagenes/SML_Graph.jpg
+:alt: SML
+:align: center
+:width: 80%
+**Figura 3.** Representación de la **Security Market Line (SML)**, que muestra la relación entre la beta de los activos y su rentabilidad esperada según el modelo CAPM.*
+```
 
 ---
 

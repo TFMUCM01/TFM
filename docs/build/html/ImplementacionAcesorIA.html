@@ -1,0 +1,207 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="es" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Implementación de AsesorIA &mdash; Desarrollo de un sistema de análisis financiero y sostenible del mercado bursátil europeo</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=c1a11018" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=ba61de6b"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/translations.js?v=f85f4cfb"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Índice" href="genindex.html" />
+    <link rel="search" title="Búsqueda" href="search.html" />
+    <link rel="next" title="Conclusiones" href="Conclusiones.html" />
+    <link rel="prev" title="Automatización Financiera" href="AutomatizacionFinanciera.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Desarrollo de un sistema de análisis financiero y sostenible del mercado bursátil europeo
+              <img src="_static/Logo.jpeg" class="logo" alt="Logotipo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Buscar documentos" aria-label="Buscar documentos" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Introduccion.html">Introducción</a></li>
+<li class="toctree-l1"><a class="reference internal" href="DescripcionProblema.html">Descripción Problema</a></li>
+<li class="toctree-l1"><a class="reference internal" href="MarcoTeorico.html">Modelos Teóricos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="DatosPreparacion.html">Datos y Preparación</a></li>
+<li class="toctree-l1"><a class="reference internal" href="AutomatizacionFinanciera.html">Automatización Financiera</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Implementación de AsesorIA</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#flujo-del-proceso">Flujo del Proceso</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#beneficios-del-proceso">Beneficios del Proceso</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#visualizacion">Visualización</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Conclusiones.html">Conclusiones</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Bibliografia.html">Bibliografía</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Anexos.html">Anexos</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Desarrollo de un sistema de análisis financiero y sostenible del mercado bursátil europeo</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Implementación de AsesorIA</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/ImplementacionAcesorIA.md.txt" rel="nofollow"> Ver código fuente de la página</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="implementacion-de-asesoria">
+<h1>Implementación de AsesorIA<a class="headerlink" href="#implementacion-de-asesoria" title="Link to this heading"></a></h1>
+<p>Se desarrolló un flujo automatizado en N8N utilizando Telegram BotFather, la herramienta oficial de Telegram para la creación de bots. El objetivo principal del robot es permitir a los usuarios consultar información almacenada en la base de datos Snowflake, empleando consultas SQL generadas y validadas de manera automática con apoyo de modelos de lenguaje de OpenAI.</p>
+<section id="flujo-del-proceso">
+<h2>Flujo del Proceso<a class="headerlink" href="#flujo-del-proceso" title="Link to this heading"></a></h2>
+<p>El proceso comienza cuando el usuario escribe al bot en Telegram. Ese mensaje llega a N8N, donde OpenAI lo interpreta y, si corresponde, genera una consulta SQL. Si la consulta no es válida, el sistema avisa; si lo es, se ejecuta directamente en Snowflake. Los resultados se organizan y se analizan automáticamente para generar un resumen con la interpretación y la propia consulta utilizada. Finalmente, todo se transforma en un formato claro y se devuelve al usuario en Telegram, de manera que el bot actúa como un asistente inteligente en la interpretación de datos.</p>
+<p><img alt="Flujo Robot n8n" src="_images/FlujoRobot_n8n.jpeg" /></p>
+<p><img alt="Flujo Robot" src="_images/FlujoRobot.png" /></p>
+</section>
+<section id="beneficios-del-proceso">
+<h2>Beneficios del Proceso<a class="headerlink" href="#beneficios-del-proceso" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Automatización completa de las consultas en Snowflake.</p></li>
+<li><p>Acceso inmediato a la información a través de Telegram.</p></li>
+<li><p>Análisis asistido por IA, que interpreta y explica los resultados.</p></li>
+</ul>
+<p>El robot implementado integra de manera efectiva N8N, Telegram, Snowflake y OpenAI, logrando un flujo robusto para la consulta y análisis de datos en tiempo real. Este sistema no solo proporciona respuestas automáticas, sino que también añade valor al usuario al interpretar la información, consolidando un asesor virtual de inteligencia artificial (AsesorIA) dentro de un entorno de mensajería instantánea.</p>
+<p><img alt="Robot" src="_images/Robot.jpeg" /></p>
+<p><a class="reference external" href="https://t.me/TFMGRUPO4_BOT">Datos del Robot Financiero</a></p>
+</section>
+<section id="visualizacion">
+<h2>Visualización<a class="headerlink" href="#visualizacion" title="Link to this heading"></a></h2>
+<p>Iniciamos un recorrido por un panel de informacion financiera donde te tendremos la vision global de los mercados bursátiles europeos, combinando indicadores geográficos, sectoriales y financieros.</p>
+<ul class="simple">
+<li><p><strong>Mapa geográfico</strong>: Muestra la distribución de los mercados por país, resaltando las plazas bursátiles más relevantes de Europa.</p></li>
+<li><p><strong>Recuento por Exchange</strong>: Representa el número de compañías cotizadas en cada bolsa (LSE, GER, MIL, PAR, MCE, STO, AMS, EBS), evidenciando el peso de cada mercado en términos de participación empresarial.</p></li>
+<li><p><strong>Capitalización por país</strong>: Indica la magnitud del <em>Market Cap</em> acumulado, donde destacan Reino Unido y Suecia como los países con mayor volumen.</p></li>
+<li><p><strong>Empleados vs. Market Cap</strong>: Gráfico de dispersión que relaciona la cantidad de empleados con la capitalización de mercado, permitiendo identificar empresas de gran tamaño y alto valor en los distintos sectores.</p></li>
+</ul>
+<p>En conjunto, esta visión proporciona un panorama comparativo entre países y mercados europeos, destacando tanto la relevancia geográfica como la magnitud económica de las empresas que los componen.</p>
+<p><a class="reference external" href="https://public.tableau.com/app/profile/julia.escudero.velasco/viz/TFM_17581412187180/Indice">Dashboard de Análisis Financiero en Tableau</a></p>
+<figure class="align-center" id="id1">
+<img alt="Visualización del Mercado" src="_images/visionmercados.jpeg" />
+<figcaption>
+<p><span class="caption-text"><strong>Figura 16.</strong> Visualización de los graficos del mercado</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p>Luego podemos ver un análisis por cada una de las empresas que el cliente quiera verificar</p>
+<ul class="simple">
+<li><p><strong>Boxplots de precios de cierre (2020–2025)</strong>: muestran la dispersión, volatilidad y tendencias anuales de los precios de la acción.</p></li>
+<li><p><strong>Evolución histórica del precio</strong>: refleja la trayectoria del valor en bolsa con tendencia creciente a pesar de episodios de volatilidad.</p></li>
+</ul>
+<p>El tablero permite analizar tanto la solidez financiera como el comportamiento bursátil de la empresa, integrando métricas clave y evolución histórica para apoyar la toma de decisiones de inversión.</p>
+<figure class="align-center" id="id2">
+<img alt="análisis Empresarial" src="_images/analisisempresarial.jpeg" />
+<figcaption>
+<p><span class="caption-text"><strong>Figura 17.</strong> Análisis empresarial en gráficos</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p>Seguidamente tendremos el análisis por tickers. Este panel permite analizar y comparar el desempeño de distintas acciones a través de indicadores clave, relacionando riesgo, retorno y evolución temporal.</p>
+<ul class="simple">
+<li><p><strong>Riesgo vs. Retorno</strong>: gráfico de dispersión que muestra el balance entre la volatilidad y el retorno medio de cada acción.</p>
+<ul>
+<li><p>Las burbujas representan a cada <em>ticker</em>, diferenciados por tamaño y color.</p></li>
+<li><p>Permite identificar qué empresas logran mejores retornos ajustados al riesgo.</p></li>
+</ul>
+</li>
+<li><p><strong>Rendimiento acumulado</strong>: evolución temporal del rendimiento compuesto de cada acción, agrupado por trimestre (2020T3–2025T3).</p>
+<ul>
+<li><p>Refleja la dinámica de cada activo y su capacidad de mantener tendencia positiva o negativa en el tiempo.</p></li>
+</ul>
+</li>
+<li><p><strong>KPIs de Tickers</strong>
+La tabla inferior presenta indicadores clave de desempeño (<em>Key Performance Indicators</em>) para cada acción:</p></li>
+<li><p><strong>Precios promedio</strong>: apertura, cierre, máximo y mínimo.</p></li>
+<li><p><strong>Volatilidad intradía</strong>: medida de la variación dentro de una misma sesión.</p></li>
+<li><p><strong>Volumen</strong>: cantidad total negociada en el periodo.</p></li>
+<li><p><strong>Varianza y desviación estándar</strong>: métricas estadísticas que ayudan a dimensionar la dispersión de los precios.</p></li>
+</ul>
+<p>En resumen, este tablero ofrece una perspectiva integral de varios activos, facilitando la comparación de su riesgo, rentabilidad y evolución histórica, lo que lo convierte en una herramienta útil para la toma de decisiones financieras.</p>
+<figure class="align-center" id="id3">
+<img alt="Exploración Tickers" src="_images/exploraciontickers.jpeg" />
+<figcaption>
+<p><span class="caption-text"><strong>Figura 18.</strong> Exploración Tickers</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p>Por último, este panel ofrece una visión global del sentimiento de las noticias financieras. Resume la proporción de titulares positivos, negativos y neutros, muestra ejemplos representativos y refleja qué medios aportan más información.</p>
+<figure class="align-center" id="id4">
+<img alt="análisis de sentimiento" src="_images/analisisnoticias.jpeg" />
+<figcaption>
+<p><span class="caption-text"><strong>Figura 19.</strong> análisis de sentimiento por titular de noticieros</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Pie de página">
+        <a href="AutomatizacionFinanciera.html" class="btn btn-neutral float-left" title="Automatización Financiera" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Anterior</a>
+        <a href="Conclusiones.html" class="btn btn-neutral float-right" title="Conclusiones" accesskey="n" rel="next">Siguiente <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Derechos de autor 2025, Julia Escudero, Marco Mendieta, Marco Pacora, Piero Rios, Juan Carlos Romero.</p>
+  </div>
+
+  Compilado con <a href="https://www.sphinx-doc.org/">Sphinx</a> usando un
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">tema</a>
+    proporcionado por <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

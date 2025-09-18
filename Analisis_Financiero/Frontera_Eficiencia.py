@@ -1,3 +1,4 @@
+# --8<-- [start:inicio]
 # -*- coding: utf-8 -*-
 import numpy as np
 import pandas as pd
@@ -306,3 +307,4 @@ fig.add_annotation(
 )
 
 fig.show(config={"responsive": True, "displayModeBar": True})
+# --8<-- [end:fin]

@@ -8,7 +8,7 @@ Sin embargo, en la actualidad los mercados financieros han demostrado que los pr
 
 Ante esta realidad, surge la necesidad de incorporar un tercer enfoque: el análisis de sentimiento, basado en técnicas de Natural Language Processing (NLP) y análisis de texto. Esta aproximación permite cuantificar percepciones colectivas y medir su impacto potencial en los mercados, complementando así los enfoques fundamental y técnico. El valor añadido de esta integración radica en su capacidad para identificar correlaciones entre lo que se dice sobre una empresa, sector o temática financiera y el comportamiento posterior de los precios en bolsa.
 
-Finalmente, el análisis cuantitativo aporta un cuarto pilar que fortalece la capacidad predictiva del modelo. Mediante la aplicación de algoritmos matemáticos, estadísticos y de machine learning, este enfoque permite combinar grandes volúmenes de datos financieros y de noticias, detectando patrones complejos que resultan invisibles a través de métodos tradicionales. De esta forma, la integración de los análisis fundamental, técnico, de sentimiento y cuantitativo constituye un enfoque integral, que no solo mejora la precisión de las predicciones en los mercados bursátiles, sino que también amplía las herramientas disponibles para la toma de decisiones estratégicas en inversión.
+Finalmente, el análisis cuantitativo aporta un cuarto pilar que fortalece la capacidad predictiva del modelo. Mediante la aplicación de algoritmos matemáticos, estadísticos y de machine learning, este enfoque permite combinar grandes volúmenes de datos financieros y de noticias, detectando patrones complejos que resultan invisibles a través de métodos tradicionales. De esta forma, la integración del análisis fundamental, técnico, de sentimiento y cuantitativo constituye un enfoque integral, que no solo mejora la precisión de las predicciones en los mercados bursátiles, sino que también amplía las herramientas disponibles para la toma de decisiones estratégicas en inversión.
 
 ---
 
@@ -59,8 +59,9 @@ No se incluyen en el alcance productos financieros de renta fija, ETFs u otros i
 
 El análisis se desarrollará sobre el periodo comprendido entre enero de 2020 y septiembre de 2025, un intervalo marcado por acontecimientos económicos de gran relevancia —como la pandemia de COVID-19, la posterior recuperación económica, los repuntes inflacionarios y la guerra en Ucrania— que generaron abundante información periodística y fuertes fluctuaciones en los mercados financieros. No obstante, este marco temporal también presenta limitaciones en cuanto a la disponibilidad de datos: mientras que la información financiera puede recopilarse de manera consistente desde el inicio del periodo, en el caso de las noticias únicamente se dispone de registros desde enero de 2024 hasta la actualidad, lo que impide contar con un histórico más amplio. Estas restricciones condicionan el alcance del análisis, pero al mismo tiempo permiten centrar el estudio en un horizonte temporal reciente y relevante, asegurando la pertinencia de los resultados en relación con las dinámicas económicas actuales.
 
-**Delimitación tecnicos:**  
-El proyecto presenta diversas limitaciones derivadas tanto de restricciones técnicas como de recursos. En primer lugar, no ha sido posible descargar toda la información financiera disponible, dado que carecen de una estructura estandarizada para todos los tickers, lo que dificulta la homogeneización de datos. Asimismo, el consumo de tokens para la ejecución de modelos de inferencia estuvo condicionado por el uso de una versión gratuita, limitación que con mayores recursos econimicos podría suplirse. En el plano de infraestructura, se realizaron tres migraciones del DataLake debido a la imposibilidad de mantener de forma continua un servicio de almacenamiento en la nube de pago como Snowflake. A nivel operativo, se implementó cloudflared como túnel de acceso para la integración de GitHub Actions con n8n en entorno local, lo que si bien resolvió la conectividad, añade complejidad al flujo de trabajo. Otro aspecto a considerar es el tiempo de ejecución, que restringe la velocidad y eficiencia de descarga de datos a gran escala. Finalmente, los plazos disponibles limitaron la expansión del proyecto, impidiendo la incorporación de otros productos financieros relevantes como renta fija, ETFs, instrumentos mixtos o empaquetados. 
+**Delimitación técnicos:**  
+
+El proyecto presenta diversas limitaciones derivadas tanto de restricciones técnicas como de recursos. En primer lugar, no ha sido posible descargar toda la información financiera disponible, dado que carecen de una estructura estandarizada para todos los tickers, lo que dificulta la homogeneización de datos. Asimismo, el consumo de tokens para la ejecución de modelos de inferencia estuvo condicionado por el uso de una versión gratuita, limitación que con mayores recursos económicos podría suplirse. En el plano de infraestructura, se realizaron tres migraciones del DataLake debido a la imposibilidad de mantener de forma continua un servicio de almacenamiento en la nube de pago como Snowflake. A nivel operativo, se implementó cloudflared como túnel de acceso para la integración de GitHub Actions con n8n en entorno local, lo que, si bien resolvió la conectividad, añade complejidad al flujo de trabajo. Otro aspecto para considerar es el tiempo de ejecución, que restringe la velocidad y eficiencia de descarga de datos a gran escala. Finalmente, los plazos disponibles limitaron la expansión del proyecto, impidiendo la incorporación de otros productos financieros relevantes como renta fija, ETFs, instrumentos mixtos o empaquetados. 
 
 ---
 
@@ -74,13 +75,13 @@ El proyecto presenta diversas limitaciones derivadas tanto de restricciones téc
 - **Noticias (text mining + scrapping):**  
   - ABC
   - BBC 
-  - El Pais
-  - Expansion 
+  - El País
+  - Expansión  
   - The times
   - Bloomberg 
   - El economista
 
-- **Escalabilidad del producto: productivizar el modelo**  
+- **Escalabilidad del producto**  
  - Ambientes:
     - Visual Studio  
     - Google Colab  
