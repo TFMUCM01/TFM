@@ -1,10 +1,6 @@
 # Conclusiones
 
-El proyecto desarrollado integra distintas tecnologías de **procesamiento de lenguaje natural (NLP)**, **automatización de flujos de trabajo** y **almacenamiento en la nube**, con el propósito de construir una herramienta capaz de facilitar el análisis financiero a partir de diferentes fuentes de datos. Durante el proceso se abordaron múltiples fases: desde la recolección de información mediante *scraping* de noticias y descarga de datos financieros con APIs, hasta la limpieza, transformación y almacenamiento de dicha información en **Snowflake**. Además, se implementaron módulos especializados para incorporar métricas **fundamentales** (estados financieros), **de mercado** (ratios bursátiles) y **ESG** (sostenibilidad), conformando así una base de datos integral.  
-
-Sobre esta infraestructura, se diseñó un flujo en **N8N** que permite interactuar con los datos a través de un **bot en Telegram**, el cual procesa las consultas de los usuarios con modelos de **OpenAI**, genera sentencias SQL, ejecuta las consultas en Snowflake y devuelve los resultados acompañados de un breve análisis interpretativo. Este enfoque no solo resuelve la parte técnica de la integración de datos, sino que también ofrece un **asesor virtual de inteligencia artificial (AsesorIA)** que democratiza el acceso a información financiera avanzada.  
-
-La experiencia adquirida durante la implementación permitió identificar tanto los **beneficios** como los **desafíos** de este tipo de soluciones, destacando aspectos técnicos, económicos y estratégicos que serán determinantes para la continuidad y evolución de la herramienta.  
+El proyecto integra NLP, automatización y Snowflake para centralizar datos financieros (noticias, métricas fundamentales, de mercado y ESG). Un flujo en N8N con bot de Telegram y modelos de OpenAI permite consultas SQL y análisis interpretativos, funcionando como un asesor virtual (AsesorIA). Se identificaron beneficios y desafíos clave para su evolución.
 
 En síntesis, las principales conclusiones alcanzadas son:  
 

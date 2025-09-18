@@ -7,12 +7,11 @@ TFM: Desarrollo de un sistema de análisis financiero y sostenible del mercado b
    :maxdepth: 2
    :caption: Contents:
 
+   Portada
    Introduccion
    DescripcionProblema
    MarcoTeorico
    DatosPreparacion
-   ModeloPredictivo
    AutomatizacionFinanciera
+   ImplementacionAcesorIA
    Conclusiones
-   Bibliografia
-   Anexos

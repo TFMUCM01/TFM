@@ -6,7 +6,12 @@ El **modelo de Markowitz**, también conocido como **teoría moderna de carteras
 
 Es un modelo matemático de inversión que busca optimizar la asignación de activos en una cartera, equilibrando **riesgo y rentabilidad esperada**.  
 
-![SML](../../Imagenes/capm.jpg)
+```{figure} ../../Imagenes/capm.jpg
+:alt: SML
+:align: center
+:width: 80%
+**Figura 2.** Representación del modelo CAPM (Capital Asset Pricing Model), que ilustra la relación entre el riesgo sistemático (beta) y la rentabilidad esperada de un activo en comparación con el mercado.*
+```
 
 ### Ideas principales
 - **Diversificación**: Al combinar activos con diferentes comportamientos, se reduce el riesgo total sin sacrificar necesariamente la rentabilidad.  
@@ -48,7 +53,7 @@ donde:
 
 El **Modelo de Valoración de Activos Financieros** (Security Market Line (SML)) es una representación gráfica de la relación entre el riesgo sistemático de un activo y su rentabilidad esperada, según el modelo CAPM. Es un instrumento clave para entender cómo el mercado valora (o debería valorar) la compensación por riesgo que exige un inversor.
 
-Usando esta herramientas debemos tomar en cuenta que:
+Usando estas herramientas debemos tomar en cuenta que:
 
 1. Beta (β): mide la sensibilidad del activo respecto al mercado.
 
@@ -64,8 +69,12 @@ Usando esta herramientas debemos tomar en cuenta que:
 - Si un activo está **debajo de la SML** → está **sobrevalorado** (da menos rentabilidad de la que debería para su riesgo).  
 - La SML sirve para comparar activos de **distinto riesgo sistemático**, y se aplica tanto a acciones como a carteras.  
 
-![SML](../../Imagenes/SML_Graph.jpg)
-
+```{figure} ../../Imagenes/SML_Graph.jpg
+:alt: SML
+:align: center
+:width: 80%
+**Figura 3.** Representación de la **Security Market Line (SML)**, que muestra la relación entre la beta de los activos y su rentabilidad esperada según el modelo CAPM.*
+```
 ---
 
 ### Fórmula

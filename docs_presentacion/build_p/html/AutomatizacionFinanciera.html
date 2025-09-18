@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Automatizacion Financiera &mdash; Desarrollo de un sistema de análisis financiero y sostenible del mercado bursátil europeo</title>
+  <title>Automatización Financiera &mdash; Desarrollo de un sistema de análisis financiero y sostenible del mercado bursátil europeo</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/custom.css?v=bce90bec" />
@@ -21,8 +21,8 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Índice" href="genindex.html" />
     <link rel="search" title="Búsqueda" href="search.html" />
-    <link rel="next" title="Conclusiones" href="Conclusiones.html" />
-    <link rel="prev" title="Modelos Predictivos" href="ModeloPredictivo.html" /> 
+    <link rel="next" title="Implementación de AsesorIA" href="ImplementacionAcesorIA.html" />
+    <link rel="prev" title="Datos y Preparación" href="DatosPreparacion.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -47,19 +47,25 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Portada.html">Portada</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Introduccion.html">Introducción</a></li>
 <li class="toctree-l1"><a class="reference internal" href="DescripcionProblema.html">Descripción Problema</a></li>
 <li class="toctree-l1"><a class="reference internal" href="MarcoTeorico.html">Modelos Teoricos</a></li>
 <li class="toctree-l1"><a class="reference internal" href="DatosPreparacion.html">Datos y Preparación</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ModeloPredictivo.html">Modelos Predictivos</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Automatizacion Financiera</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#flujo-del-proceso">Flujo del Proceso</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#beneficios-del-proceso">Beneficios del Proceso</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Automatización Financiera</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#analisis-de-sentimiento">Análisis de sentimiento</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#automatizacion-del-flujo-de-trabajo-con-n8n">Automatización del flujo de trabajo con N8N</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#generacion-de-las-columnas-con-tipo-de-titulos">Generación de las columnas con tipo de títulos</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#analisis-de-frontera-de-eficiencia">Análisis de Frontera de eficiencia</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#grafica-de-la-frontera-de-eficiencia">Gráfica de la frontera de eficiencia</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ImplementacionAcesorIA.html">Implementación de AsesorIA</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Conclusiones.html">Conclusiones</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Bibliografia.html">Bibliografía</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Anexos.html">Anexos</a></li>
 </ul>
 
         </div>
@@ -76,7 +82,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Automatizacion Financiera</li>
+      <li class="breadcrumb-item active">Automatización Financiera</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/AutomatizacionFinanciera.md.txt" rel="nofollow"> Ver código fuente de la página</a>
       </li>
@@ -87,24 +93,135 @@
            <div itemprop="articleBody">
              
   <section id="automatizacion-financiera">
-<h1>Automatizacion Financiera<a class="headerlink" href="#automatizacion-financiera" title="Link to this heading"></a></h1>
-<p>Se desarrolló un flujo automatizado en N8N utilizando Telegram BotFather, la herramienta oficial de Telegram para la creación de bots. El objetivo principal del robot es permitir a los usuarios consultar información almacenada en la base de datos Snowflake, empleando consultas SQL generadas y validadas de manera automática con apoyo de modelos de lenguaje de OpenAI.</p>
-<section id="flujo-del-proceso">
-<h2>Flujo del Proceso<a class="headerlink" href="#flujo-del-proceso" title="Link to this heading"></a></h2>
-<p>El proceso comienza cuando el usuario escribe al bot en Telegram. Ese mensaje llega a N8N, donde OpenAI lo interpreta y, si corresponde, genera una consulta SQL. Si la consulta no es válida, el sistema avisa; si lo es, se ejecuta directamente en Snowflake. Los resultados se organizan y se analizan automáticamente para generar un resumen con la interpretación y la propia consulta utilizada. Finalmente, todo se transforma en un formato claro y se devuelve al usuario en Telegram, de manera que el bot actúa como un asistente inteligente en la interpretación de datos.</p>
-<p><img alt="Flujo Robot n8n" src="_images/FlujoRobot_n8n.jpeg" /></p>
-<p><img alt="Flujo Robot" src="_images/FlujoRobot.png" /></p>
+<h1>Automatización Financiera<a class="headerlink" href="#automatizacion-financiera" title="Link to this heading"></a></h1>
+<section id="analisis-de-sentimiento">
+<h2>Análisis de sentimiento<a class="headerlink" href="#analisis-de-sentimiento" title="Link to this heading"></a></h2>
+<p>Se ha decidido utilizar un modelo predictivo para estimar la probabilidad de que un titular sea <em>negativo, positivo o neutral</em>. El modelo seleccionado es <strong><code class="docutils literal notranslate"><span class="pre">distilroberta-finetuned-financial-news-sentiment-analysis</span></code></strong>, especializado en el ámbito financiero en idioma inglés, elegido por su buen rendimiento en clasificación.</p>
+<figure class="align-center" id="id1">
+<a class="reference internal image-reference" href="_images/DigSentimientos.png"><img alt="Diagrama de Sentimientos" src="_images/DigSentimientos.png" style="width: 110%;" />
+</a>
+<figcaption>
+<p><span class="caption-text"><strong>Figura 12.</strong> Flujograma del modelo de scrapping</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<section id="automatizacion-del-flujo-de-trabajo-con-n8n">
+<h3>Automatización del flujo de trabajo con N8N<a class="headerlink" href="#automatizacion-del-flujo-de-trabajo-con-n8n" title="Link to this heading"></a></h3>
+<p>N8N es la herramienta de automatización que integra servicios, APIs y bases de datos mediante flujos de trabajo programados (ej. cada día a las 00:00). Permite que la información fluya sin intervención manual, convirtiéndose en un elemento clave para la orquestación de datos y garantizando que el análisis se realice siempre con información actualizada.</p>
+<figure class="align-center" id="id2">
+<a class="reference internal image-reference" href="_images/FlujoN8N.jpeg"><img alt="FlujoN8N" src="_images/FlujoN8N.jpeg" style="width: 100%;" />
+</a>
+<figcaption>
+<p><span class="caption-text"><strong>Figura 13.</strong> Flujograma del modelo de scrapping en N8N</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+</figcaption>
+</figure>
 </section>
-<section id="beneficios-del-proceso">
-<h2>Beneficios del Proceso<a class="headerlink" href="#beneficios-del-proceso" title="Link to this heading"></a></h2>
-<ul class="simple">
-<li><p>Automatización completa de las consultas en Snowflake.</p></li>
-<li><p>Acceso inmediato a la información a través de Telegram.</p></li>
-<li><p>Análisis asistido por IA, que interpreta y explica los resultados.</p></li>
+<section id="generacion-de-las-columnas-con-tipo-de-titulos">
+<h3>Generación de las columnas con tipo de títulos<a class="headerlink" href="#generacion-de-las-columnas-con-tipo-de-titulos" title="Link to this heading"></a></h3>
+<p>Aplicando el análisis de sentimiento, se generan cuatro variables principales: <code class="docutils literal notranslate"><span class="pre">SENTIMIENTO_RESULTADO</span></code>, <code class="docutils literal notranslate"><span class="pre">PROBABILIDAD_POSITIVO</span></code>, <code class="docutils literal notranslate"><span class="pre">PROBABILIDAD_NEGATIVA</span></code> y <code class="docutils literal notranslate"><span class="pre">PROBABILIDAD_NEUTRAL</span></code>. Estas variables permiten determinar de manera objetiva la clasificación final del texto en función de su polaridad. Posteriormente, los resultados se incorporan a la tabla principal de <strong>Noticias_Analizadas</strong> y se almacenan nuevamente en Snowflake, lo que garantiza su disponibilidad para futuros análisis, tanto de carácter técnico como de integración con otros indicadores financieros.</p>
+<figure class="align-center" id="id3">
+<a class="reference internal image-reference" href="_images/Correo_Titulares.png"><img alt="correo_titulares" src="_images/Correo_Titulares.png" style="width: 100%;" />
+</a>
+<figcaption>
+<p><span class="caption-text"><strong>Figura 14.</strong> Notificaciones automáticas de la actualización de la base de datos y aplicación del modelo a los titulares</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+</section>
+<section id="analisis-de-frontera-de-eficiencia">
+<h2>Análisis de Frontera de eficiencia<a class="headerlink" href="#analisis-de-frontera-de-eficiencia" title="Link to this heading"></a></h2>
+<p>Para selección de nuestra cartera emplearemos el modelo de media-varianza de Markowitz, considerado la base de la Teoría Moderna de Carteras. Este enfoque es ampliamente utilizado en finanzas porque permite encontrar la combinación óptima de activos equilibrando riesgo y rendimiento esperado.
+El procedimiento consiste en simular 50.000 carteras aleatorias con diferentes ponderaciones de activos. Posteriormente, se identifican aquellas que cumplen con dos criterios clave:</p>
+<ul>
+<li><p>Cartera de mínima varianza: la que presenta el menor nivel de riesgo posible.</p></li>
+<li><p>Cartera con ratio de Sharpe máximo: la que ofrece la mejor relación entre rendimiento y riesgo ajustado por la tasa libre de riesgo.</p>
+<p>Ver teoría en <a class="reference internal" href="MarcoTeorico.html#modelo-de-markowitz"><span class="std std-ref">Modelo de Markowitz</span></a></p>
+</li>
 </ul>
-<p>El robot implementado integra de manera efectiva N8N, Telegram, Snowflake y OpenAI, logrando un flujo robusto para la consulta y análisis de datos en tiempo real. Este sistema no solo proporciona respuestas automáticas, sino que también añade valor al usuario al interpretar la información, consolidando un asesor virtual de inteligencia artificial (AsesorIA) dentro de un entorno de mensajería instantánea.</p>
-<p><img alt="Robot" src="_images/Robot.jpeg" /></p>
-<p><a class="reference external" href="https://t.me/TFMGRUPO4_BOT">Datos del Robot Financiero</a></p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Rendimientos</p></th>
+<th class="head"><p>Riesgos</p></th>
+<th class="head"><p>PesoACS.MC</p></th>
+<th class="head"><p>PesoAENA.MC</p></th>
+<th class="head"><p>PesoBBVA.MC</p></th>
+<th class="head"><p>PesoCABK.MC</p></th>
+<th class="head"><p>PesoELE.MC</p></th>
+<th class="head"><p>PesoENG.MC</p></th>
+<th class="head"><p>PesoFER.MC</p></th>
+<th class="head"><p>PesoIAG.MC</p></th>
+<th class="head"><p>PesoIBE.MC</p></th>
+<th class="head"><p>PesoITX.MC</p></th>
+<th class="head"><p>PesoMAP.MC</p></th>
+<th class="head"><p>PesoREP.MC</p></th>
+<th class="head"><p>PesoSAN.MC</p></th>
+<th class="head"><p>PesoTEF.MC</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>0.094535</p></td>
+<td><p>0.236939</p></td>
+<td><p>0.056633</p></td>
+<td><p>0.050586</p></td>
+<td><p>0.146062</p></td>
+<td><p>0.077725</p></td>
+<td><p>0.046691</p></td>
+<td><p>0.035503</p></td>
+<td><p>0.113892</p></td>
+<td><p>0.069035</p></td>
+<td><p>0.062491</p></td>
+<td><p>0.131826</p></td>
+<td><p>0.036659</p></td>
+<td><p>0.013266</p></td>
+<td><p>0.052721</p></td>
+<td><p>0.106909</p></td>
+</tr>
+<tr class="row-odd"><td><p>0.088686</p></td>
+<td><p>0.247779</p></td>
+<td><p>0.150650</p></td>
+<td><p>0.047172</p></td>
+<td><p>0.018697</p></td>
+<td><p>0.065942</p></td>
+<td><p>0.009546</p></td>
+<td><p>0.004347</p></td>
+<td><p>0.037379</p></td>
+<td><p>0.134567</p></td>
+<td><p>0.145345</p></td>
+<td><p>0.096339</p></td>
+<td><p>0.017419</p></td>
+<td><p>0.038019</p></td>
+<td><p>0.119666</p></td>
+<td><p>0.114913</p></td>
+</tr>
+<tr class="row-even"><td><p>0.076873</p></td>
+<td><p>0.232206</p></td>
+<td><p>0.130143</p></td>
+<td><p>0.112952</p></td>
+<td><p>0.103699</p></td>
+<td><p>0.046427</p></td>
+<td><p>0.117658</p></td>
+<td><p>0.066646</p></td>
+<td><p>0.027429</p></td>
+<td><p>0.084714</p></td>
+<td><p>0.030029</p></td>
+<td><p>0.094975</p></td>
+<td><p>0.118723</p></td>
+<td><p>0.011767</p></td>
+<td><p>0.007015</p></td>
+<td><p>0.047825</p></td>
+</tr>
+</tbody>
+</table>
+<section id="grafica-de-la-frontera-de-eficiencia">
+<h3>Gráfica de la frontera de eficiencia<a class="headerlink" href="#grafica-de-la-frontera-de-eficiencia" title="Link to this heading"></a></h3>
+<p>Este gráfico es un ejemplo con una cartera del IBEX35 el cual representa la frontera eficiente obtenida a partir de la simulación de 50.000 combinaciones de activos. En el eje horizontal tenemos el riesgo del portafolio medido como volatilidad y en el eje vertical tenemos el rendimiento esperado por el portafolio. La nube de puntos son los portafolios creados aleatoriamente que combina cada uno de los pesos de las acciones de cada portafolio.</p>
+<p>La estrella verde, abajo a la izquierda, es la cartera con el menor riesgo posible, aunque su rentabilidad es moderada y la estrella azul, arriba a la derecha es la cartera más eficiente en términos de relación riesgo–rentabilidad, considerando la tasa libre de riesgo.</p>
+<figure class="align-center" id="id4">
+<img alt="Frontera Eficiencia" src="_images/FronteraEficiencia_porta.gif" />
+<figcaption>
+<p><span class="caption-text"><strong>Figura 15.</strong> Muestra de frontera de eficiencia para la elección de la cartera más eficiente</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
 </section>
 </section>
 
@@ -112,8 +229,8 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Pie de página">
-        <a href="ModeloPredictivo.html" class="btn btn-neutral float-left" title="Modelos Predictivos" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Anterior</a>
-        <a href="Conclusiones.html" class="btn btn-neutral float-right" title="Conclusiones" accesskey="n" rel="next">Siguiente <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="DatosPreparacion.html" class="btn btn-neutral float-left" title="Datos y Preparación" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Anterior</a>
+        <a href="ImplementacionAcesorIA.html" class="btn btn-neutral float-right" title="Implementación de AsesorIA" accesskey="n" rel="next">Siguiente <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

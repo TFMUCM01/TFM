@@ -2,6 +2,12 @@
 
 El análisis de los mercados bursátiles combina distintos enfoques: el fundamental, basado en datos financieros para valorar el potencial de una empresa; el técnico, que estudia precios y volúmenes pasados para anticipar tendencias; y el de sentimiento, que mide percepciones colectivas a partir de noticias y redes sociales. A estos se suma el cuantitativo, que mediante algoritmos y machine learning integra grandes volúmenes de información. La unión de los cuatro ofrece una visión más completa y precisa para la toma de decisiones en inversión.
 
+```{figure} ../../Imagenes/Tradingview.gif
+:alt: TradingView
+:align: center
+:width: 60%
+Figura 1. Ejemplo de herramientas como TradingView
+```
 ---
 
 ## Alcance del proyecto (temporal, geográfico, sectorial)
@@ -39,23 +45,22 @@ El proyecto abarca el periodo 2020-2025, marcado por la COVID-19, la inflación 
 
 ## Recursos
 
-| Fuentes / Noticias | Ambientes / Programas | Lenguajes / Librerías / Herramientas |
-|--------------------|------------------------|--------------------------------------|
-| Yahoo Finance | Visual Studio | SQL |
-| TradingView | Google Colab | Python |
-| ABC | n8n | JavaScript |
-| BBC | Cloudflared | HTML |
-| El País | Tableau | Pandas |
-| Expansión | Docker | NumPy |
-| The Times | Snowflake | Transformers |
-| Bloomberg | Google Drive | Torch (PyTorch) |
-| El Economista |   | Snowflake Connector |
-|   |   | Matplotlib |
-|   |   | Seaborn |
-|   |   | Plotly (Graph Objects, Express) |
-|   |   | Statsmodels |
-|   |   | Git / GitHub |
-|   |   | OpenAI |
-|   |   | Hugging Face |
-|   |   | Telegram Bots |
+| Fuentes / Noticias | Ambientes / Programas | Lenguajes / Librerías / Herramientas | Modelos / Técnicas               | Automatización / Infraestructura |
+|--------------------|------------------------|--------------------------------------|----------------------------------|----------------------------------|
+| Yahoo Finance      | Visual Studio          | SQL                                  | CAPM, Optimización de Portafolio | GitHub Actions                   |
+| TradingView        | Google Colab           | Python                               | Validación de índices            | Cron Jobs                        |
+| ABC                | n8n                    | JavaScript                           | Chatbots                         | n8n Workflows                    |
+| BBC                | Cloudflared            | HTML                                 | Web Scraping                     | Túneles Cloudflare               |
+| El País            | Tableau                | Pandas                               | Análisis Exploratorio            | Dashboards Interactivos          |
+| Expansión          | Docker                 | NumPy                                | Asistentes conversacionales      | Contenedores                     |
+| The Times          | Snowflake              | Transformers                         | NLP, Sentiment Analysis          | Data Warehouse                   |
+| Bloomberg          | Google Drive           | Torch (PyTorch)                      | Deep Learning                    | Almacenamiento en la nube        |
+| El Economista      | SharePoint             | Snowflake Connector                  | Carga de datos                   | Model Hub                        |
+|                    |                        | Matplotlib                           | Visualización de datos           | CI/CD                            |
+|                    |                        | Statsmodels                          | Modelos econométricos            |                                  |
+|                    |                        | BeautifulSoup                        | Extracción de HTML               |                                  |
+|                    |                        | Git / GitHub                         | Control de versiones             |                                  |
+|                    |                        | OpenAI                               | LLMs, Embeddings                 |                                  |
+|                    |                        | Hugging Face                         | Transformers                     |                                  |
+|                    |                        | Telegram Bots                        |                                  |                                  |
 

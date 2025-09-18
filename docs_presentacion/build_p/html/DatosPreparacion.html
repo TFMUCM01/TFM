@@ -21,7 +21,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Índice" href="genindex.html" />
     <link rel="search" title="Búsqueda" href="search.html" />
-    <link rel="next" title="Modelos Predictivos" href="ModeloPredictivo.html" />
+    <link rel="next" title="Automatización Financiera" href="AutomatizacionFinanciera.html" />
     <link rel="prev" title="Modelos Teoricos" href="MarcoTeorico.html" /> 
 </head>
 
@@ -47,28 +47,23 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Portada.html">Portada</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Introduccion.html">Introducción</a></li>
 <li class="toctree-l1"><a class="reference internal" href="DescripcionProblema.html">Descripción Problema</a></li>
 <li class="toctree-l1"><a class="reference internal" href="MarcoTeorico.html">Modelos Teoricos</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Datos y Preparación</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#titulares-de-noticieros">Titulares de noticieros</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#extraccion-de-titulares">Extracción de titulares</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#carga-del-dataframe-de-titulares-de-noticieros-en-el-datalake">Carga del DataFrame de titulares de noticieros en el DataLake</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="#titulares-de-noticieros">Titulares de noticieros</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#precios-por-tickers">Precios por tickers</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#scraping-de-indices-europeos-en-tradingview">Scraping de índices europeos en TradingView</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#estados-financieros">Estados Financieros</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ratios-financieros">Ratios Financieros</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#analisis-de-sostenibilidad-esg">Análisis de Sostenibilidad ESG</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="ModeloPredictivo.html">Modelos Predictivos</a></li>
-<li class="toctree-l1"><a class="reference internal" href="AutomatizacionFinanciera.html">Automatizacion Financiera</a></li>
+<li class="toctree-l1"><a class="reference internal" href="AutomatizacionFinanciera.html">Automatización Financiera</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ImplementacionAcesorIA.html">Implementación de AsesorIA</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Conclusiones.html">Conclusiones</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Bibliografia.html">Bibliografía</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Anexos.html">Anexos</a></li>
 </ul>
 
         </div>
@@ -97,124 +92,71 @@
              
   <section id="datos-y-preparacion">
 <h1>Datos y Preparación<a class="headerlink" href="#datos-y-preparacion" title="Link to this heading"></a></h1>
-<p>Este trabajo combina dos fuentes de información complementarias para anticipar el comportamiento de acciones europeas:</p>
-<p>Señales de sentimiento obtenidas mediante scraping de titulares de medios generalistas y económicos (BBC, ABC, El Economista, Bloomberg Europa, El País, The Times y Expansión), tras un proceso de depuración y normalización.</p>
-<p>Datos cuantitativos de mercado y financieros (OHLCV y estados contables), descargados y consolidados en Snowflake con controles de coherencia.</p>
-<p>Ambas fuentes se integraron en un único dataset analítico a nivel (ticker, fecha), que incorpora rendimientos, rezagos, volumen y métricas de sentimiento agregadas. Este dataset constituye la base de los modelos predictivos, aportando señales de compra/venta más robustas al combinar información textual y numérica.</p>
+<p>Este trabajo integra dos fuentes para anticipar el comportamiento de acciones europeas:</p>
+<ul class="simple">
+<li><p>Sentimiento obtenido de titulares de medios económicos y generalistas, tras depuración y normalización.</p></li>
+<li><p>Datos de mercado y financieros (OHLCV y contables), consolidados en Snowflake con controles de calidad.</p></li>
+</ul>
+<figure class="align-center" id="id1">
+<a class="reference internal image-reference" href="_images/FlujoScraping.jpeg"><img alt="FlujoScraping" src="_images/FlujoScraping.jpeg" style="width: 100%;" />
+</a>
+<figcaption>
+<p><span class="caption-text"><strong>Figura 5.</strong> Flujograma del modelo de scrapping</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
 <section id="titulares-de-noticieros">
 <h2>Titulares de noticieros<a class="headerlink" href="#titulares-de-noticieros" title="Link to this heading"></a></h2>
-<p>Como primera fase, se llevó a cabo la recopilación de titulares procedentes de noticieros financieros y generalistas de acceso público mediante sus plataformas web y archivos digitales, los cuales fueron posteriormente procesados a través de técnicas de análisis de texto con el fin de filtrar e identificar aquellas noticias con mayor relevancia y potencial de impacto en el comportamiento bursátil de las acciones.</p>
-<p>Ejemplo de base da datos de titulares:</p>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>fecha</p></th>
-<th class="head"><p>titular</p></th>
-<th class="head"><p>url_archivo</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>20250101</p></td>
-<td><p>Accessibility Links</p></td>
-<td><p>https://web.archive.org/web/20250101234554/https://www.thetimes.com/</p></td>
-</tr>
-<tr class="row-odd"><td><p>20250101</p></td>
-<td><p>MiCA, entre la proteccion al usuario y la soberania monetaria</p></td>
-<td><p>https://web.archive.org/web/20241227062856/https://elpais.com/economia/</p></td>
-</tr>
-<tr class="row-even"><td><p>20250101</p></td>
-<td><p>The Year AI Broke Into Music</p></td>
-<td><p>https://web.archive.org/web/20250102035656/https://www.bloomberg.com/europe</p></td>
-</tr>
-</tbody>
-</table>
-<p><img alt="Noticia times" src="_images/thetimes.png" /></p>
-<p>Para la orquestación se ha utilizado la herramienta <strong>n8n</strong>, una plataforma de automatización en la que se centraliza el código encargado de realizar las solicitudes a las distintas API’s y de aplicar los modelos de análisis de sentimiento. En particular, se han empleado los siguientes modelos:</p>
-<ul class="simple">
-<li><p><strong>bert-base-multilingual-uncased</strong>, para el análisis de noticias en español.</p></li>
-<li><p><strong>DistilRoberta-financial-sentiment</strong>, especializado en noticias financieras en inglés.</p></li>
-</ul>
+<p>Como primera fase, se llevó a cabo la recopilación de titulares procedentes de noticieros financieros y generalistas de acceso público mediante sus plataformas web y archivos digitales, los cuales fueron posteriormente procesados a través de técnicas de análisis de texto con el fin de identificar aquellas noticias con mayor relevancia y potencial de impacto en el comportamiento bursátil de las acciones.</p>
+<figure class="align-center" id="id2">
+<a class="reference internal image-reference" href="_images/thetimes.png"><img alt="Noticia times" src="_images/thetimes.png" style="width: 80%;" />
+</a>
+<figcaption>
+<p><span class="caption-text"><strong>Figura 6.</strong> Representación de noticieros extraidos</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+</figcaption>
+</figure>
 <p>Estos modelos generan una probabilidad asociada a cada noticia, lo que permite clasificarla como <strong>positiva</strong>, <strong>negativa</strong> o <strong>neutral</strong>. Aunque el detalle de la aplicación de los modelos se desarrolla en una sección posterior, en este apartado se describe el procedimiento de descarga de titulares desde las API’s y la construcción del <em>data lake</em> en <strong>Snowflake</strong>.</p>
-<p><a class="reference download internal" download="" href="_downloads/b28b77ec8da5c3e1611bce40c9d6809a/DigSentimientos.png"><span class="xref download myst"><img alt="Diagrama de Sentimientos" src="_images/DigSentimientos.png" /></span></a></p>
-<hr class="docutils" />
-<section id="extraccion-de-titulares">
-<h3>Extracción de titulares<a class="headerlink" href="#extraccion-de-titulares" title="Link to this heading"></a></h3>
-<p>Una vez verificada la última fecha de carga y obtenidas las URL de las API’s, se procede con la solicitud de la información. Ahora se crea la función está diseñada para obtener los titulares de noticias desde una página web archivada en la Wayback Machine. Para ello, accede al contenido del snapshot, identifica los encabezados relevantes dentro del documento HTML y aplica reglas de filtrado para asegurar que los textos extraídos correspondan efectivamente a titulares. En función del medio, se utilizan criterios específicos de validación, y los resultados se almacenan en una lista estructurada.</p>
-<p>Módulo de descarga en API’s</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="k">def</span><span class="w"> </span><span class="nf">extraer_titulares</span><span class="p">(</span><span class="n">snapshot_url</span><span class="p">,</span> <span class="n">fecha_str</span><span class="p">,</span> <span class="n">fuente</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="linenos"> 2</span>    <span class="n">titulares</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="linenos"> 3</span>    <span class="k">try</span><span class="p">:</span>
-<span class="linenos"> 4</span>        <span class="n">res</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">snapshot_url</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">SNAPSHOT_TIMEOUT</span><span class="p">)</span>
-<span class="linenos"> 5</span>        <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="s1">&#39;html.parser&#39;</span><span class="p">)</span>
-<span class="linenos"> 6</span>        <span class="n">encabezados</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">([</span><span class="s1">&#39;h1&#39;</span><span class="p">,</span> <span class="s1">&#39;h2&#39;</span><span class="p">,</span> <span class="s1">&#39;h3&#39;</span><span class="p">])</span>
-<span class="linenos"> 7</span>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">fuente</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">encabezados</span><span class="p">)</span><span class="si">}</span><span class="s2"> encabezados encontrados en </span><span class="si">{</span><span class="n">snapshot_url</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="linenos"> 8</span>
-<span class="linenos"> 9</span>        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">encabezados</span><span class="p">:</span>
-<span class="linenos">10</span>            <span class="n">texto</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">get_text</span><span class="p">(</span><span class="n">strip</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="linenos">11</span>            <span class="n">clases</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;class&#39;</span><span class="p">,</span> <span class="p">[]))</span> <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;class&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
-<span class="linenos">12</span>
-<span class="linenos">13</span>            <span class="k">if</span> <span class="n">fuente</span> <span class="o">==</span> <span class="s2">&quot;THE TIMES&quot;</span><span class="p">:</span>
-<span class="linenos">14</span>                <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="bp">cls</span> <span class="ow">in</span> <span class="n">clases</span> <span class="k">for</span> <span class="bp">cls</span> <span class="ow">in</span> <span class="p">[</span>
-<span class="linenos">15</span>                    <span class="s1">&#39;responsive__HeadlineContainer-sc-3t8ix5-3&#39;</span><span class="p">,</span>
-<span class="linenos">16</span>                    <span class="s1">&#39;responsive__Heading-sc-1k9kzho-1&#39;</span><span class="p">,</span>
-<span class="linenos">17</span>                    <span class="s1">&#39;responsive__Title-sc-1ij0d4n-5&#39;</span>
-<span class="linenos">18</span>                <span class="p">])</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">texto</span><span class="o">.</span><span class="n">split</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
-<span class="linenos">19</span>                    <span class="n">titulares</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
-<span class="linenos">20</span>                        <span class="s2">&quot;fecha&quot;</span><span class="p">:</span> <span class="n">fecha_str</span><span class="p">,</span>
-<span class="linenos">21</span>                        <span class="s2">&quot;titular&quot;</span><span class="p">:</span> <span class="n">texto</span><span class="p">,</span>
-<span class="linenos">22</span>                        <span class="s2">&quot;url_archivo&quot;</span><span class="p">:</span> <span class="n">snapshot_url</span>
-<span class="linenos">23</span>                    <span class="p">})</span>
-<span class="linenos">24</span>            <span class="k">else</span><span class="p">:</span>
-<span class="linenos">25</span>                <span class="k">if</span> <span class="n">texto</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">texto</span><span class="o">.</span><span class="n">split</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
-<span class="linenos">26</span>                    <span class="n">titulares</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
-<span class="linenos">27</span>                        <span class="s2">&quot;fecha&quot;</span><span class="p">:</span> <span class="n">fecha_str</span><span class="p">,</span>
-<span class="linenos">28</span>                        <span class="s2">&quot;titular&quot;</span><span class="p">:</span> <span class="n">texto</span><span class="p">,</span>
-<span class="linenos">29</span>                        <span class="s2">&quot;url_archivo&quot;</span><span class="p">:</span> <span class="n">snapshot_url</span>
-<span class="linenos">30</span>                    <span class="p">})</span>
-<span class="linenos">31</span>
-<span class="linenos">32</span>    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-<span class="linenos">33</span>        <span class="n">log_error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">fuente</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="s1">&#39;GENERAL&#39;</span><span class="si">}</span><span class="s2">] Error accediendo a snapshot: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="linenos">34</span>
-<span class="linenos">35</span>    <span class="k">return</span> <span class="n">titulares</span>
-</pre></div>
-</div>
-</section>
-<hr class="docutils" />
-<section id="carga-del-dataframe-de-titulares-de-noticieros-en-el-datalake">
-<h3>Carga del DataFrame de titulares de noticieros en el DataLake<a class="headerlink" href="#carga-del-dataframe-de-titulares-de-noticieros-en-el-datalake" title="Link to this heading"></a></h3>
-<p>Por último, se valida si el <strong>DataFrame</strong> contiene información; en caso de estar vacío, no se ejecuta ninguna acción.<br />
-En caso contrario, se transforma la columna de fecha al tipo de dato adecuado y se establece la conexión con <strong>Snowflake</strong> mediante las credenciales configuradas en el entorno.</p>
-<p>Si la tabla de destino no existe, esta se crea con un esquema predefinido que incluye los campos: <strong>fecha</strong>, <strong>titular de la noticia</strong>, <strong>URL del snapshot</strong>, <strong>fuente</strong> e <strong>idioma</strong>. Posteriormente, se realiza una inserción en bloque de todos los registros del DataFrame, lo que permite almacenar de forma eficiente los titulares extraídos de los medios archivados, garantizando su disponibilidad para procesos posteriores de análisis o visualización.</p>
+<figure class="align-center" id="id3">
+<a class="reference internal image-reference" href="_images/DigSentimientos.png"><img alt="Diagrama de Sentimientos" src="_images/DigSentimientos.png" style="width: 110%;" />
+</a>
+<figcaption>
+<p><span class="caption-text"><strong>Figura 7.</strong> Flujo de proceso de scrapping</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p>En este proceso tenemos el data lake el cual se alimenta nuestros análisis a diario y lo integra en uno solo para que el análisis tanto del visualizador como el bot en telegram tengan la información correspondiente para el cliente.</p>
+<figure class="align-center" id="fig-snowflake-noticias">
+<a class="reference internal image-reference" href="_images/Snowflake_noticias.png"><img alt="Snowflake_noticias" src="_images/Snowflake_noticias.png" style="width: 100%;" />
+</a>
+<figcaption>
+<p><span class="caption-text"><strong>Figura 8.</strong> Base de datos en <strong>Snowflake</strong></span><a class="headerlink" href="#fig-snowflake-noticias" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p>Tabla: Noticieros descargados:</p>
 <table class="docutils align-default">
 <thead>
-<tr class="row-odd"><th class="head"><p>FECHA</p></th>
+<tr class="row-odd"><th class="head"><p>ID</p></th>
+<th class="head"><p>FECHA</p></th>
 <th class="head"><p>TITULAR</p></th>
 <th class="head"><p>URL_ARCHIVO</p></th>
-<th class="head"><p>FUENTE</p></th>
-<th class="head"><p>IDIOMA</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>2024-01-16</p></td>
-<td><p>España desoye a Europa y se resiste a crear un consejo de la productividad</p></td>
-<td><p><a class="reference external" href="https://web.archive.org/web/20240119085343/https://www.abc.es/economia/">Link</a></p></td>
-<td><p>ABC</p></td>
-<td><p>es</p></td>
+<tr class="row-even"><td><p>cfee822f-4744-413c-b175-06b74a31b269</p></td>
+<td><p>09/15/25</p></td>
+<td><p>Why India’s Supreme Court is “a men’s club”</p></td>
+<td><p><a class="reference external" href="https://web.archive.org/web/20250915120000/https://www.bbc.com/news/">Link</a></p></td>
 </tr>
-<tr class="row-odd"><td><p>2024-01-16</p></td>
-<td><p>Un patinazo de Montoro aboca a Hacienda a pagar devoluciones millonarias a las grandes empresas</p></td>
-<td><p><a class="reference external" href="https://web.archive.org/web/20240119085343/https://www.abc.es/economia/">Link</a></p></td>
-<td><p>ABC</p></td>
-<td><p>es</p></td>
+<tr class="row-odd"><td><p>27a933d1-634f-442e-aa1f-e47bfdad666d</p></td>
+<td><p>09/15/25</p></td>
+<td><p>Pilar 2 y el papel de la OCDE en el panorama fiscal internacional</p></td>
+<td><p><a class="reference external" href="https://web.archive.org/web/20250915120000/https://www.expansion.com/">Link</a></p></td>
 </tr>
-<tr class="row-even"><td><p>2024-01-16</p></td>
-<td><p>Cataluña enfila 2024 con 10.000 empresas fugadas tras el “procés”</p></td>
-<td><p><a class="reference external" href="https://web.archive.org/web/20240119085343/https://www.abc.es/economia/">Link</a></p></td>
-<td><p>ABC</p></td>
-<td><p>es</p></td>
+<tr class="row-even"><td><p>c1d7c991-e8cd-4e90-955f-1c5fe8456739</p></td>
+<td><p>09/15/25</p></td>
+<td><p>Así fomenta el empleo el mercado de vehículos de ocasión</p></td>
+<td><p><a class="reference external" href="https://web.archive.org/web/20250915120000/https://elpais.com/economia/">Link</a></p></td>
 </tr>
 </tbody>
 </table>
-</section>
 </section>
 <hr class="docutils" />
 <section id="precios-por-tickers">
@@ -280,9 +222,13 @@ En caso contrario, se transforma la columna de fecha al tipo de dato adecuado y 
 </tr>
 </tbody>
 </table>
-<section id="scraping-de-indices-europeos-en-tradingview">
-<h3>Scraping de índices europeos en TradingView<a class="headerlink" href="#scraping-de-indices-europeos-en-tradingview" title="Link to this heading"></a></h3>
-<p>Fuente principal: TradingView, empleada para obtener los tickers de referencia de las principales bolsas europeas.</p>
+<figure class="align-center" id="id4">
+<a class="reference internal image-reference" href="_images/FlujoYahoo.jpeg"><img alt="FlujoYahoo" src="_images/FlujoYahoo.jpeg" style="width: 100%;" />
+</a>
+<figcaption>
+<p><span class="caption-text"><strong>Figura 9.</strong> Flujograma del modelo de extracción de datos en Yahoo Finance</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
+</figcaption>
+</figure>
 <p>Ejemplos de DataFrame de stickers:</p>
 <table class="docutils align-default">
 <thead>
@@ -310,12 +256,18 @@ En caso contrario, se transforma la columna de fecha al tipo de dato adecuado y 
 </tr>
 </tbody>
 </table>
-<p>PONER FOTO DE TRAIDINGVIEW</p>
-</section>
+<figure class="align-center" id="id5">
+<a class="reference internal image-reference" href="_images/TV_componentes.gif"><img alt="tradingview" src="_images/TV_componentes.gif" style="width: 100%;" />
+</a>
+<figcaption>
+<p><span class="caption-text"><strong>Figura 10.</strong> Acciones que actualmente pertenecen en al IBEX35. Ejemplo de los componentes que hemos extraídos.</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<hr class="docutils" />
 <section id="estados-financieros">
 <h3>Estados Financieros<a class="headerlink" href="#estados-financieros" title="Link to this heading"></a></h3>
-<p>Este script es importante porque automatiza la recopilación y almacenamiento de estados financieros anuales (balance, cuenta de resultados y flujos de caja) desde Yahoo Finance, asegurando que en Snowflake solo se guarden los años faltantes y evitando duplicados. Los estados financieros son la base del análisis fundamental, ya que muestran la salud económica de una empresa: el balance indica qué posee y qué debe, la cuenta de resultados revela si es rentable y el estado de flujos de efectivo refleja su liquidez real. A partir de estos datos se calculan ratios clave como ROA, ROE, margen neto y deuda/equity, fundamentales para evaluar la solidez, rentabilidad y riesgos de una compañía, lo que convierte al script en una pieza esencial para integrar análisis financiero sólido dentro de tu proyecto.</p>
-<p>PONER LO DE API</p>
+<p>En nuestras bases de dato necesitamos para el análisis técnico los estados financieros de las empresas analizadas y en esto se reúne la información contable clave de la empresa, organizada por año. Incluye el balance (activos, pasivos y patrimonio), la cuenta de resultados (ingresos, gastos y beneficio neto) y los flujos de efectivo (operativo, de inversión y de financiación), además de indicadores derivados como el margen neto, el ROA, el ROE y el ratio deuda/patrimonio. Esta estructura no solo permite analizar la evolución histórica de la compañía, sino también evaluar su solidez financiera, rentabilidad y nivel de endeudamiento de manera comparativa y objetiva.</p>
+<p>Tabla: Ratios descargados:</p>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>TICKER</p></th>
@@ -390,6 +342,67 @@ En caso contrario, se transforma la columna de fecha al tipo de dato adecuado y 
 </tr>
 </tbody>
 </table>
+<figure class="align-center" id="id6">
+<a class="reference internal image-reference" href="_images/Docker.jpeg"><img alt="Docker" src="_images/Docker.jpeg" style="width: 100%;" />
+</a>
+<figcaption>
+<p><span class="caption-text"><strong>Figura 11.</strong> Encendida del control de Docker.</span><a class="headerlink" href="#id6" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="ratios-financieros">
+<h3>Ratios Financieros<a class="headerlink" href="#ratios-financieros" title="Link to this heading"></a></h3>
+<p>Esta tabla muestra los principales ratios de análisis financiero. Incluye indicadores de valoración como el PER y el Price to Book, métricas de rentabilidad como el EV/EBITDA, así como el dividend yield y el payout ratio para entender la política de dividendos. Además, aporta información sobre la capitalización bursátil, el valor de empresa y las acciones en circulación, lo que permite evaluar el tamaño y la posición de la compañía en el mercado.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>TICKER</p></th>
+<th class="head"><p>PE_TRAILING</p></th>
+<th class="head"><p>PE_FORWARD</p></th>
+<th class="head"><p>PRICE_TO_BOOK</p></th>
+<th class="head"><p>EV_TO_EBITDA</p></th>
+<th class="head"><p>DIVIDEND_YIELD</p></th>
+<th class="head"><p>PAYOUT_RATIO</p></th>
+<th class="head"><p>MARKET_CAP</p></th>
+<th class="head"><p>ENTERPRISE_VALUE</p></th>
+<th class="head"><p>SHARES_OUTSTANDING</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>A2A.MI</p></td>
+<td><p>8.253846</p></td>
+<td><p>11.922221</p></td>
+<td><p>1.3953185</p></td>
+<td><p>6.109</p></td>
+<td><p>4.66</p></td>
+<td><p>0.3868</p></td>
+<td><p>6804686848</p></td>
+<td><p>12437948416</p></td>
+<td><p>3128590080</p></td>
+</tr>
+<tr class="row-odd"><td><p>AAF.L</p></td>
+<td><p>32.05714</p></td>
+<td><p>18.7</p></td>
+<td><p>316.05634</p></td>
+<td><p>6.516</p></td>
+<td><p>2.19</p></td>
+<td><p>0.71650004</p></td>
+<td><p>8183037440</p></td>
+<td><p>13996040192</p></td>
+<td><p>3646629888</p></td>
+</tr>
+<tr class="row-even"><td><p>AAL.L</p></td>
+<td><p></p></td>
+<td><p>15.612122</p></td>
+<td><p>158.78691</p></td>
+<td><p>6.605</p></td>
+<td><p>0.94</p></td>
+<td><p>5.6102004</p></td>
+<td><p>27529195520</p></td>
+<td><p>45797920768</p></td>
+<td><p>1068680000</p></td>
+</tr>
+</tbody>
+</table>
 </section>
 <section id="analisis-de-sostenibilidad-esg">
 <h3>Análisis de Sostenibilidad ESG<a class="headerlink" href="#analisis-de-sostenibilidad-esg" title="Link to this heading"></a></h3>
@@ -399,6 +412,7 @@ En caso contrario, se transforma la columna de fecha al tipo de dato adecuado y 
 <li><p>Social (Social): evalúa cómo la empresa se relaciona con empleados, clientes, comunidades y sociedad en general. Ejemplos: condiciones laborales, diversidad e inclusión, derechos humanos, impacto en la comunidad.</p></li>
 <li><p>Governance (Gobernanza): analiza cómo se gestiona y dirige la empresa. Ejemplos: independencia del consejo de administración, ética corporativa, transparencia, políticas contra la corrupción.</p></li>
 </ol>
+<p>Tabla: ESG descargados:</p>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>TICKER</p></th>
@@ -446,7 +460,7 @@ En caso contrario, se transforma la columna de fecha al tipo de dato adecuado y 
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Pie de página">
         <a href="MarcoTeorico.html" class="btn btn-neutral float-left" title="Modelos Teoricos" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Anterior</a>
-        <a href="ModeloPredictivo.html" class="btn btn-neutral float-right" title="Modelos Predictivos" accesskey="n" rel="next">Siguiente <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="AutomatizacionFinanciera.html" class="btn btn-neutral float-right" title="Automatización Financiera" accesskey="n" rel="next">Siguiente <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
