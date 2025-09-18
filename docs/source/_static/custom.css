@@ -15,11 +15,7 @@ p {
 
 /* Recuadro superior izquierdo (logo + título del doc) */
 .wy-side-nav-search, .bd-sidebar-primary .sidebar-header {
-<<<<<<< HEAD
-    background-color: #d4f1f4 !important;  /* aquí pones el color que quieras */
-=======
     background-color: #B3C9C3 !important;  /* verde claro */
->>>>>>> 5062e7f375c09351ca31db2eac833438f29ebaa5
     color: #ffffff !important;             /* texto en blanco para contraste */
 }
 
@@ -27,38 +23,21 @@ p {
 .wy-side-nav-search a,
 .wy-side-nav-search span,
 .bd-sidebar-primary .sidebar-header a {
-<<<<<<< HEAD
-    color: #000000 !important;
-=======
     color: #4C8074 !important;  /* verde oscuro */
->>>>>>> 5062e7f375c09351ca31db2eac833438f29ebaa5
 }
 
 /* Fondo del menú lateral izquierdo (parte inferior) */
 .wy-menu-vertical {
-<<<<<<< HEAD
-    background-color: #05445e !important;  /* color de fondo */
-}
-
-/* Opcional: color del texto en el menú */
-.wy-menu-vertical a {
-    color: #189ab4 !important;  /* blanco para contraste */
-=======
     background-color: #05445e !important;  /* verde oscuro */
 }
 
 /* Color del texto en el menú */
 .wy-menu-vertical a {
     color: #B3C9C3 !important;  /* verde claro */
->>>>>>> 5062e7f375c09351ca31db2eac833438f29ebaa5
 }
 
 /* Hover al pasar el ratón */
 .wy-menu-vertical a:hover {
-<<<<<<< HEAD
-    color: #000000 !important;  /* negro al pasar el ratón */
-    background-color: #bfbfbf !important;  /* gris más claro de hover */
-=======
     color: #ffffff !important;       /* texto en blanco */
     background-color: #B3C9C3 !important;  /* fondo verde claro */
 }
@@ -70,5 +49,4 @@ p {
 /* Scroll interno del menú lateral */
 .wy-side-scroll {
     background-color: #05445e !important;  /* mismo verde oscuro */
->>>>>>> 5062e7f375c09351ca31db2eac833438f29ebaa5
 }
